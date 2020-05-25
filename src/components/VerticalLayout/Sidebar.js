@@ -28,7 +28,6 @@ const SidebarContent = props => {
                             <span>Restaurants</span>
                         </Link>
                     </li>
-
                     <li className="menu-title">Home</li>
                     <li>
                         <Link to="/dashboard" className="waves-effect">
@@ -39,25 +38,19 @@ const SidebarContent = props => {
 
                     <li className="menu-title">Actions</li>
                     <li>
-                        <Link to="/dashboard" className="waves-effect">
-                            <i className="bx bx-receipt"></i>
-                            <span>Orders</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/dashboard" className="waves-effect">
+                        <Link to="/products" className="waves-effect">
                             <i className="bx bx-list-ul"></i>
                             <span>Products</span>
                         </Link>
                     </li>
                     <li>
-                        <Link to="/dashboard" className="waves-effect">
+                        <Link to="/menus" className="waves-effect">
                             <i className="bx bx-calendar"></i>
                             <span>Menus</span>
                         </Link>
                     </li>
                     <li>
-                        <Link to="/dashboard" className="waves-effect">
+                        <Link to="/tables" className="waves-effect">
                             <i className="bx bx-calendar"></i>
                             <span>Tables</span>
                         </Link>

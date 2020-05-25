@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Container, Row, Col, Card, CardBody, Media } from "reactstrap";
-import LatestTranaction from "./LatestTranaction";
+import LatestTranactionsRestaurant from "./LatestTranactionsRestaurant";
+import { TabContent, TabPane, Collapse, NavLink, NavItem, CardText, Nav, CardTitle, CardSubtitle, CardHeader } from "reactstrap";
+import classnames from "classnames";
+import LatestTranactionsTakeaway from "./LatestTranactionsTakeaway";
 
 class Dashboard extends Component {
     constructor(props) {
@@ -12,15 +15,25 @@ class Dashboard extends Component {
                 { title: "Revenue", iconClass: "bx-purchase-tag-alt", description: "$16.2" },
                 { title: "Revenue", iconClass: "bx-purchase-tag-alt", description: "$16.2" }
             ],
-            modal: false
+            modal: false,
+            activeTab1: "5"
         };
         this.togglemodal.bind(this);
+        this.toggle1 = this.toggle1.bind(this);
     }
 
     togglemodal = () => {
         this.setState(prevState => ({
             modal: !prevState.modal
         }));
+    }
+
+    toggle1(tab) {
+		if (this.state.activeTab1 !== tab) {
+			this.setState({
+				activeTab1: tab
+			});
+		}
     }
 
     render() {
@@ -59,7 +72,60 @@ class Dashboard extends Component {
 
                         <Row>
                             <Col lg="12">
-                                <LatestTranaction />
+                            <Card>
+									<CardBody>
+										<Nav pills className="navtab-bg nav-justified">
+											<NavItem>
+												<NavLink
+													style={{ cursor: "pointer" }}
+													className={classnames({
+														active: this.state.activeTab1 === "5"
+													})}
+													onClick={() => {
+														this.toggle1("5");
+													}}
+												>
+													Restaurant
+												</NavLink>
+											</NavItem>
+											<NavItem>
+												<NavLink
+													style={{ cursor: "pointer" }}
+													className={classnames({
+														active: this.state.activeTab1 === "6"
+													})}
+													onClick={() => {
+														this.toggle1("6");
+													}}
+												>
+													Takeaway
+												</NavLink>
+											</NavItem>
+										</Nav>
+
+										<TabContent activeTab={this.state.activeTab1}>
+											<TabPane tabId="5" className="p-3">
+												<Row>
+													<Col sm="12">
+														<CardText>
+                                                            <LatestTranactionsRestaurant />
+                          								</CardText>
+													</Col>
+												</Row>
+											</TabPane>
+											<TabPane tabId="6" className="p-3">
+												<Row>
+													<Col sm="12">
+														<CardText>
+                                                        <LatestTranactionsTakeaway />
+                          								</CardText>
+													</Col>
+												</Row>
+											</TabPane>
+										</TabContent>
+									</CardBody>
+								</Card>
+                                
                             </Col>
                         </Row>
                     </Container>

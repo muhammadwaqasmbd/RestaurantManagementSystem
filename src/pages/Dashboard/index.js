@@ -21,7 +21,7 @@ class Dashboard extends Component {
             modal: !prevState.modal
         }));
     }
-
+    
     render() {
         return (
             <React.Fragment>

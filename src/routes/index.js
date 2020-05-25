@@ -47,11 +47,6 @@ import Login1 from "../pages/AuthenticationInner/Login";
 import Register1 from "../pages/AuthenticationInner/Register";
 import ForgetPwd1 from "../pages/AuthenticationInner/ForgetPassword";
 
-// Dashboard
-import Dashboard from "../pages/ResturantDashboard/index";
-import AdminDashboard from "../pages/Dashboard/index";
-import Resturants from "../pages/Resturants/index";
-
 // Charts
 import ChartApex from "../pages/Charts/Apexcharts";
 import ChartistChart from "../pages/Charts/ChartistChart";
@@ -71,10 +66,10 @@ import IconMaterialdesign from "../pages/Icons/IconMaterialdesign";
 import IconFontawesome from "../pages/Icons/IconFontawesome";
 
 //Tables
-import BasicTables from "../pages/Tables/BasicTables";
-import DatatableTables from "../pages/Tables/DatatableTables";
-import ResponsiveTables from "../pages/Tables/ResponsiveTables";
-import EditableTables from "../pages/Tables/EditableTables";
+import BasicTables from "../pages/TablesExample/BasicTables";
+import DatatableTables from "../pages/TablesExample/DatatableTables";
+import ResponsiveTables from "../pages/TablesExample/ResponsiveTables";
+import EditableTables from "../pages/TablesExample/EditableTables";
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -123,11 +118,28 @@ import ContactsGrid from "../pages/Contacts/contacts-grid";
 import ContactsList from "../pages/Contacts/contacts-list";
 import ContactsProfile from "../pages/Contacts/contacts-profile";
 
+// App
+import Dashboard from "../pages/ResturantDashboard/index";
+import AdminDashboard from "../pages/Dashboard/index";
+import Resturants from "../pages/Resturants/index";
+import Products from "../pages/Products/index";
+import Tables from "../pages/Tables/index";
+import Menus from "../pages/Menus/index";
+import AddMenu from "../pages/AddMenu/index";
+import AddProduct from "../pages/AddProduct/index";
+import AddRestaurant from "../pages/AddRestaurant/index";
+
 const authProtectedRoutes = [
 	{ path: "/admindashboard", component: AdminDashboard },
 	{ path: "/resturants", component: Resturants },
+	{ path: "/restaurant/:id", component: AddRestaurant },
 	{ path: "/dashboard", component: Dashboard },
 	{ path: "/dashboard/:id", component: Dashboard },
+	{ path: "/products", component: Products },
+	{ path: "/product/:id", component: AddProduct },
+	{ path: "/tables", component: Tables },
+	{ path: "/menus", component: Menus },
+	{ path: "/menu/:id", component: AddMenu },
 
 	//chat
 	{ path: "/chat", component: Chat },

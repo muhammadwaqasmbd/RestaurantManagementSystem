@@ -10,7 +10,7 @@ class UncontrolledBoard extends Component {
         const content = this.props.board;
         return (
             <React.Fragment>
-                <Row className="mb-4">
+                <Row className="mb-6">
                     <Col>
                         <Board
                             initialBoard={content}

@@ -4,14 +4,14 @@ import { Card, CardBody, CardTitle, Badge, Button, Collapse } from "reactstrap";
 import { Link } from "react-router-dom";
 import $ from 'jquery';
 
-class LatestTranaction extends Component {
+class LatestTranactionsTakeaway extends Component {
     constructor(props) {
         super(props);
         this.state = {
             transactions: [
-                { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
+                { id: "customCheck2", orderId: "#SK2539", billingName: "Jamal Burnett", Date: "19 Dec, 2020", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
                     details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
+                { id: "customCheck3", orderId: "#SK2541", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
                     details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
                 { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
                     details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
@@ -97,6 +97,9 @@ class LatestTranaction extends Component {
             this.btnNextClick = this.btnNextClick.bind(this);
             this.btnPrevClick = this.btnPrevClick.bind(this);
             this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
+    }
+
+    componentDidMount() {
     }
 
     componentDidUpdate() {
@@ -188,22 +191,34 @@ class LatestTranaction extends Component {
                 <Badge className={"font-size-12 badge-soft-" + transaction.badgeClass} color={transaction.badgeClass} pill>{transaction.paymentStatus}</Badge>
             </td>
             <td>
+                <i className={"fab " + transaction.methodIcon + " mr-1"}></i> {transaction.paymentMethod}
+            </td>
+            <td>
                 <Button type="button" 
-                style={{backgroundColor: this.state.expandedRows.includes(transaction.id) ? 'red' : 'blue'}}
+                style={{backgroundColor: !this.state.expandedRows.includes(transaction.id) ? 'red' : 'blue'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
                 onClick={clickCallback} 
                 key={"row-data-" + transaction.id}
                 >
                     {
-                        this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
+                        !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
                     }
+                </Button>
+                <Button type="button"
+                style={{backgroundColor: 'blue', marginLeft : '10px'}}
+                size="sm" 
+                className="btn-rounded waves-effect waves-light" 
+                onClick={clickCallback} 
+                key={"row-data-pos" + transaction.id}
+                >
+                   Payed or POS
                 </Button>
             </td>
         </tr>
         ];
         
-        if(this.state.expandedRows.includes(transaction.id)) {
+        if(!this.state.expandedRows.includes(transaction.id)) {
             itemRows.push(
                 <tr key={"row-expanded-" + transaction.id}>
                     <td>
@@ -286,8 +301,22 @@ class LatestTranaction extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
-                            Latest Transaction
+                            <div className="row">
+                                <div className="col-lg-6">
+                                Latest Transaction
+                                </div>
+                                <div className="col-lg-6 text-right">
+                                <Button type="button"
+                                style={{backgroundColor: 'green'}}
+                                size="sm" 
+                                className="btn-rounded waves-effect waves-light" 
+                                >
+                                Print Excel
+                                </Button>
+                                </div>
+                            </div>
                         </CardTitle>
+                        
                         <div className="table-responsive">
                             <table className="table table-centered table-nowrap mb-0">
                                 <thead className="thead-light">
@@ -298,6 +327,7 @@ class LatestTranaction extends Component {
                                         <th>Date</th>
                                         <th>Total</th>
                                         <th>Payment Status</th>
+                                        <th>Payment Method</th>
                                         <th>View Details</th>
                                     </tr>
                                 </thead>
@@ -331,4 +361,4 @@ class LatestTranaction extends Component {
     }
 }
 
-export default LatestTranaction;
+export default LatestTranactionsTakeaway;

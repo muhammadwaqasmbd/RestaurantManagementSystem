@@ -17,14 +17,14 @@ import "./assets/scss/theme.scss";
 import { initFirebaseBackend } from "./helpers/authUtils";
 
 const firebaseConfig = {
-	apiKey: "AIzaSyB42VNoc5Um2AbWd0O-s7EFpXOgL4F3qzE",
-  	authDomain: "serpent-tracker-b3b28.firebaseapp.com",
-  	databaseURL: "https://serpent-tracker-b3b28.firebaseio.com",
-  	projectId: "serpent-tracker-b3b28",
-  	storageBucket: "serpent-tracker-b3b28.appspot.com",
-  	messagingSenderId: "920783889172",
-  	appId: "1:920783889172:web:404f482d032e7b7b1e1801",
-  	measurementId: "G-VJFEM8J836"
+	 apiKey: "AIzaSyBzj6YFFuQKcAV0YSPD4LwxdkkAbzgUwP4",
+  authDomain: "confusionserver-311ec.firebaseapp.com",
+  databaseURL: "https://confusionserver-311ec.firebaseio.com",
+  projectId: "confusionserver-311ec",
+  storageBucket: "confusionserver-311ec.appspot.com",
+  messagingSenderId: "417792212865",
+  appId: "1:417792212865:web:5c18a85d47df2f0e0c3280",
+  measurementId: "G-SRB05V6P2J"
 };
 
 // init firebase backend

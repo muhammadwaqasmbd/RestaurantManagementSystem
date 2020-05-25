@@ -4,15 +4,16 @@ import { Card, CardBody, CardTitle, Button } from "reactstrap";
 import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
-import { submit } from "redux-form";
 
-class Resturants extends Component {
+class Menus extends Component {
     constructor(props) {
         super(props);
         this.state = {
             items: [
-                { id: "1", name: "Restaurant Dirk", feepercent : "2.5"},
-                { id: "2", name: "Restaurant Kiebert", feepercent : "3.2"}
+                { id: "1", name: 'Breakfast (Default)', openTime: "09:00", closeTime: "11:00"},
+                { id: "2", name: 'Lunch', openTime: "12:00", closeTime: "03:00"},
+                { id: "3", name: 'Dinner', openTime: "07:00", closeTime: "10:00"},
+                { id: "4", name: 'Takeaway', openTime: "09:00", closeTime: "12:00"}
             ],
             currentPage: 1,
             itemsPerPage: 5,
@@ -117,29 +118,12 @@ class Resturants extends Component {
         const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
         <tr key={"row-"+item.id}>
-            <td>{item.name}</td>
-            <td>{item.feepercent+" %"}</td>
             <td>
-                <Link to={"/dashboard/"+item.id}>
-                    <Button type="button" 
-                    style={{backgroundColor:'Green', width : '100px'}}
-                    size="sm" 
-                    className="btn-rounded waves-effect waves-light" 
-                    key={"dashboard-button-" + item.id}
-                    >
-                        Dashboard
-                    </Button>
-                </Link>
-                <Button type="button" 
-                style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={pauseCallback} 
-                key={"pause-button-" + item.id}
-                >
-                    Pause
-                </Button>
-                <Link to={"/restaurant/"+item.id}>
+                <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
+                <p className="text-muted mb-0">{item.openTime} - {item.closeTime}</p>
+            </td>
+            <td>
+                <Link to={"/menu/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
@@ -271,7 +255,7 @@ class Resturants extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
-                            RESTAURANTS
+                            Menus
                         </CardTitle>
                         <div className="table-responsive">
                             <Form
@@ -280,24 +264,24 @@ class Resturants extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
-                            <table className="table table-centered table-nowrap mb-0">
+                            <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '20%'}}>Restaurant</th>
-                                        <th style={{width: '40%'}}>Fee %</th>
-                                        <th style={{width: '40%'}}>Action</th>
+                                        <th style={{width: '80%'}}>Name</th>
+                                        <th style={{width: '20%'}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
                                     {allItemRows}
-                                </tbody>    
+                                </tbody>
+                                
                             </table>
-                            <Link to={"/restaurant/0"}>
+                            <Link to={"/menu/0"}>
                             <Button
                                 color="secondary"
                                 className="btn btn-secondary btn-lg btn-block waves-effect"
                             >
-                                Add New Item
+                                Add New Menu
                             </Button>
                             </Link>
                         </div>
@@ -316,9 +300,14 @@ class Resturants extends Component {
                         </div>
                     </CardBody>
                 </Card>
+                <Card>
+                    <CardBody>
+                    
+                    </CardBody>
+                </Card>
             </React.Fragment>
         );
     }
 }
 
-export default Resturants;
+export default Menus;

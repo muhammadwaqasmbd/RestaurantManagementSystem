@@ -11,8 +11,8 @@ class Resturants extends Component {
         super(props);
         this.state = {
             items: [
-                { id: "1", name: "Restaurant Dirk", feepercent : "2.5"},
-                { id: "2", name: "Restaurant Kiebert", feepercent : "3.2"}
+                { id: "1", img: '../../assets/images/companies/img-1.png', name: "Coca Cola", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "3", category: "Soft Drinks", menu: "Breakfast"},
+                { id: "2", img: '../../assets/images/companies/img-2.png', name: "Sprite", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "4", category: "Soft Drinks", menu: "Breakfast"}
             ],
             currentPage: 1,
             itemsPerPage: 5,
@@ -117,29 +117,18 @@ class Resturants extends Component {
         const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
         <tr key={"row-"+item.id}>
-            <td>{item.name}</td>
-            <td>{item.feepercent+" %"}</td>
+            <td><img src={item.img} alt="" className="avatar-sm" /></td>
             <td>
-                <Link to={"/dashboard/"+item.id}>
-                    <Button type="button" 
-                    style={{backgroundColor:'Green', width : '100px'}}
-                    size="sm" 
-                    className="btn-rounded waves-effect waves-light" 
-                    key={"dashboard-button-" + item.id}
-                    >
-                        Dashboard
-                    </Button>
-                </Link>
-                <Button type="button" 
-                style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={pauseCallback} 
-                key={"pause-button-" + item.id}
-                >
-                    Pause
-                </Button>
-                <Link to={"/restaurant/"+item.id}>
+                <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
+                <p className="text-muted mb-0">{item.subTitle}</p>
+            </td>
+            <td>{item.price}</td>
+            <td>{item.printerNo}</td>
+            <td>{item.id}</td>
+            <td>{item.category}</td>
+            <td>{item.menu}</td>
+            <td>
+                <Link to={"/product/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
@@ -271,7 +260,7 @@ class Resturants extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
-                            RESTAURANTS
+                            PRODUCTS
                         </CardTitle>
                         <div className="table-responsive">
                             <Form
@@ -280,24 +269,30 @@ class Resturants extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
-                            <table className="table table-centered table-nowrap mb-0">
+                            <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '20%'}}>Restaurant</th>
-                                        <th style={{width: '40%'}}>Fee %</th>
-                                        <th style={{width: '40%'}}>Action</th>
+                                        <th></th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Printer #</th>
+                                        <th>ID</th>
+                                        <th>Category</th>
+                                        <th>Menu</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
                                     {allItemRows}
-                                </tbody>    
+                                </tbody>
+                                
                             </table>
-                            <Link to={"/restaurant/0"}>
+                            <Link to={"/product/0"}>
                             <Button
                                 color="secondary"
                                 className="btn btn-secondary btn-lg btn-block waves-effect"
                             >
-                                Add New Item
+                                Add New Product
                             </Button>
                             </Link>
                         </div>
@@ -314,6 +309,11 @@ class Resturants extends Component {
                                 </nav>
                             </div>
                         </div>
+                    </CardBody>
+                </Card>
+                <Card>
+                    <CardBody>
+                    
                     </CardBody>
                 </Card>
             </React.Fragment>
