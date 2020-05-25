@@ -91,19 +91,19 @@ class Header extends Component {
               <div className="navbar-brand-box">
                 <Link to="/" className="logo logo-dark">
                   <span className="logo-sm">
-                    <img src={logo} alt="" height="22" />
+                    ORDER ME
                   </span>
                   <span className="logo-lg">
-                    <img src={logoDark} alt="" height="17" />
+                  ORDER ME
                   </span>
                 </Link>
 
                 <Link to="/" className="logo logo-light">
                   <span className="logo-sm">
-                    <img src={logoLightSvg} alt="" height="22" />
+                  ORDER ME
                   </span>
-                  <span className="logo-lg">
-                    <img src={logoLightPng} alt="" height="19" />
+                  <span className="logo-lg" style={{color:'white', fontSize:  "30px"}}>
+                  ORDER ME
                   </span>
                 </Link>
               </div>

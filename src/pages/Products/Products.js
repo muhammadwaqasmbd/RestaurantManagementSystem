@@ -11,8 +11,8 @@ class Resturants extends Component {
         super(props);
         this.state = {
             items: [
-                { id: "1", img: '../../assets/images/companies/img-1.png', name: "Coca Cola", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "3", category: "Soft Drinks", menu: "Breakfast"},
-                { id: "2", img: '../../assets/images/companies/img-2.png', name: "Sprite", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "4", category: "Soft Drinks", menu: "Breakfast"}
+                { id: "1", img: 'favicon.ico', name: "Coca Cola", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "3", category: "Soft Drinks", menu: "Breakfast"},
+                { id: "2", img: 'favicon.ico', name: "Sprite", subTitle: "A refinded subtitle to be defined", price: "250", printerNo: "4", category: "Soft Drinks", menu: "Breakfast"}
             ],
             currentPage: 1,
             itemsPerPage: 5,

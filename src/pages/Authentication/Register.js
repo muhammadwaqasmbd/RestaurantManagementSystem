@@ -53,7 +53,7 @@ class Register extends Component {
                       <Col className="col-7">
                         <div className="text-primary p-4">
                           <h5 className="text-primary">Free Register</h5>
-                          <p>Get your free Skote account now.</p>
+                          <p>Get your free ORDER ME account now.</p>
                         </div>
                       </Col>
                       <Col className="col-5 align-self-end">
@@ -95,17 +95,6 @@ class Register extends Component {
 
                         <div className="form-group">
                           <AvField
-                            name="email"
-                            label="Email"
-                            className="form-control"
-                            placeholder="Enter email"
-                            type="email"
-                            required
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <AvField
                             name="username"
                             label="Username"
                             type="text"
@@ -122,7 +111,6 @@ class Register extends Component {
                             placeholder="Enter Password"
                           />
                         </div>
-
                         <div className="mt-4">
                           <button
                             className="btn btn-primary btn-block waves-effect waves-light"
@@ -134,7 +122,7 @@ class Register extends Component {
 
                         <div className="mt-4 text-center">
                           <p className="mb-0">
-                            By registering you agree to the Skote{" "}
+                            By registering you agree to the ORDER ME{" "}
                             <Link to="#" className="text-primary">
                               Terms of Use
                             </Link>
@@ -156,8 +144,8 @@ class Register extends Component {
                     </Link>{" "}
                   </p>
                   <p>
-                    © {new Date().getFullYear()} Skote. Crafted with{" "}
-                    <i className="mdi mdi-heart text-danger"></i> by Themesbrand
+                    © {new Date().getFullYear()} ORDER ME. Crafted with{" "}
+                    <i className="mdi mdi-heart text-danger"></i>
                   </p>
                 </div>
               </Col>

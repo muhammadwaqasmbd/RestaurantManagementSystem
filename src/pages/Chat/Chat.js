@@ -153,7 +153,7 @@ class Chat extends Component {
                     <Container fluid>
 
                         {/* Render Breadcrumb */}
-                        <Breadcrumbs title="Skote" breadcrumbItem="Chat" />
+                        <Breadcrumbs title="ORDER ME ADMIN" breadcrumbItem="Chat" />
 
                         <Row>
                             <Col lg="12">

@@ -53,7 +53,7 @@ class Login extends Component {
                                             <Col className="col-7">
                                                 <div className="text-primary p-4">
                                                     <h5 className="text-primary">Welcome Back !</h5>
-                                                    <p>Sign in to continue to Skote.</p>
+                                                    <p>Sign in to continue to ORDER ME ADMIN.</p>
                                                 </div>
                                             </Col>
                                             <Col className="col-5 align-self-end">
@@ -78,7 +78,7 @@ class Login extends Component {
                                                 {this.props.error && this.props.error ? <Alert color="danger">{this.props.error}</Alert> : null}
 
                                                 <div className="form-group">
-                                                    <AvField name="email" label="Email" value="admin@themesbrand.com" className="form-control" placeholder="Enter email" type="email" required />
+                                                    <AvField name="email" label="Email" value="admin@orderme.com" className="form-control" placeholder="Enter email" type="email" required />
                                                 </div>
 
                                                 <div className="form-group">
@@ -103,7 +103,7 @@ class Login extends Component {
                                 </Card>
                                 <div className="mt-5 text-center">
                                     <p>Don't have an account ? <Link to="register" className="font-weight-medium text-primary"> Signup now </Link> </p>
-                                    <p>© {new Date().getFullYear()} Skote. Crafted with <i className="mdi mdi-heart text-danger"></i> by Themesbrand</p>
+                                    <p>© {new Date().getFullYear()} ORDER ME. Crafted with <i className="mdi mdi-heart text-danger"></i> </p>
                                 </div>
                             </Col>
                         </Row>

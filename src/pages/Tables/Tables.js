@@ -13,12 +13,12 @@ class Tables extends Component {
         super(props);
         this.state = {
             tables: [
-                { id: "1", qr: "3245892", table: "1", takeway: "Yes", directpayment: "No"},
-                { id: "2", qr: "9842325", table: "", takeway: "No", directpayment: "Yes"},
-                { id: "3", qr: "3245892", table: "", takeway: "Yes", directpayment: "No"},
-                { id: "4", qr: "9842325", table: "5", takeway: "No", directpayment: "Yes"},
-                { id: "5", qr: "3245892", table: "", takeway: "Yes", directpayment: "No"},
-                { id: "6", qr: "9842325", table: "7", takeway: "No", directpayment: "Yes"}
+                { id: "1", qr: "3245892", table: "1", takeaway: "Yes", directpayment: "No"},
+                { id: "2", qr: "9842325", table: "", takeaway: "No", directpayment: "Yes"},
+                { id: "3", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
+                { id: "4", qr: "9842325", table: "5", takeaway: "No", directpayment: "Yes"},
+                { id: "5", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
+                { id: "6", qr: "9842325", table: "7", takeaway: "No", directpayment: "Yes"}
             ],
             editableRows : [],
             currentPage: 1,
@@ -38,7 +38,7 @@ class Tables extends Component {
             selectedItems: [],
             tableNo : '',
             qrcode: '',
-            takeway: '',
+            takeaway: '',
             directpayment: ''
 
         };
@@ -133,6 +133,9 @@ class Tables extends Component {
         currentEditableRows.filter(id => id !== rowId) : 
         currentEditableRows.concat(rowId);
         this.setState({
+            tableNo : '',
+            takeaway : '',
+            directpayment : '',
             editableRows : newEditableRows
         });
     }
@@ -182,10 +185,10 @@ class Tables extends Component {
       }
     
       handleSubmit(event) {
-        //alert("qrcode"+ this.state.qrcode);
-        //alert("tableNo"+ this.state.tableNo);
-        //alert("takeway"+ this.state.takeway);
-        //alert("directpayment"+ this.state.directpayment);
+        alert("qrcode: "+ this.state.qrcode);
+        alert("tableNo: "+ this.state.tableNo);
+        alert("takeaway: "+ this.state.takeaway);
+        alert("directpayment: "+ this.state.directpayment);
         event.preventDefault();
         //var newTable = { id: "2", name: "Table Kiebert"};    
         //this.setState({ tables: this.state.tables.concat(newTable) 
@@ -227,14 +230,17 @@ class Tables extends Component {
 
       async onAssignClick(row) {
         const currentEditableRows = this.state.editableRows;
-        const isRowCurrentlyExpanded = currentEditableRows.includes(row);
-        const newEditableRows = isRowCurrentlyExpanded ? 
-        currentEditableRows.filter(id => id !== row) : 
-        currentEditableRows.concat(row);
-        this.setState({
-            editableRows : newEditableRows
-        });
-
+        if(currentEditableRows.length <= 0){
+            const isRowCurrentlyExpanded = currentEditableRows.includes(row);
+            const newEditableRows = isRowCurrentlyExpanded ? 
+            currentEditableRows.filter(id => id !== row) : 
+            currentEditableRows.concat(row);
+            const dataRow = this.state.tables.filter(row => row.id == newEditableRows[0]);
+            this.setState({
+                editableRows : newEditableRows,
+                qrcode : dataRow[0].qr    
+            });
+        }
       }
 
     renderTables(table) {
@@ -262,13 +268,15 @@ class Tables extends Component {
                     />
                 </td>
                 <td>
-                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeway} className="form-control">
+                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeaway} className="form-control">
+                        <option></option>
                         <option>Yes</option>
                         <option>No</option>
                     </select>
                 </td>
                 <td>
                     <select name="directpayment" onChange={this.handleFormChange} value={this.state.directpayment} className="form-control">
+                        <option></option>
                         <option>Yes</option>
                         <option>No</option>
                     </select>
@@ -305,7 +313,7 @@ class Tables extends Component {
             </td>
             <td>{table.qr}</td>
             <td>{table.table}</td>
-            <td>{table.takeway == "Yes" ? "Yes" : "No"}</td>
+            <td>{table.takeaway == "Yes" ? "Yes" : "No"}</td>
             <td>{table.directpayment == "Yes" ? "Yes" : "No"}</td>
             <td>
                 <Button type="button" 
@@ -317,7 +325,7 @@ class Tables extends Component {
                 >
                     Pause
                 </Button>
-
+                {table.table == ""?
                 <Button type="button" 
                 style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                 size="sm" 
@@ -328,6 +336,18 @@ class Tables extends Component {
                 >
                     Assign
                 </Button>
+                :
+                <Button type="button" 
+                style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
+                size="sm" 
+                className="btn-rounded waves-effect waves-light" 
+                //onClick={editRowCallback} 
+                onClick={() => this.onAssignClick(table.id)}
+                key={"assign-button-" + table.id}
+                >
+                    Unassign
+                </Button>
+                }
             </td>
         </tr>
         ];
@@ -430,7 +450,7 @@ class Tables extends Component {
                                         </th>
                                         <th style={{width: '15%'}}>QR #</th>
                                         <th style={{width: '15%'}}>Table #</th>
-                                        <th style={{width: '15%'}}>Takeway</th>
+                                        <th style={{width: '15%'}}>Takeaway</th>
                                         <th style={{width: '15%'}}>Direct Payment</th>
                                         <th style={{width: '30%', textAlign: "center"}}>Actions</th>
                                     </tr>
