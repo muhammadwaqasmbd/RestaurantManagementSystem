@@ -13,12 +13,12 @@ class Tables extends Component {
         super(props);
         this.state = {
             tables: [
-                { id: "1", qr: "3245892", table: "1", takeway: "Yes", directpayment: "No"},
-                { id: "2", qr: "9842325", table: "", takeway: "No", directpayment: "Yes"},
-                { id: "3", qr: "3245892", table: "", takeway: "Yes", directpayment: "No"},
-                { id: "4", qr: "9842325", table: "5", takeway: "No", directpayment: "Yes"},
-                { id: "5", qr: "3245892", table: "", takeway: "Yes", directpayment: "No"},
-                { id: "6", qr: "9842325", table: "7", takeway: "No", directpayment: "Yes"}
+                { id: "1", qr: "3245892", table: "1", takeaway: "Yes", directpayment: "No"},
+                { id: "2", qr: "9842325", table: "", takeaway: "No", directpayment: "Yes"},
+                { id: "3", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
+                { id: "4", qr: "9842325", table: "5", takeaway: "No", directpayment: "Yes"},
+                { id: "5", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
+                { id: "6", qr: "9842325", table: "7", takeaway: "No", directpayment: "Yes"}
             ],
             editableRows : [],
             currentPage: 1,
@@ -35,7 +35,11 @@ class Tables extends Component {
             newRows : [],
             name : '',
             checkedBoxCheck: false,
-            selectedItems: []
+            selectedItems: [],
+            tableNo : '',
+            qrcode: '',
+            takeaway: '',
+            directpayment: ''
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -48,8 +52,10 @@ class Tables extends Component {
         this.editTableRow = this.editTableRow.bind(this);
         this.pauseTable = this.pauseTable.bind(this);
         this.addNewRow = this.addNewRow.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+        this.handleFormChange = this.handleFormChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.onAssignClick = this.onAssignClick.bind(this);
+        this.handleTableNoFormChange = this.handleTableNoFormChange.bind(this);
     }
 
     componentDidUpdate() {
@@ -113,9 +119,6 @@ class Tables extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
 
-    handleDeleteTable(rowId){
-        this.setState({ confirm_both: true })
-    }
 
     editTable(id){
         console.log(id);
@@ -129,7 +132,12 @@ class Tables extends Component {
         const newEditableRows = isRowCurrentlyExpanded ? 
         currentEditableRows.filter(id => id !== rowId) : 
         currentEditableRows.concat(rowId);
-        this.setState({editableRows : newEditableRows});
+        this.setState({
+            tableNo : '',
+            takeaway : '',
+            directpayment : '',
+            editableRows : newEditableRows
+        });
     }
 
     pauseTable(id){
@@ -151,12 +159,36 @@ class Tables extends Component {
         $("#addr" + idx).hide();
       };
 
-      handleChange(event) {
-        this.setState({name: event.target.value});
+      handleFormChange(event) {
+        /*const val = event.target.value;
+        this.setState(oldState => {
+            const newStatus = oldState.tableNo.slice();
+            newStatus[index] = val;
+            return {
+                [event.target.name]: newStatus
+            };
+        });*/
+        const value = event.target.value;
+        this.setState({
+          [event.target.name]: value
+        });
+      }
+
+      handleTableNoFormChange(event){
+        this.setState({
+            editableRows: {
+              ...this.state.editableRows,
+              tableNo: event.target.value
+            }
+          });
+
       }
     
       handleSubmit(event) {
-        alert(this.state.name);
+        alert("qrcode: "+ this.state.qrcode);
+        alert("tableNo: "+ this.state.tableNo);
+        alert("takeaway: "+ this.state.takeaway);
+        alert("directpayment: "+ this.state.directpayment);
         event.preventDefault();
         //var newTable = { id: "2", name: "Table Kiebert"};    
         //this.setState({ tables: this.state.tables.concat(newTable) 
@@ -164,7 +196,6 @@ class Tables extends Component {
 
       toggleSelectAll() {
         let selectedItems = [];
-    
         var checkedBoxCheck = !this.state.checkedBoxCheck;
         // this.setState({ checkedBoxCheck: checkedBoxCheck });
         if (checkedBoxCheck) {
@@ -182,7 +213,9 @@ class Tables extends Component {
     }
 
     async onItemSelect(row) {
+        
         const selectedItems = this.state.selectedItems.slice(0);
+        console.log("selectedItems: ",selectedItems);
         if (selectedItems.includes(row)) {
           selectedItems.splice(selectedItems.indexOf(row), 1);
         } else {
@@ -192,12 +225,26 @@ class Tables extends Component {
           selectedItems
         });
         console.log("Hello", this.state.selectedItems);
+
+      }
+
+      async onAssignClick(row) {
+        const currentEditableRows = this.state.editableRows;
+        if(currentEditableRows.length <= 0){
+            const isRowCurrentlyExpanded = currentEditableRows.includes(row);
+            const newEditableRows = isRowCurrentlyExpanded ? 
+            currentEditableRows.filter(id => id !== row) : 
+            currentEditableRows.concat(row);
+            const dataRow = this.state.tables.filter(row => row.id == newEditableRows[0]);
+            this.setState({
+                editableRows : newEditableRows,
+                qrcode : dataRow[0].qr    
+            });
+        }
       }
 
     renderTables(table) {
         const editRowCallback = () => this.editTableRow(table.id);
-        const editCallback = () => this.editTable(table.id);
-        const deleteCallBack = () => this.handleDeleteTable(table.id);
         const pauseCallback = () => this.pauseTable(table.id);
         const itemRows = [
         this.state.editableRows.includes(table.id)  ? 
@@ -210,33 +257,38 @@ class Tables extends Component {
                 </td>
                 <td>{table.qr}</td>
                 <td>
-                    <input
+                    <Input
+                        key = {table.id}
                         type="text"
+                        id="tableNo"
+                        name="tableNo" 
                         className="form-control"
-                        value={table.table}
+                        value={this.state.tableNo}  
+                        onChange={this.handleFormChange}
                     />
                 </td>
                 <td>
-                    <Select
-                        className="select2"
-                        options={opts}
-                    />
-                </td>
-                <td>
-                    <select className="form-control">
+                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeaway} className="form-control">
+                        <option></option>
                         <option>Yes</option>
                         <option>No</option>
                     </select>
                 </td>
                 <td>
-                    <Button type="button" 
-                    style={{backgroundColor:'Green', width : '100px'}}
-                    size="sm" 
-                    className="btn-rounded waves-effect waves-light" 
-                    onClick={editCallback} 
-                    key={"update-button-" + table.id}
+                    <select name="directpayment" onChange={this.handleFormChange} value={this.state.directpayment} className="form-control">
+                        <option></option>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </td>
+                <td>
+                    <Button
+                        style={{backgroundColor: 'Green', width : '100px'}}
+                        size="sm" 
+                        className="btn-rounded waves-effect waves-light"
+                        form={"updateTableForm"}
                     >
-                        Update
+                    Save
                     </Button>
                     <Button type="button" 
                     style={{backgroundColor:'Red', width : '100px', marginLeft : '10px'}}
@@ -253,7 +305,6 @@ class Tables extends Component {
             <td>
                 <input
                     type="checkbox"
-                    // checked={this.state.selectedItems.includes(c.id)}
                     checked={this.state.selectedItems.includes(table.id)}
                     className="checkbox"
                     name="selectOptions"
@@ -262,8 +313,8 @@ class Tables extends Component {
             </td>
             <td>{table.qr}</td>
             <td>{table.table}</td>
-            <td>{table.takeway ? "Yes" : "No"}</td>
-            <td>{table.directpayment ? "Yes" : "No"}</td>
+            <td>{table.takeaway == "Yes" ? "Yes" : "No"}</td>
+            <td>{table.directpayment == "Yes" ? "Yes" : "No"}</td>
             <td>
                 <Button type="button" 
                 style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
@@ -274,73 +325,28 @@ class Tables extends Component {
                 >
                     Pause
                 </Button>
-
+                {table.table == ""?
                 <Button type="button" 
                 style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
-                onClick={editRowCallback} 
-                key={"edit-button-" + table.id}
+                //onClick={editRowCallback} 
+                onClick={() => this.onAssignClick(table.id)}
+                key={"assign-button-" + table.id}
                 >
-                    Edit
+                    Assign
                 </Button>
-
+                :
                 <Button type="button" 
-                style={{width : '100px', marginLeft : '10px'}}
+                style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
-                onClick={deleteCallBack} 
-                key={"delete-button-" + table.id}
+                //onClick={editRowCallback} 
+                onClick={() => this.onAssignClick(table.id)}
+                key={"assign-button-" + table.id}
                 >
-                    Delete
+                    Unassign
                 </Button>
-                {this.state.confirm_both ? (
-                        <SweetAlert
-                            title="Are you sure?"
-                            warning
-                            showCancel
-                            confirmBtnBsStyle="success"
-                            cancelBtnBsStyle="danger"
-                            onConfirm={() =>
-                                this.setState({
-                                    confirm_both: false,
-                                    success_dlg: true,
-                                    dynamic_title: "Deleted",
-                                    dynamic_description: "Your file has been deleted."
-                                })
-                            }
-                            onCancel={() =>
-                                this.setState({
-                                    confirm_both: false,
-                                    error_dlg: true,
-                                    dynamic_title: "Cancelled",
-                                    dynamic_description: "Your imaginary file is safe :)"
-                                })
-                            }
-                        >
-                            You won't be able to revert this!
-                        </SweetAlert>
-                    ) : null
-                }
-                {this.state.success_dlg ? (
-                        <SweetAlert
-                            success
-                            title={this.state.dynamic_title}
-                            onConfirm={() => this.setState({ success_dlg: false })}
-                        >
-                            {this.state.dynamic_description}
-                        </SweetAlert>
-                    ) : null}
-
-                    {this.state.error_dlg ? (
-                        <SweetAlert
-                            error
-                            title={this.state.dynamic_title}
-                            onConfirm={() => this.setState({ error_dlg: false })}
-                        >
-                            {this.state.dynamic_description}
-                        </SweetAlert>
-                    ) : null
                 }
             </td>
         </tr>
@@ -423,11 +429,11 @@ class Tables extends Component {
                             </div>
                         </CardTitle>
                         <div className="table-responsive">
-                            <Form
+                        <Form
                                 className="repeater"
                                 encType="multipart/form-data"
                                 onSubmit={this.handleSubmit}
-                                id="addTableForm"
+                                id={"updateTableForm"}
                             ></Form>
                             <table className="table table-centered table-nowrap mb-0">
                                 <thead className="thead-light">
@@ -442,62 +448,18 @@ class Tables extends Component {
                                             onChange={this.toggleSelectAll.bind(this)}
                                         />
                                         </th>
-                                        <th style={{width: '10%'}}>QR #</th>
-                                        <th style={{width: '10%'}}>Table #</th>
-                                        <th style={{width: '10%'}}>Takeway</th>
-                                        <th style={{width: '10%'}}>Direct Payment</th>
-                                        <th style={{width: '50%', textAlign: "center"}}>Actions</th>
+                                        <th style={{width: '15%'}}>QR #</th>
+                                        <th style={{width: '15%'}}>Table #</th>
+                                        <th style={{width: '15%'}}>Takeaway</th>
+                                        <th style={{width: '15%'}}>Direct Payment</th>
+                                        <th style={{width: '30%', textAlign: "center"}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablesBody">
                                     {allItemRows}
-                                    {
-                                        this.state.newRows.map((item, idx) => (
-                                        <tr id={"addr" + idx} key={idx}>
-                                           
-                                            <td>
-                                                <Input
-                                                    type="text"
-                                                    id="name"
-                                                    name="name" 
-                                                    value={this.state.name} 
-                                                    onChange={this.handleChange}
-                                                />
-                                                </td>
-                                                <td>
-                                                    <Button
-                                                        style={{backgroundColor: 'Green', width : '100px'}}
-                                                        size="sm" 
-                                                        className="btn-rounded waves-effect waves-light"
-                                                        form="addTableForm"
-                                                    >
-                                                    Submit
-                                                    </Button>
-                                                    <Button
-                                                        onClick={e =>
-                                                        this.removeRow(e, idx)
-                                                        }
-                                                        style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
-                                                        size="sm" 
-                                                        className="btn-rounded waves-effect waves-light" 
-                                                    >
-                                                        {" "}
-                                                    Cancel{" "}
-                                                    </Button>
-                                                </td>
-                                    </tr>
-                                        ))
-                                    }
                                 </tbody>
                                 
                             </table>
-                            <Button
-                                color="secondary"
-                                className="btn btn-secondary btn-lg btn-block waves-effect"
-                                onClick={this.addNewRow}
-                            >
-                                Add New Table
-                            </Button>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import Dropzone from 'react-dropzone';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
-import Select from "react-select";
+import $ from 'jquery';
+import {baseUrl} from "../../helpers/baseUrl";
 
 const dropzoneStyle = {
     width  : "100%",
@@ -20,12 +21,14 @@ class Product extends Component {
             price: 0,
             category : '',
             vat : '',
-            defaultAttr : '',
+            defaultAttrName : '',
             defaultAttrPrice: '',
             attributes : [],
             attrCount: 1,
-            attr: [],
-            attrValues : [],
+            attrName: [],
+            attrPrice: [],
+            attrValuesName : [],
+            attrValuesPrice : [],
             tempCount : 0
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
@@ -34,57 +37,176 @@ class Product extends Component {
         this.handleFormChange = this.handleFormChange.bind(this);
         this.addAttributeForm = this.addAttributeForm.bind(this);
         this.handleAttrChange = this.handleAttrChange.bind(this);
+        this.removePrinter = this.removePrinter.bind(this);
+        this.removeAddPrinter = this.removeAddPrinter.bind(this);
     }
 
     componentDidMount(){
         if(this.props.id > 0){
-            const response = {name: 'test 1',description:'test',price:1000,category:'Soft Drinks',
-            vat: 10, defaultAttr : 'abc', defaultAttrPrice : 200, attrArr:'attr1:jiljk;,attr3:jnklm;'};
-            
-            this.state.name = response.name;
-            this.state.description = response.description;
-            this.state.price = response.price;
-            this.state.category = response.category;
-            this.state.vat = response.vat;
-            this.state.defaultAttr = response.defaultAttr;
-            this.state.defaultAttrPrice = response.defaultAttrPrice;
+            let response = [
+                {
+                    "id": "1",
+                    "name": "Test 1",
+                    "price": "576"
+                },
+                {
+                    "id": "2",
+                    "name": "Test 2",
+                    "price": "576"
+                },
+                {
+                    "id": "3",
+                    "name": "Test 3",
+                    "price": "576"
+                }
+            ]
+            let defaultAttrName = response.length > 0 ? response[0].name : "";
+            let defaultAttrPrice = response.length > 0 ? response[0].price : "";
+            let attrArrMAC = '';
+            let attrArrNo = '';
+            response = response.slice(1);
+            console.log("sliced: ",response)
+            response.forEach(item => {
+                attrArrMAC = attrArrMAC + "attrName"+item.id+"^*&"+item.name+",";
+                attrArrNo = attrArrNo + "attrPrice"+item.id+"^*&"+item.price+",";
+            });
+            attrArrMAC = attrArrMAC.substring(0,attrArrMAC.length-1)
+            attrArrNo = attrArrNo.substring(0,attrArrNo.length-1)
+            this.state.defaultAttrName = defaultAttrName;
+            this.state.defaultAttrPrice = defaultAttrPrice;
 
-            const attrValArr = response.attrArr.split(',');
-            console.log(attrValArr);
+            const attrValArrMAC = attrArrMAC.split(',');
+            const attrValArrNo = attrArrNo.split(',');
+            var attrValMap = {};
+            attrValArrMAC.forEach((key, i) => attrValMap[key] = attrValArrNo[i]);
+            console.log(attrValMap);
             var array = this.state.attributes;
-            attrValArr.forEach(arr => {
-                const tempArr = arr.split(":");
-                const count = parseInt(tempArr[0].substr(tempArr[0].length - 1));
-                array.push(<FormGroup className="mb-4" row key={"attrrow"+count}>
-                    <Col lg="12">
-                        <Input name={tempArr[0]} type="text" value={tempArr[1]} onChange={this.handleAttrChange} className="form-control" placeholder="Enter Attribute" />
-                    </Col>
-                </FormGroup>)
+            for (const [key, value] of Object.entries(attrValMap)) {
+                const keyArr = key.split("^*&");
+                const valArr = value.split("^*&");
+                const count = parseInt(keyArr[0].substr(keyArr[0].length - 1));
+                array.push(
+                    <div  id={"attrrow"+count} key={"attrrow"+count}>
+                    <FormGroup  className="mb-4" row>
+                        <Col lg="11">
+                            <Input id={keyArr[0]}
+                                   name={keyArr[0]}
+                                   value={keyArr[1]}
+                                   type="text"
+                                   className="form-control"
+                                   placeholder="Attribute Name"
+                                   onChange={this.handleFormChange}
+                            />
+                        </Col>
+                        <Col lg="1">
+                            <button type="button" onClick={() => { this.removePrinter(keyArr,valArr,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </Col>
+                    </FormGroup>
+                    <FormGroup  className="mb-4" row>
+                        <Col lg="5">
+                            <InputGroup>
+                                <Input
+                                    id={valArr[0]}
+                                    name={valArr[0]}
+                                    value={valArr[1]}
+                                    type="number"
+                                    className="form-control"
+                                    placeholder="Price"
+                                    onChange={this.handleFormChange}
+                                />
+                            </InputGroup>
+                        </Col>
+                    </FormGroup>
+            </div>
+                )
                 this.setState({
                     attributeForm: array,
-                    attr : [...this.state.attr,tempArr[0]],
+                    attrName : [...this.state.attrName,keyArr[0]],
+                    attrPrice : [...this.state.attrPrice,valArr[0]],
+                    attrValuesName : [...this.state.attrValuesName,keyArr[0]+"^*&"+keyArr[1]],
+                    attrValuesPrice : [...this.state.attrValuesPrice,valArr[0]+"^*&"+valArr[1]],
                     tempCount : count
                 });
-            });
+            }
         }
+    }
+
+    removePrinter(MAC, No, rowNo){
+        if(MAC.length>0){
+            this.setState({attrName: this.state.attrName.filter(function(mac) {
+                    return mac !== MAC[0]
+                })});
+            this.setState({attrValuesName: this.state.attrValuesName.filter(function(mac) {
+                    return mac !== MAC[1]
+                })});
+        }
+        if(No.length>0){
+            this.setState({attrPrice: this.state.attrPrice.filter(function(no) {
+                    return no !== No[0]
+                })});
+            this.setState({attrValuesPrice: this.state.attrValuesPrice.filter(function(no) {
+                    return no !== No[1]
+                })});
+        }
+        $("#"+rowNo).remove();
+    }
+
+    removeAddPrinter(attrNameKey, attrPriceKey, row){
+        this.setState({attrName: this.state.attrName.filter(function(key) {
+                return key !== attrNameKey
+            })});
+        this.setState({attrPrice: this.state.attrPrice.filter(function(key) {
+                return key !== attrPriceKey
+            })});
+        $("#"+row).remove();
     }
 
     addAttributeForm() {
         var array = this.state.attributes;
         let count = parseInt(this.state.tempCount + this.state.attrCount);
         array.push(
-            <FormGroup className="mb-4" row key={"attrrow"+count}>
-                <Col lg="12">
-                    <Input name={"attr"+count} type="text" onChange={this.handleAttrChange} className="form-control" placeholder="Enter Attribute" />
-                </Col>
-            </FormGroup>
+            <div id={"attrrow"+count} key={"attrrow"+count}>
+                <FormGroup  className="mb-4" row>
+                    <Col lg="11">
+                        <Input id="attrName"
+                               name={"attrName"+count}
+                               type="text"
+                               className="form-control"
+                               placeholder="Attribute Name"
+                               onChange={this.handleFormChange}
+                        />
+                    </Col>
+                    <Col lg="1">
+                        <button type="button" onClick={() => { this.removeAddPrinter("attrName"+count,"attrPrice"+count,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </Col>
+                </FormGroup>
+                <FormGroup  className="mb-4" row>
+                    <Col lg="5">
+                        <InputGroup>
+                            <Input
+                                id="attrPrice"
+                                name={"attrPrice"+count}
+                                type="number"
+                                className="form-control"
+                                placeholder="Price"
+                                onChange={this.handleFormChange}
+                            />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+            </div>
         );
 
         this.setState({
             attributeForm: array,
             attrCount : count+1,
             tempCount : 0,
-            attr : [...this.state.attr,"attr"+count]
+            attrName : [...this.state.attrName,"attrName"+count],
+            attrPrice : [...this.state.attrPrice,"attrPrice"+count]
         });
     }
 
@@ -95,19 +217,92 @@ class Product extends Component {
         console.log(this.state.price);
         console.log(this.state.category);
         console.log(this.state.vat);
-        console.log(this.state.defaultAttr);
-        console.log(this.state.defaultAttrPrice);
         console.log(this.state.selectedImages);
         console.log(this.state.selectedThumnails);
-        console.log("attr: ",this.state.attr);
+
+        console.log(this.state.defaultAttrName);
+        console.log(this.state.defaultAttrPrice);
+        let attributesMAC = '';
+        attributesMAC = this.getAttr(this.state.attrName, this.state.attrValuesName);
+        attributesMAC = attributesMAC.substring(0, attributesMAC.length - 1);
+        console.log("attributesMAC: ",attributesMAC);
+        let attributesNo = '';
+        attributesNo = this.getAttr(this.state.attrPrice, this.state.attrValuesPrice);
+        attributesNo = attributesNo.substring(0, attributesNo.length - 1);
+        console.log("attributesNo: ",attributesNo);
+        if(this.props.id > 0){
+            console.log("Update")
+        }else{
+            console.log("create")
+        }
+
+        event.preventDefault();
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log(this.state.name)
+        console.log(this.state.description)
+        console.log(this.state.startTime)
+        console.log(this.state.closeTime)
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let formData = new FormData();
+        formData.append('name', this.state.name);
+        formData.append('description', this.state.description);
+        formData.append('unit_price', this.state.price);
+        formData.append('vat_percent', this.state.vat);
+        formData.append('category_id', this.state.category);
+        formData.append('image', this.state.selectedImages[0]);
+        formData.append('thumb', this.state.selectedThumnails[0]);
+
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = this.props.id > 0 ? 'api/products/'+this.props.id+'/' : 'api/products/';
+        var method = this.props.id > 0 ? 'PUT' : 'POST';
+        return fetch(baseUrl+api, {
+            method: method,
+            headers: headers,
+            body: formData
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+      }
+
+    getAttr(attrArrParam, attrValuesParam){
+        console.log("attrArrParam: ",attrArrParam);
+        console.log("attrValuesParam: ", attrValuesParam);
         let attrArr = [];
-        this.state.attrValues.forEach(item => {
-            if(item.includes(":")){
+        attrValuesParam.forEach(item => {
+            if(item.includes("^*&")){
                 attrArr.push(item);
             }
         });
         let mainArr = [];
-        this.state.attr.forEach(attrval => {
+        attrArrParam.forEach(attrval => {
             let tempArr = [];
             attrArr.forEach(item => {
                 if(item.includes(attrval)){
@@ -123,30 +318,26 @@ class Product extends Component {
                 attributes = attributes + arr.pop() + ",";
             }
         });
-        console.log("attributes: ",attributes);
-        if(this.props.id > 0){
-            console.log("Update")
-        }else{
-            console.log("create")
-        }
-      }
-
+        return attributes;
+    }
     handleFormChange(event) {
-    const value = event.target.value;
-    this.setState({
-        [event.target.name]: value
-    });
-    console.log(event.target.name+": "+value);
+        const value = event.target.value;
+        this.setState({
+            [event.target.name]: value
+        });
+        console.log(event.target.name+": "+value);
     }
 
     handleAttrChange(event) {
         const value = event.target.value;
-        const attrName = this.state.attr.find(elem => elem == event.target.name);
+        const attrNameName = this.state.attrName.find(elem => elem == event.target.name);
+        const attrPriceName = this.state.attrPrice.find(elem => elem == event.target.name);
         this.setState({
-            attrValues: [...this.state.attrValues,attrName+":"+value]
+            attrValuesName: [...this.state.attrValuesName,attrNameName+"^*&"+value],
+            attrValuesPrice: [...this.state.attrValuesPrice,attrPriceName+"^*&"+value]
         });
         console.log(event.target.name+": "+value);
-        }
+    }
 
     handleAcceptedImages = (files) => {
         files.map(file => Object.assign(file, {
@@ -350,49 +541,26 @@ class Product extends Component {
                                             <h5>Optional Attributes</h5>
                                             <FormGroup className="mb-4" row>
                                                 <Col lg="12">
-                                                    <Input id="defaultAttr" 
-                                                    name="defaultAttr" 
-                                                    type="text" 
-                                                    className="form-control"
-                                                     placeholder="Attribute Name" 
-                                                     onChange={this.handleFormChange} value={this.state.defaultAttr}
-                                                     />
+                                                    <Input id="defaultAttrName"
+                                                           name="defaultAttrName"
+                                                           type="text"
+                                                           className="form-control"
+                                                           placeholder="Attribute Name"
+                                                           onChange={this.handleFormChange} value={this.state.defaultAttrName}
+                                                    />
                                                 </Col>
                                             </FormGroup>
                                             <FormGroup className="mb-4" row>
-                                            <Col lg="5">
-                                                <InputGroup>
-                                                <Input
-                                                    type="number"
-                                                    className="form-control"
-                                                    name = "defaultAttrPrice"
-                                                    onChange={this.handleFormChange} value={this.state.defaultAttrPrice}
-                                                />
-                                                <div
-                                                    className="input-group-append"
-                                                    onClick={() =>
-                                                    this.setState({
-                                                        defaultAttrPrice: this.state.defaultAttrPrice + 1
-                                                    })
-                                                    }
-                                                >
-                                                    <Button type="button" color="primary">
-                                                    <i className="mdi mdi-plus"></i>
-                                                    </Button>
-                                                </div>
-                                                <div
-                                                    className="input-group-append"
-                                                    onClick={() =>
-                                                    this.setState({
-                                                        defaultAttrPrice: this.state.defaultAttrPrice - 1
-                                                    })
-                                                    }
-                                                >
-                                                    <Button type="button" color="white" style={{borderColor:"#ced4da"}}>
-                                                    <i className="mdi mdi-minus"></i>
-                                                    </Button>
-                                                </div>
-                                                </InputGroup>
+                                                <Col lg="5">
+                                                    <InputGroup>
+                                                        <Input
+                                                            type="number"
+                                                            className="form-control"
+                                                            name = "defaultAttrPrice"
+                                                            placeholder="Price"
+                                                            onChange={this.handleFormChange} value={this.state.defaultAttrPrice}
+                                                        />
+                                                    </InputGroup>
                                                 </Col>
                                             </FormGroup>
                                             { 

@@ -5,14 +5,14 @@ import { FORGET_PASSWORD } from "./actionTypes";
 import { userForgetPasswordSuccess, userForgetPasswordError } from "./actions";
 
 //AUTH related methods
-import { getFirebaseBackend } from "../../../helpers/authUtils";
+import { authentication } from "../../../helpers/authUtils";
 
-const fireBaseBackend = getFirebaseBackend();
+const auth = authentication();
 
 //If user is send successfully send mail link then dispatch redux action's are directly from here.
 function* forgetUser({ payload: { user, history } }) {
   try {
-    const response = yield call(fireBaseBackend.forgetPassword, user.email);
+    const response = yield call(auth.forgetPassword, user.email);
     if (response) {
       yield put(
         userForgetPasswordSuccess(

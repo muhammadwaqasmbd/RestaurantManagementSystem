@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col } from "reactstrap";
 
-import { Link } from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 // Reactstrap
 import { Dropdown, DropdownToggle, DropdownMenu } from "reactstrap";
@@ -29,12 +29,16 @@ import slack from "../../assets/images/brands/slack.png";
 
 // Redux Store
 import { toggleRightSidebar } from "../../store/actions";
+import {baseUrl} from "../../helpers/baseUrl";
+import {parse} from "echarts/extension-src/dataTool/gexf";
 
 class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isSearch: false
+      isSearch: false,
+      restaurants: [],
+      restaurant_name :''
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.toggleRightbar = this.toggleRightbar.bind(this);
@@ -82,7 +86,84 @@ class Header extends Component {
     }
   }
 
+  componentDidMount() {
+    console.log(typeof(localStorage.getItem('isStuff')))
+    if(localStorage.getItem('access') && localStorage.getItem('isStuff') == "true"){
+      this.fetchRestaurants();
+    }
+  }
+
+  fetchRestaurants(){
+    console.log("fetching restaurants");
+    const bearer = 'Bearer ' + localStorage.getItem('access');
+    return fetch(baseUrl+'api/restaurants/', {
+      method: 'GET',
+      headers: {
+        'X-Requested-With':'application/json',
+        'Content-Type':'application/json',
+        'Authorization': bearer
+      }
+    })
+        .then(response => {
+              console.log("register response: ",response)
+              if (response.ok) {
+                return response;
+              } else {
+                var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                error.response = response;
+                console.log(error)
+              }
+            },
+            error => {
+              console.log(error)
+            })
+        .then(response => response.json())
+        .then(response => {
+          // If response was successful, set the token in local storage
+          let resultsArr = response.results;
+          const results = resultsArr.map(item => ({
+            id: item.id,
+            name: item.name
+          }));
+          console.log(results)
+          this.setState({
+            restaurants: results
+          })
+          if(localStorage.getItem('restaurantId') != "null"){
+            results.forEach(item => {
+              if(item.id === parseInt(localStorage.getItem('restaurantId'))){
+                this.setState({
+                  restaurant_name : item.name
+                })
+              }
+            });
+          }
+
+        })
+        .catch(error => console.log(error))
+  }
+
+  renderRestaurant(restaurant){
+    let url = "/dashboard/"+restaurant.id+"";
+    const itemrow = [
+      <Row className="no-gutters" key={restaurant.id}>
+        <Col>
+          <Link to={url} className="dropdown-icon-item"  restaurantid={restaurant.id}>
+            <span >{restaurant.name}</span>
+          </Link>
+        </Col>
+      </Row>
+    ]
+    return itemrow
+  }
+
   render() {
+    const {restaurants} = this.state;
+    let restaurantItems = []
+    restaurants.forEach(item => {
+      const restaurantItem = this.renderRestaurant(item);
+      restaurantItems = restaurantItems.concat(restaurantItem)
+    });
     return (
       <React.Fragment>
         <header id="page-topbar">
@@ -112,10 +193,23 @@ class Header extends Component {
                 <i className="fa fa-fw fa-bars"></i>
               </button>
             </div>
+
             <div className="d-flex">
+              <Dropdown className="d-none d-lg-inline-block ml-1" isOpen={this.state.restaurantDrp} toggle={() => { this.setState({ restaurantDrp: !this.state.restaurantDrp }) }}>
+                {localStorage.getItem('restaurantId') != "null" ? <span>{this.state.restaurant_name}</span> : ""}
+
+                <DropdownToggle className="btn header-item noti-icon waves-effect" tag="button">
+                  <i className="bx bx-caret-down"></i>
+                </DropdownToggle>
+                <DropdownMenu className="dropdown-menu-sm" right style={{textAlign:"right"}}>
+                  <div className="px-lg-2">
+                    {restaurantItems}
+                  </div>
+                </DropdownMenu>
+              </Dropdown>
               <Dropdown className="d-none d-lg-inline-block ml-1" isOpen={this.state.socialDrp} toggle={() => { this.setState({ socialDrp: !this.state.socialDrp }) }}>
                 <DropdownToggle className="btn header-item noti-icon waves-effect" tag="button">
-                  <i className="bx bx-cog"></i>
+                  <i className="bx bx-cog "></i>
                 </DropdownToggle>
                 <DropdownMenu className="dropdown-menu-sm" right>
                   <div className="px-lg-2">
@@ -137,7 +231,7 @@ class Header extends Component {
 
                     <Row className="no-gutters">
                       <Col>
-                        <Link className="dropdown-icon-item" to="#">
+                        <Link className="dropdown-icon-item" to="/login">
                           <span>Logout</span>
                         </Link>
                       </Col>

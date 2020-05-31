@@ -175,7 +175,7 @@ class LatestTranactionsTakeaway extends Component {
     renderTransactions(transaction) {
         const clickCallback = () => this.handleRowClick(transaction.id);
         const itemRows = [
-        <tr>
+        <tr key={transaction.id}>
             <td><Link to="#" className="text-body font-weight-bold"> {transaction.orderId} </Link> </td>
             <td>{transaction.billingName}</td>
             <td>

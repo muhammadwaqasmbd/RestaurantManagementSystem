@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Card, CardBody, CardTitle, Badge, Button, Collapse } from "reactstrap";
 import { Link } from "react-router-dom";
 import $ from 'jquery';
+import {baseUrl} from "../../helpers/baseUrl";
 
 class LatestTranactionsRestaurant extends Component {
     constructor(props) {
@@ -100,8 +101,57 @@ class LatestTranactionsRestaurant extends Component {
     }
 
     componentDidMount(){
-    
+        this.fetchDashboard();
     }
+
+    fetchDashboard(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching menus");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/menus', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                this.setState({
+                    items: response.results
+                })
+            })
+            .catch(error => console.log(error))
+    }
+
     componentDidUpdate() {
         $("ul li.active").removeClass('active');
         $('ul li#'+this.state.currentPage).addClass('active');
@@ -175,7 +225,7 @@ class LatestTranactionsRestaurant extends Component {
     renderTransactions(transaction) {
         const clickCallback = () => this.handleRowClick(transaction.id);
         const itemRows = [
-        <tr>
+        <tr key={transaction.id}>
             <td><Link to="#" className="text-body font-weight-bold"> {transaction.orderId} </Link> </td>
             <td>{transaction.billingName}</td>
             <td>

@@ -4,10 +4,10 @@ import { Card, CardBody, CardTitle, Button } from "reactstrap";
 import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
-import { submit } from "redux-form";
 import {baseUrl} from "../../helpers/baseUrl";
+import jwt from "jwt-decode";
 
-class Resturants extends Component {
+class QRCodes extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -36,30 +36,22 @@ class Resturants extends Component {
     }
 
     componentDidMount() {
-        this.fetchProducts();
+        this.fetchQRCodes();
     }
 
-    fetchProducts(){
+    fetchQRCodes(){
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
-        console.log("fetching products");
+        console.log("fetching qrcodes");
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
-        if(isStuff == "true") {
-            headers = {
-                'X-Requested-With': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': bearer,
-                'RESID': resId
-            }
-        }else{
-            headers = {
-                'X-Requested-With': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': bearer
-            }
+        headers = {
+            'X-Requested-With': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': bearer,
+            'RESID': resId
         }
-        return fetch(baseUrl+'api/products/', {
+        return fetch(baseUrl+'api/qr-codes/', {
             method: 'GET',
             headers: headers
         })
@@ -80,9 +72,11 @@ class Resturants extends Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
-                this.setState({
-                    items: response.results
-                })
+                if(response.length>0){
+                    this.setState({
+                        items: response.results
+                    })
+                }
             })
             .catch(error => console.log(error))
     }
@@ -163,22 +157,17 @@ class Resturants extends Component {
       }
     
     renderItems(item) {
+        console.log(item)
         const deleteCallBack = () => this.handleDeleteItem(item.id);
         const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
         <tr key={"row-"+item.id}>
-            <td><img src={item.image_url} alt="" className="avatar-sm" /></td>
             <td>
                 <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
-                <p className="text-muted mb-0">{item.description}</p>
+                <p className="text-muted mb-0">{item.start_time} - {item.end_time}</p>
             </td>
-            <td>{item.unit_price}</td>
-            <td>{item.product_sku}</td>
-            <td>{item.id}</td>
-            <td>{item.category}</td>
-            <td>{item.menu}</td>
             <td>
-                <Link to={"/product/"+item.id}>
+                <Link to={"/menu/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
@@ -257,12 +246,14 @@ class Resturants extends Component {
         const { items, currentPage, itemsPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-        const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-        currentItems.forEach(item => {
-            const perItemRows = this.renderItems(item);
-            console.log(perItemRows);
-            allItemRows = allItemRows.concat(perItemRows);
-        });
+        const currentItems = items ? items.slice(indexOfFirstItem, indexOfLastItem) : [];
+        if(currentItems && currentItems.length >0){
+            currentItems.forEach(item => {
+                const perItemRows = this.renderItems(item);
+                console.log(perItemRows);
+                allItemRows = allItemRows.concat(perItemRows);
+            });
+        }
 
         const pageNumbers = [];
         for (let i = 1; i <= Math.ceil(items.length / itemsPerPage); i++) {
@@ -281,7 +272,7 @@ class Resturants extends Component {
                 )
             }
         });
-        
+
         let pageIncrementBtn = null;
         if(pageNumbers.length > upperPageBound && this.state.items.length > 5){
             pageIncrementBtn = <li className='page-item'><a className='page-link page-link' onClick={this.btnIncrementClick}> &hellip; </a></li>
@@ -310,7 +301,7 @@ class Resturants extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
-                            PRODUCTS
+                            QRCodes
                         </CardTitle>
                         <div className="table-responsive">
                             <Form
@@ -322,14 +313,8 @@ class Resturants extends Component {
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th></th>
-                                        <th>Name</th>
-                                        <th>Price</th>
-                                        <th>Printer #</th>
-                                        <th>ID</th>
-                                        <th>Category</th>
-                                        <th>Menu</th>
-                                        <th>Actions</th>
+                                        <th style={{width: '80%'}}>Name</th>
+                                        <th style={{width: '20%'}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
@@ -337,12 +322,12 @@ class Resturants extends Component {
                                 </tbody>
                                 
                             </table>
-                            <Link to={"/product/0"}>
+                            <Link to={"/table/0"}>
                             <Button
                                 color="secondary"
                                 className="btn btn-secondary btn-lg btn-block waves-effect"
                             >
-                                Add New Product
+                                Add New QRCode
                             </Button>
                             </Link>
                         </div>
@@ -371,4 +356,4 @@ class Resturants extends Component {
     }
 }
 
-export default Resturants;
+export default QRCodes;

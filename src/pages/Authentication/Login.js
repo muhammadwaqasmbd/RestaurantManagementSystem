@@ -34,6 +34,12 @@ class Login extends Component {
     componentDidMount()
     {
         this.props.apiError("");
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('isStuff');
+        localStorage.removeItem('restaurantId');
+        localStorage.removeItem('username');
     }
 
     render() {
@@ -78,11 +84,11 @@ class Login extends Component {
                                                 {this.props.error && this.props.error ? <Alert color="danger">{this.props.error}</Alert> : null}
 
                                                 <div className="form-group">
-                                                    <AvField name="email" label="Email" value="admin@orderme.com" className="form-control" placeholder="Enter email" type="email" required />
+                                                    <AvField name="email" label="Email" value="admin" className="form-control" placeholder="Enter email" type="username" required />
                                                 </div>
 
                                                 <div className="form-group">
-                                                    <AvField name="password" label="Password" value="123456" type="password" required placeholder="Enter Password" />
+                                                    <AvField name="password" label="Password" value="123123" type="password" required placeholder="Enter Password" />
                                                 </div>
 
                                                 <div className="custom-control custom-checkbox">

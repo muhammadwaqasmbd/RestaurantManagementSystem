@@ -31,14 +31,40 @@ class Printer extends Component {
 
     componentDidMount(){
         if(this.props.id > 0){
-            const response = {defaultAttrMAC: 'test 1',defaultAttrPrinterNo:'test', attrArrMAC:'attrMAC1^*&khkj,attrMAC2^*&jkklj',
-                            attrArrNo:'attrNo1^*&9789,attrNo2^*&87989'};
-            
-            this.state.defaultAttrMAC = response.defaultAttrMAC;
-            this.state.defaultAttrPrinterNo = response.defaultAttrPrinterNo;
+            let response = [
+                {
+                    "id": "1",
+                    "printer_number": "1234",
+                    "printer_mac_address": "879835:3543:5343"
+                },
+                {
+                    "id": "2",
+                    "printer_number": "1238",
+                    "printer_mac_address": "879835:3543:5343"
+                },
+                {
+                    "id": "3",
+                    "printer_number": "1238",
+                    "printer_mac_address": "879835:3543:5343"
+                }
+            ]
+            let defaultAttrMAC = response.length > 0 ? response[0].printer_mac_address : "";
+            let defaultAttrPrinterNo = response.length > 0 ? response[0].printer_number : "";
+            let attrArrMAC = '';
+            let attrArrNo = '';
+            response = response.slice(1);
+            console.log("sliced: ",response)
+            response.forEach(item => {
+                attrArrMAC = attrArrMAC + "attrMAC"+item.id+"^*&"+item.printer_mac_address+",";
+                attrArrNo = attrArrNo + "attrNo"+item.id+"^*&"+item.printer_number+",";
+            });
+            attrArrMAC = attrArrMAC.substring(0,attrArrMAC.length-1)
+            attrArrNo = attrArrNo.substring(0,attrArrNo.length-1)
+            this.state.defaultAttrMAC = defaultAttrMAC;
+            this.state.defaultAttrPrinterNo = defaultAttrPrinterNo;
 
-            const attrValArrMAC = response.attrArrMAC.split(',');
-            const attrValArrNo = response.attrArrNo.split(',');
+            const attrValArrMAC = attrArrMAC.split(',');
+            const attrValArrNo = attrArrNo.split(',');
             var attrValMap = {};
             attrValArrMAC.forEach((key, i) => attrValMap[key] = attrValArrNo[i]);
             console.log(attrValMap);
@@ -48,33 +74,33 @@ class Printer extends Component {
                 const valArr = value.split("^*&");
                 const count = parseInt(keyArr[0].substr(keyArr[0].length - 1));
                 array.push(
-                <FormGroup className="mb-4" id={"attrrow"+count} row key={"attrrow"+count}>
-                    <Col lg="7">
-                        <Input id={keyArr[0]} 
-                        name={keyArr[0]}
-                        value={keyArr[1]}
-                        type="text" 
-                        className="form-control"
-                            placeholder="Printer MAC address" 
-                            onChange={this.handleAttrChange}
+                    <FormGroup className="mb-4" id={"attrrow"+count} row key={"attrrow"+count}>
+                        <Col lg="7">
+                            <Input id={keyArr[0]}
+                                   name={keyArr[0]}
+                                   value={keyArr[1]}
+                                   type="text"
+                                   className="form-control"
+                                   placeholder="Printer MAC address"
+                                   onChange={this.handleAttrChange}
                             />
-                    </Col>
-                    <Col lg="4">
-                        <Input id={valArr[0]}
-                        name={valArr[0]}
-                        value={valArr[1]}
-                        type="text" 
-                        className="form-control"
-                            placeholder="Printer No" 
-                            onChange={this.handleAttrChange} 
+                        </Col>
+                        <Col lg="4">
+                            <Input id={valArr[0]}
+                                   name={valArr[0]}
+                                   value={valArr[1]}
+                                   type="text"
+                                   className="form-control"
+                                   placeholder="Printer No"
+                                   onChange={this.handleAttrChange}
                             />
-                    </Col>
-                    <Col lg="1">
-                    <button type="button" onClick={() => { this.removePrinter(keyArr,valArr,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    </Col>
-                </FormGroup>
+                        </Col>
+                        <Col lg="1">
+                            <button type="button" onClick={() => { this.removePrinter(keyArr,valArr,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </Col>
+                    </FormGroup>
                 )
                 this.setState({
                     attributeForm: array,
@@ -89,31 +115,31 @@ class Printer extends Component {
     }
     removePrinter(MAC, No, rowNo){
         if(MAC.length>0){
-            this.setState({attrMAC: this.state.attrMAC.filter(function(mac) { 
-                return mac !== MAC[0] 
-            })});
-            this.setState({attrValuesMAC: this.state.attrValuesMAC.filter(function(mac) { 
-                return mac !== MAC[1] 
-            })});
+            this.setState({attrMAC: this.state.attrMAC.filter(function(mac) {
+                    return mac !== MAC[0]
+                })});
+            this.setState({attrValuesMAC: this.state.attrValuesMAC.filter(function(mac) {
+                    return mac !== MAC[1]
+                })});
         }
         if(No.length>0){
-            this.setState({attrNo: this.state.attrNo.filter(function(no) { 
-                return no !== No[0] 
-            })});
-            this.setState({attrValuesNo: this.state.attrValuesNo.filter(function(no) { 
-                return no !== No[1] 
-            })});
+            this.setState({attrNo: this.state.attrNo.filter(function(no) {
+                    return no !== No[0]
+                })});
+            this.setState({attrValuesNo: this.state.attrValuesNo.filter(function(no) {
+                    return no !== No[1]
+                })});
         }
         $("#"+rowNo).remove();
     }
 
     removeAddPrinter(attrMACKey, attrNoKey, row){
-        this.setState({attrMAC: this.state.attrMAC.filter(function(key) { 
-            return key !== attrMACKey 
-        })});
-        this.setState({attrNo: this.state.attrNo.filter(function(key) { 
-            return key !== attrNoKey 
-        })});
+        this.setState({attrMAC: this.state.attrMAC.filter(function(key) {
+                return key !== attrMACKey
+            })});
+        this.setState({attrNo: this.state.attrNo.filter(function(key) {
+                return key !== attrNoKey
+            })});
         $("#"+row).remove();
     }
 
@@ -123,27 +149,27 @@ class Printer extends Component {
         array.push(
             <FormGroup className="mb-4" id={"attrrow"+count} row key={"attrrow"+count}>
                 <Col lg="7">
-                    <Input id="attrMAC" 
-                    name={"attrMAC"+count}
-                    type="text" 
-                    className="form-control"
-                        placeholder="Printer MAC address" 
-                        onChange={this.handleAttrChange}
-                        />
+                    <Input id="attrMAC"
+                           name={"attrMAC"+count}
+                           type="text"
+                           className="form-control"
+                           placeholder="Printer MAC address"
+                           onChange={this.handleAttrChange}
+                    />
                 </Col>
                 <Col lg="4">
-                    <Input id="attrNo" 
-                    name={"attrNo"+count}
-                    type="text" 
-                    className="form-control"
-                        placeholder="Printer No" 
-                        onChange={this.handleAttrChange} 
-                        />
+                    <Input id="attrNo"
+                           name={"attrNo"+count}
+                           type="text"
+                           className="form-control"
+                           placeholder="Printer No"
+                           onChange={this.handleAttrChange}
+                    />
                 </Col>
                 <Col lg="1">
-                <button type="button" onClick={() => { this.removeAddPrinter("attrMAC"+count,"attrNo"+count,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                    <button type="button" onClick={() => { this.removeAddPrinter("attrMAC"+count,"attrNo"+count,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </Col>
             </FormGroup>
         );
@@ -174,7 +200,7 @@ class Printer extends Component {
         }else{
             console.log("create")
         }
-      }
+    }
 
     getAttr(attrArrParam, attrValuesParam){
         console.log("attrArrParam: ",attrArrParam);
@@ -205,11 +231,11 @@ class Printer extends Component {
         return attributes;
     }
     handleFormChange(event) {
-    const value = event.target.value;
-    this.setState({
-        [event.target.name]: value
-    });
-    console.log(event.target.name+": "+value);
+        const value = event.target.value;
+        this.setState({
+            [event.target.name]: value
+        });
+        console.log(event.target.name+": "+value);
     }
 
     handleAttrChange(event) {
@@ -221,60 +247,60 @@ class Printer extends Component {
             attrValuesNo: [...this.state.attrValuesNo,attrNoName+"^*&"+value]
         });
         console.log(event.target.name+": "+value);
-        }
+    }
 
     render() {
         return (
             <React.Fragment>
-                                <Card>
-                                    <CardBody>
-                                        <CardTitle className="mb-4">PRINTER</CardTitle>
-                                        <Form
-                                        onSubmit={this.handleSubmit}
-                                        id="printerForm"
-                                        >
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="7">
-                                                    <Input id="defaultAttrMAC" 
-                                                    name="defaultAttrMAC" 
-                                                    type="text" 
-                                                    className="form-control"
-                                                     placeholder="Printer MAC address" 
-                                                     onChange={this.handleFormChange} value={this.state.defaultAttrMAC}
-                                                     />
-                                                </Col>
-                                                <Col lg="4">
-                                                    <Input id="defaultAttrPrinterNo" 
-                                                    name="defaultAttrPrinterNo" 
-                                                    type="text" 
-                                                    className="form-control"
-                                                     placeholder="Printer No" 
-                                                     onChange={this.handleFormChange} value={this.state.defaultAttrPrinterNo}
-                                                     />
-                                                </Col>
-                                            </FormGroup>
-                                            { 
-                                                this.state.attributes.map(input => {
-                                                    return input
-                                                })
-                                            }
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="12">
-                                                    <Button type="button" onClick={this.addAttributeForm} color="primary">Add another printer</Button>
-                                                </Col>
-                                            </FormGroup>
-                                        </Form>
-                                        <Row className="justify-content-end">
-                                            <Col lg="8">
-                                                <Button type="submit" color="primary" form="printerForm" style={{width:"100%"}}>Save</Button>
-                                            </Col>
-                                            <Col lg="4">
-                                                <Button type="cancel" color="white">Cancel</Button>
-                                            </Col>
-                                        </Row>
+                <Card>
+                    <CardBody>
+                        <CardTitle className="mb-4">PRINTER</CardTitle>
+                        <Form
+                            onSubmit={this.handleSubmit}
+                            id="printerForm"
+                        >
+                            <FormGroup className="mb-4" row>
+                                <Col lg="7">
+                                    <Input id="defaultAttrMAC"
+                                           name="defaultAttrMAC"
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer MAC address"
+                                           onChange={this.handleFormChange} value={this.state.defaultAttrMAC}
+                                    />
+                                </Col>
+                                <Col lg="4">
+                                    <Input id="defaultAttrPrinterNo"
+                                           name="defaultAttrPrinterNo"
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer No"
+                                           onChange={this.handleFormChange} value={this.state.defaultAttrPrinterNo}
+                                    />
+                                </Col>
+                            </FormGroup>
+                            {
+                                this.state.attributes.map(input => {
+                                    return input
+                                })
+                            }
+                            <FormGroup className="mb-4" row>
+                                <Col lg="12">
+                                    <Button type="button" onClick={this.addAttributeForm} color="primary">Add another printer</Button>
+                                </Col>
+                            </FormGroup>
+                        </Form>
+                        <Row className="justify-content-end">
+                            <Col lg="8">
+                                <Button type="submit" color="primary" form="printerForm" style={{width:"100%"}}>Save</Button>
+                            </Col>
+                            <Col lg="4">
+                                <Button type="cancel" color="white">Cancel</Button>
+                            </Col>
+                        </Row>
 
-                                    </CardBody>
-                                </Card>
+                    </CardBody>
+                </Card>
             </React.Fragment>
         );
     }

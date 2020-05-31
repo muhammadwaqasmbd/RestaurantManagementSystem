@@ -5,15 +5,13 @@ import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import { submit } from "redux-form";
+import {baseUrl} from "../../helpers/baseUrl";
 
 class Resturants extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            items: [
-                { id: "1", name: "Restaurant Dirk", feepercent : "2.5"},
-                { id: "2", name: "Restaurant Kiebert", feepercent : "3.2"}
-            ],
+            items: [],
             currentPage: 1,
             itemsPerPage: 5,
             upperPageBound: 3,
@@ -35,6 +33,51 @@ class Resturants extends Component {
         this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
         this.pauseItem = this.pauseItem.bind(this);
         this.handleChange = this.handleChange.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchRestaurants();
+    }
+
+    fetchRestaurants(){
+        console.log("fetching restaurants");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        return fetch(baseUrl+'api/restaurants/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With':'application/json',
+                'Content-Type':'application/json',
+                'Authorization': bearer
+            }
+        })
+            .then(response => {
+                    console.log("register response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                let resultsArr = response.results;
+                const results = resultsArr.map(item => ({
+                    id: item.id,
+                    name: item.name
+                }));
+                console.log(results)
+                this.setState({
+                    items: results
+                })
+
+            })
+            .catch(error => console.log(error))
     }
 
     componentDidUpdate() {

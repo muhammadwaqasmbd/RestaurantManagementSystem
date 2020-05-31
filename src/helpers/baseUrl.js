@@ -1,0 +1,1 @@
+export const baseUrl = 'https://cors-anywhere.herokuapp.com/orderme.oldevops.nl:8000/';

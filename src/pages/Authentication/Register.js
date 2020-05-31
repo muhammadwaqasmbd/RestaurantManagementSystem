@@ -26,6 +26,7 @@ class Register extends Component {
 
   // handleValidSubmit
   handleValidSubmit(event, values) {
+    console.log(values)
     this.props.registerUser(values);
   }
 
@@ -93,6 +94,36 @@ class Register extends Component {
                             </Alert>
                           ) : null}
 
+                        <div className="form-group">
+                          <AvField
+                            name="company"
+                            label="Company"
+                            className="form-control"
+                            placeholder="Enter company"
+                            type="text"
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <AvField
+                            name="website"
+                            label="website"
+                            className="form-control"
+                            placeholder="Enter website"
+                            type="text"
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <AvField
+                            name="email"
+                            label="Email"
+                            className="form-control"
+                            placeholder="Enter email"
+                            type="email"
+                            required
+                          />
+                        </div>
                         <div className="form-group">
                           <AvField
                             name="username"

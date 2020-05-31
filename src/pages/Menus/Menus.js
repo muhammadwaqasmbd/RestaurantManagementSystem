@@ -4,17 +4,14 @@ import { Card, CardBody, CardTitle, Button } from "reactstrap";
 import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
+import {baseUrl} from "../../helpers/baseUrl";
+import jwt from "jwt-decode";
 
 class Menus extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            items: [
-                { id: "1", name: 'Breakfast (Default)', openTime: "09:00", closeTime: "11:00"},
-                { id: "2", name: 'Lunch', openTime: "12:00", closeTime: "03:00"},
-                { id: "3", name: 'Dinner', openTime: "07:00", closeTime: "10:00"},
-                { id: "4", name: 'Takeaway', openTime: "09:00", closeTime: "12:00"}
-            ],
+            items: [],
             currentPage: 1,
             itemsPerPage: 5,
             upperPageBound: 3,
@@ -36,6 +33,58 @@ class Menus extends Component {
         this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
         this.pauseItem = this.pauseItem.bind(this);
         this.handleChange = this.handleChange.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchMenus();
+    }
+
+    fetchMenus(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching menus");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/menus', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                this.setState({
+                    items: response.results
+                })
+            })
+            .catch(error => console.log(error))
     }
 
     componentDidUpdate() {
@@ -114,13 +163,14 @@ class Menus extends Component {
       }
     
     renderItems(item) {
+        console.log(item)
         const deleteCallBack = () => this.handleDeleteItem(item.id);
         const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
         <tr key={"row-"+item.id}>
             <td>
                 <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
-                <p className="text-muted mb-0">{item.openTime} - {item.closeTime}</p>
+                <p className="text-muted mb-0">{item.start_time} - {item.end_time}</p>
             </td>
             <td>
                 <Link to={"/menu/"+item.id}>

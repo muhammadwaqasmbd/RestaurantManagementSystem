@@ -65,7 +65,7 @@ import IconDripicons from "../pages/Icons/IconDripicons";
 import IconMaterialdesign from "../pages/Icons/IconMaterialdesign";
 import IconFontawesome from "../pages/Icons/IconFontawesome";
 
-//Tables
+//TablesAssignment
 import BasicTables from "../pages/TablesExample/BasicTables";
 import DatatableTables from "../pages/TablesExample/DatatableTables";
 import ResponsiveTables from "../pages/TablesExample/ResponsiveTables";
@@ -123,11 +123,15 @@ import Dashboard from "../pages/ResturantDashboard/index";
 import AdminDashboard from "../pages/Dashboard/index";
 import Resturants from "../pages/Resturants/index";
 import Products from "../pages/Products/index";
-import Tables from "../pages/Tables/index";
+import TableAssignments from "../pages/TablesAssignment/index";
 import Menus from "../pages/Menus/index";
 import AddMenu from "../pages/AddMenu/index";
 import AddProduct from "../pages/AddProduct/index";
 import AddRestaurant from "../pages/AddRestaurant/index";
+import Tables from "../pages/Tables/index";
+import AddTable from "../pages/AddTable/index";
+import QRCodes from "../pages/QRCodes/index";
+import AddQRCode from "../pages/AddQRCode/index";
 
 const authProtectedRoutes = [
 	{ path: "/admindashboard", component: AdminDashboard },
@@ -137,9 +141,13 @@ const authProtectedRoutes = [
 	{ path: "/dashboard/:id", component: Dashboard },
 	{ path: "/products", component: Products },
 	{ path: "/product/:id", component: AddProduct },
+	{ path: "/tables-assignments", component: TableAssignments },
 	{ path: "/tables", component: Tables },
+	{ path: "/table/:id", component: AddTable },
 	{ path: "/menus", component: Menus },
 	{ path: "/menu/:id", component: AddMenu },
+	{ path: "/qrcodes", component: QRCodes },
+	{ path: "/qrcode/:id", component: AddQRCode },
 
 	//chat
 	{ path: "/chat", component: Chat },
@@ -195,7 +203,7 @@ const authProtectedRoutes = [
 	{ path: "/icons-materialdesign", component: IconMaterialdesign },
 	{ path: "/icons-fontawesome", component: IconFontawesome },
 
-	// Tables
+	// TablesAssignment
 	{ path: "/tables-basic", component: BasicTables },
 	{ path: "/tables-datatable", component: DatatableTables },
 	{ path: "/tables-responsive", component: ResponsiveTables },

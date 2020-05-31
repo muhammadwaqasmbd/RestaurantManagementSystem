@@ -15,27 +15,49 @@ const SidebarContent = props => {
         <>
             <div id="sidebar-menu">
                 <ul className="metismenu list-unstyled" id="side-menu">
+                    {localStorage.getItem('isStuff') == "true" ?
                     <li className="menu-title">Home</li>
+                        :
+                        null}
+                    {localStorage.getItem('isStuff') == "true" ?
                     <li>
                         <Link to="/admindashboard" className="waves-effect">
                             <i className="bx bx-home-circle"></i>
                             <span>Dashboard</span>
                         </Link>
                     </li>
+                        :
+                        null}
+                    {localStorage.getItem('isStuff') == "true" ?
                     <li>
                         <Link to="/resturants" className="waves-effect">
                             <i className="bx bx-list-ul"></i>
                             <span>Restaurants</span>
                         </Link>
                     </li>
+                        :
+                        null}
+                    {localStorage.getItem('isStuff') == "true" ?
+                    <li>
+                        <Link to="/qrcodes" className="waves-effect">
+                            <i className="bx bx-barcode"></i>
+                            <span>QRCodes</span>
+                        </Link>
+                    </li>
+                    :
+                    null}
+                    {localStorage.getItem('isStuff') == "false" ?
                     <li className="menu-title">Home</li>
+                        :null}
+                    {localStorage.getItem('isStuff') == "false" ?
                     <li>
                         <Link to="/dashboard" className="waves-effect">
                             <i className="bx bx-home-circle"></i>
                             <span>Dashboard</span>
                         </Link>
                     </li>
-
+                    :
+                    null}
                     <li className="menu-title">Actions</li>
                     <li>
                         <Link to="/products" className="waves-effect">
@@ -47,6 +69,12 @@ const SidebarContent = props => {
                         <Link to="/menus" className="waves-effect">
                             <i className="bx bx-calendar"></i>
                             <span>Menus</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/tables-assignments" className="waves-effect">
+                            <i className="bx bxs-barcode"></i>
+                            <span>QR-Code Assignments</span>
                         </Link>
                     </li>
                     <li>

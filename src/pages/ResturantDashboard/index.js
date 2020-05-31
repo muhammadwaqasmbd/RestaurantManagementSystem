@@ -36,6 +36,20 @@ class Dashboard extends Component {
 		}
     }
 
+
+	componentDidMount() {
+    	let path = this.props.location.pathname;
+    	let restaurant_id = path.substring(path.length - 1);
+		if(localStorage.getItem('isStuff')==="true"){
+			localStorage.removeItem('restaurantId')
+			localStorage.setItem('restaurantId',restaurant_id)
+		}
+	}
+
+	componentDidUpdate(prevProps) {
+		if (prevProps.location.pathname !== this.props.location.pathname) { window.location.reload();
+		}
+	}
     render() {
         return (
             <React.Fragment>

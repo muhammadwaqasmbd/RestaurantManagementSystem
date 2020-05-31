@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Container, Row, Col} from "reactstrap";
-import QRCodes from "./QRCodes";
+import Table from "./QRCode";
+import { Route, Redirect } from "react-router-dom";
 
 class Dashboard extends Component {
     constructor(props) {
@@ -24,7 +25,7 @@ class Dashboard extends Component {
 
                         <Row>
                             <Col lg="12">
-                                <QRCodes />
+                                <Table tableId = {this.props.match.params.id} />
                             </Col>
                         </Row>
                     </Container>

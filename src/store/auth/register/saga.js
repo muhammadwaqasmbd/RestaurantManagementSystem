@@ -5,14 +5,14 @@ import { REGISTER_USER } from './actionTypes';
 import { registerUserSuccessful, registerUserFailed } from './actions';
 
 //AUTH related methods
-import { getFirebaseBackend } from '../../../helpers/authUtils';
+import { authentication } from '../../../helpers/authUtils';
 
-const fireBaseBackend = getFirebaseBackend();
+const auth = authentication();
 
 // Is user register successfull then direct plot user in redux.
 function* registerUser({ payload: { user } }) {
     try {
-        const response = yield call(fireBaseBackend.registerUser, user.email, user.password);
+        const response = yield call(auth.registerUser, user.company, user.website, user.email, user.username, user.password);
         yield put(registerUserSuccessful(response));
     } catch (error) {
         yield put(registerUserFailed(error));

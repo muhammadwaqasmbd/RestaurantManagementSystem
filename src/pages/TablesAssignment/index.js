@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Container, Row, Col} from "reactstrap";
-import QRCodes from "./QRCodes";
+import Tables from "./Tables";
 
 class Dashboard extends Component {
     constructor(props) {
@@ -24,7 +24,7 @@ class Dashboard extends Component {
 
                         <Row>
                             <Col lg="12">
-                                <QRCodes />
+                                <Tables />
                             </Col>
                         </Row>
                     </Container>

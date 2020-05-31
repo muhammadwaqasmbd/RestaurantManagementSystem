@@ -24,6 +24,7 @@
     "echarts-for-react": "^2.0.15-beta.1",
     "firebase": "^7.11.0",
     "google-maps-react": "^2.0.2",
+    "jwt-decode": "^2.2.0",
     "lodash.clonedeep": "^4.5.0",
     "mdbreact": "^4.25.4",
     "metismenujs": "^1.1.0",

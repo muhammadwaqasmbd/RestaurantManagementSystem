@@ -4,25 +4,16 @@ import { Card, CardBody, CardTitle, Button } from "reactstrap";
 import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
-import Select from "react-select";
-
-const opts = [{ label: 'Yes', value: "Yes" }, { label: 'No', value: "No" }];
+import {baseUrl} from "../../helpers/baseUrl";
+import jwt from "jwt-decode";
 
 class Tables extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tables: [
-                { id: "1", qr: "3245892", table: "1", takeaway: "Yes", directpayment: "No"},
-                { id: "2", qr: "9842325", table: "", takeaway: "No", directpayment: "Yes"},
-                { id: "3", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
-                { id: "4", qr: "9842325", table: "5", takeaway: "No", directpayment: "Yes"},
-                { id: "5", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
-                { id: "6", qr: "9842325", table: "7", takeaway: "No", directpayment: "Yes"}
-            ],
-            editableRows : [],
+            items: [],
             currentPage: 1,
-            tablesPerPage: 5,
+            itemsPerPage: 5,
             upperPageBound: 3,
             lowerPageBound: 0,
             isPrevBtnActive: 'disabled',
@@ -31,15 +22,7 @@ class Tables extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            newItem: false,
-            newRows : [],
-            name : '',
-            checkedBoxCheck: false,
-            selectedItems: [],
-            tableNo : '',
-            qrcode: '',
-            takeaway: '',
-            directpayment: ''
+            name : ''
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -48,20 +31,66 @@ class Tables extends Component {
         this.btnNextClick = this.btnNextClick.bind(this);
         this.btnPrevClick = this.btnPrevClick.bind(this);
         this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
-        this.editTable = this.editTable.bind(this);
-        this.editTableRow = this.editTableRow.bind(this);
-        this.pauseTable = this.pauseTable.bind(this);
-        this.addNewRow = this.addNewRow.bind(this);
-        this.handleFormChange = this.handleFormChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.onAssignClick = this.onAssignClick.bind(this);
-        this.handleTableNoFormChange = this.handleTableNoFormChange.bind(this);
+        this.pauseItem = this.pauseItem.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchTables();
+    }
+
+    fetchTables(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching tables");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/tables', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                this.setState({
+                    items: response.results
+                })
+            })
+            .catch(error => console.log(error))
     }
 
     componentDidUpdate() {
-
+            $("ul li.active").removeClass('active');
+            $('ul li#'+this.state.currentPage).addClass('active');
     }
-
     handleClick(event) {
         let listid = Number(event.target.id);
         this.setState({
@@ -72,7 +101,7 @@ class Tables extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
     setPrevAndNextBtnClass(listid) {
-        let totalPage = Math.ceil(this.state.tables.length / this.state.tablesPerPage);
+        let totalPage = Math.ceil(this.state.items.length / this.state.itemsPerPage);
         this.setState({isNextBtnActive: 'disabled'});
         this.setState({isPrevBtnActive: 'disabled'});
         if(totalPage === listid && totalPage > 1){
@@ -119,234 +148,126 @@ class Tables extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
 
-
-    editTable(id){
-        console.log(id);
-        //var newTable = { id: "2", name: "Table Kiebert"};    
-        //this.setState({ tables: this.state.tables.concat(newTable) }); 
-    }
-
-    editTableRow(rowId){
-        const currentEditableRows = this.state.editableRows;
-        const isRowCurrentlyExpanded = currentEditableRows.includes(rowId);
-        const newEditableRows = isRowCurrentlyExpanded ? 
-        currentEditableRows.filter(id => id !== rowId) : 
-        currentEditableRows.concat(rowId);
-        this.setState({
-            tableNo : '',
-            takeaway : '',
-            directpayment : '',
-            editableRows : newEditableRows
-        });
-    }
-
-    pauseTable(id){
-        console.log(id);
-        //var newTable = { id: "2", name: "Table Kiebert"};    
-        //this.setState({ tables: this.state.tables.concat(newTable) }); 
-    }
-
-    addNewRow(){
-        const item = {
-            name: ""
-          };
-          this.setState({
-            newRows: [...this.state.newRows, item]
-          });                          
-    }
-
-    removeRow = (e, idx) => {
-        $("#addr" + idx).hide();
-      };
-
-      handleFormChange(event) {
-        /*const val = event.target.value;
-        this.setState(oldState => {
-            const newStatus = oldState.tableNo.slice();
-            newStatus[index] = val;
-            return {
-                [event.target.name]: newStatus
-            };
-        });*/
-        const value = event.target.value;
-        this.setState({
-          [event.target.name]: value
-        });
-      }
-
-      handleTableNoFormChange(event){
-        this.setState({
-            editableRows: {
-              ...this.state.editableRows,
-              tableNo: event.target.value
+    handleDeleteItem(id){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
             }
-          });
-
-      }
-    
-      handleSubmit(event) {
-        alert("qrcode: "+ this.state.qrcode);
-        alert("tableNo: "+ this.state.tableNo);
-        alert("takeaway: "+ this.state.takeaway);
-        alert("directpayment: "+ this.state.directpayment);
-        event.preventDefault();
-        //var newTable = { id: "2", name: "Table Kiebert"};    
-        //this.setState({ tables: this.state.tables.concat(newTable) 
-      }
-
-      toggleSelectAll() {
-        let selectedItems = [];
-        var checkedBoxCheck = !this.state.checkedBoxCheck;
-        // this.setState({ checkedBoxCheck: checkedBoxCheck });
-        if (checkedBoxCheck) {
-          this.state.tables.forEach(x => {
-            // selectedItems[x.id] = x.id
-            selectedItems.push(x.id);
-          });
-        } else {
-          selectedItems = [];
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
         }
-        this.setState(prevState => ({
-          selectedItems,
-          checkedBoxCheck
-        }));
+        var api = 'api/tables/'+id;
+        return fetch(baseUrl+api, {
+            method: 'DELETE',
+            headers: headers
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Deleted",
+                            dynamic_description: "Item has been deleted."
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in deletion."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in deletion."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
     }
 
-    async onItemSelect(row) {
-        
-        const selectedItems = this.state.selectedItems.slice(0);
-        console.log("selectedItems: ",selectedItems);
-        if (selectedItems.includes(row)) {
-          selectedItems.splice(selectedItems.indexOf(row), 1);
-        } else {
-          selectedItems.push(row);
-        }
-        await this.setState({
-          selectedItems
-        });
-        console.log("Hello", this.state.selectedItems);
+    pauseItem(id){
+        console.log(id);
+        //var newItem = { id: "2", name: "Item Kiebert"};    
+        //this.setState({ items: this.state.items.concat(newItem) }); 
+    }
 
+      handleChange(event) {
+        this.setState({name: event.target.value});
       }
 
-      async onAssignClick(row) {
-        const currentEditableRows = this.state.editableRows;
-        if(currentEditableRows.length <= 0){
-            const isRowCurrentlyExpanded = currentEditableRows.includes(row);
-            const newEditableRows = isRowCurrentlyExpanded ? 
-            currentEditableRows.filter(id => id !== row) : 
-            currentEditableRows.concat(row);
-            const dataRow = this.state.tables.filter(row => row.id == newEditableRows[0]);
-            this.setState({
-                editableRows : newEditableRows,
-                qrcode : dataRow[0].qr    
-            });
-        }
-      }
-
-    renderTables(table) {
-        const editRowCallback = () => this.editTableRow(table.id);
-        const pauseCallback = () => this.pauseTable(table.id);
+    renderItems(item) {
+        console.log(item)
+        const deleteCallBack = () => this.handleDeleteItem(item.id);
+        const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
-        this.state.editableRows.includes(table.id)  ? 
-        <tr key={"row--" + table.id}>
-                <td>
-                    <input
-                        type="checkbox"
-                        className="checkbox"
-                    />
-                </td>
-                <td>{table.qr}</td>
-                <td>
-                    <Input
-                        key = {table.id}
-                        type="text"
-                        id="tableNo"
-                        name="tableNo" 
-                        className="form-control"
-                        value={this.state.tableNo}  
-                        onChange={this.handleFormChange}
-                    />
-                </td>
-                <td>
-                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeaway} className="form-control">
-                        <option></option>
-                        <option>Yes</option>
-                        <option>No</option>
-                    </select>
-                </td>
-                <td>
-                    <select name="directpayment" onChange={this.handleFormChange} value={this.state.directpayment} className="form-control">
-                        <option></option>
-                        <option>Yes</option>
-                        <option>No</option>
-                    </select>
-                </td>
-                <td>
-                    <Button
-                        style={{backgroundColor: 'Green', width : '100px'}}
-                        size="sm" 
-                        className="btn-rounded waves-effect waves-light"
-                        form={"updateTableForm"}
-                    >
-                    Save
-                    </Button>
+        <tr key={"row-"+item.id}>
+            <td>
+                <h5 className="text-truncate font-size-14 text-dark">{item.table_number}</h5>
+            </td>
+            <td>
+                <h5 className="text-truncate font-size-14 text-dark">{item.takeaway ? "Yes" : "No"}</h5>
+            </td>
+            <td>
+                <h5 className="text-truncate font-size-14 text-dark">{item.direct_payment  ? "Yes" : "No"}</h5>
+            </td>
+            <td>
+                <Link to={"/table/"+item.id}>
                     <Button type="button" 
-                    style={{backgroundColor:'Red', width : '100px', marginLeft : '10px'}}
+                    style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
                     className="btn-rounded waves-effect waves-light" 
-                    onClick={editRowCallback} 
-                    key={"cancel-button-" + table.id}
+                    key={"edit-button-" + item.id}
                     >
-                        Cancel
+                        Edit
                     </Button>
-                </td>
-        </tr> :
-        <tr key={"row-"+table.id}>
-            <td>
-                <input
-                    type="checkbox"
-                    checked={this.state.selectedItems.includes(table.id)}
-                    className="checkbox"
-                    name="selectOptions"
-                    onChange={() => this.onItemSelect(table.id)}
-                  />
-            </td>
-            <td>{table.qr}</td>
-            <td>{table.table}</td>
-            <td>{table.takeaway == "Yes" ? "Yes" : "No"}</td>
-            <td>{table.directpayment == "Yes" ? "Yes" : "No"}</td>
-            <td>
+                </Link>
                 <Button type="button" 
-                style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
+                style={{width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
-                onClick={pauseCallback} 
-                key={"pause-button-" + table.id}
+                onClick={deleteCallBack} 
+                key={"delete-button-" + item.id}
                 >
-                    Pause
+                    Delete
                 </Button>
-                {table.table == ""?
-                <Button type="button" 
-                style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                //onClick={editRowCallback} 
-                onClick={() => this.onAssignClick(table.id)}
-                key={"assign-button-" + table.id}
-                >
-                    Assign
-                </Button>
-                :
-                <Button type="button" 
-                style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                //onClick={editRowCallback} 
-                onClick={() => this.onAssignClick(table.id)}
-                key={"assign-button-" + table.id}
-                >
-                    Unassign
-                </Button>
+
+                {this.state.success_dlg ? (
+                        <SweetAlert
+                            success
+                            title={this.state.dynamic_title}
+                            onConfirm={() => this.setState({ success_dlg: false })}
+                        >
+                            {this.state.dynamic_description}
+                        </SweetAlert>
+                    ) : null}
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ error_dlg: false })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
                 }
             </td>
         </tr>
@@ -357,18 +278,18 @@ class Tables extends Component {
 
     render() {
         let allItemRows = [];
-        const { tables, currentPage, tablesPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
-        const indexOfLastTable = currentPage * tablesPerPage;
-        const indexOfFirstTable = indexOfLastTable - tablesPerPage;
-        const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
-        currentTables.forEach(table => {
-            const perItemRows = this.renderTables(table);
+        const { items, currentPage, itemsPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+        currentItems.forEach(item => {
+            const perItemRows = this.renderItems(item);
             console.log(perItemRows);
             allItemRows = allItemRows.concat(perItemRows);
         });
 
         const pageNumbers = [];
-        for (let i = 1; i <= Math.ceil(tables.length / tablesPerPage); i++) {
+        for (let i = 1; i <= Math.ceil(items.length / itemsPerPage); i++) {
             pageNumbers.push(i);
         }
 
@@ -386,25 +307,25 @@ class Tables extends Component {
         });
         
         let pageIncrementBtn = null;
-        if(pageNumbers.length > upperPageBound && this.state.tables.length > 5){
+        if(pageNumbers.length > upperPageBound && this.state.items.length > 5){
             pageIncrementBtn = <li className='page-item'><a className='page-link page-link' onClick={this.btnIncrementClick}> &hellip; </a></li>
         }
         let pageDecrementBtn = null;
-        if(lowerPageBound >= 1 && this.state.tables.length > 5){
+        if(lowerPageBound >= 1 && this.state.items.length > 5){
             pageDecrementBtn = <li className='page-item'><a className='page-link page-link' onClick={this.btnDecrementClick}> &hellip; </a></li>
         }
         let renderPrevBtn = null;
         if(isPrevBtnActive === 'disabled') {
             renderPrevBtn = <li className='disabled page-item'><span id="btnPrev" className='page-link page-link'> Prev </span></li>
         }
-        else if(this.state.tables.length > 5){
+        else if(this.state.items.length > 5){
             renderPrevBtn = <li className='page-item'><a id="btnPrev" className='page-link page-link' onClick={this.btnPrevClick}> Prev </a></li>
         }
         let renderNextBtn = null;
         if(isNextBtnActive === 'disabled') {
             renderNextBtn = <li className='disabled page-item'><span className='page-link page-link' id="btnNext"> Next </span></li>
         }
-        else if(this.state.tables.length > 5){
+        else if(this.state.items.length > 5){
             renderNextBtn = <li className='page-item'><a id="btnNext" className='page-link page-link' onClick={this.btnNextClick}> Next </a></li>
         }
 
@@ -413,53 +334,37 @@ class Tables extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
-                        <div className="row">
-                                <div className="col-lg-6">
-                                QR-CODE ASSIGNMENT
-                                </div>
-                                <div className="col-lg-6 text-right">
-                                <Button type="button"
-                                style={{backgroundColor: 'maroon'}}
-                                size="sm" 
-                                className="btn-rounded waves-effect waves-light" 
-                                >
-                                Pause Selected
-                                </Button>
-                                </div>
-                            </div>
+                            Tables
                         </CardTitle>
                         <div className="table-responsive">
-                        <Form
+                            <Form
                                 className="repeater"
                                 encType="multipart/form-data"
                                 onSubmit={this.handleSubmit}
-                                id={"updateTableForm"}
+                                id="addItemForm"
                             ></Form>
-                            <table className="table table-centered table-nowrap mb-0">
+                            <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '10%'}}>
-                                        <input
-                                            type="checkbox"
-                                            className="select-all checkbox"
-                                            name="first_name"
-                                            id="selectAll1"
-                                            checked={this.state.checkedBoxCheck}
-                                            onChange={this.toggleSelectAll.bind(this)}
-                                        />
-                                        </th>
-                                        <th style={{width: '15%'}}>QR #</th>
-                                        <th style={{width: '15%'}}>Table #</th>
+                                        <th style={{width: '40%'}}>Table No</th>
                                         <th style={{width: '15%'}}>Takeaway</th>
                                         <th style={{width: '15%'}}>Direct Payment</th>
-                                        <th style={{width: '30%', textAlign: "center"}}>Actions</th>
+                                        <th style={{width: '30%'}}>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tablesBody">
+                                <tbody id="itemsBody">
                                     {allItemRows}
                                 </tbody>
                                 
                             </table>
+                            <Link to={"/table/0"}>
+                            <Button
+                                color="secondary"
+                                className="btn btn-secondary btn-lg btn-block waves-effect"
+                            >
+                                Add New Table
+                            </Button>
+                            </Link>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

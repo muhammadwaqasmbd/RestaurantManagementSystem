@@ -5,15 +5,18 @@ import { LOGIN_USER, LOGOUT_USER } from './actionTypes';
 import { loginSuccess, logoutUserSuccess, apiError } from './actions';
 
 //AUTH related methods
-import { getFirebaseBackend } from '../../../helpers/authUtils';
+import { authentication } from '../../../helpers/authUtils';
 
-const fireBaseBackend = getFirebaseBackend();
+const auth = authentication();
 
 function* loginUser({ payload: { user, history } }) {
     try {
-        const response = yield call(fireBaseBackend.loginUser, user.email, user.password);
+        const response = yield call(auth.loginUser, user.email, user.password);
         yield put(loginSuccess(response));
-        history.push('/dashboard');
+        localStorage.getItem('access') ?
+            history.push('/dashboard')
+        :
+            history.push('/login')
     } catch (error) {
         yield put(apiError(error));
     }
@@ -21,7 +24,7 @@ function* loginUser({ payload: { user, history } }) {
 
 function* logoutUser({ payload: { history } }) {
     try {
-        const response = yield call(fireBaseBackend.logout);
+        const response = yield call(auth.logout);
         yield put(logoutUserSuccess(response));
         history.push('/login');
     } catch (error) {
