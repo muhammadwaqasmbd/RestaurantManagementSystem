@@ -5,6 +5,7 @@ import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import Select from "react-select";
+import {baseUrl} from "../../helpers/baseUrl";
 
 const opts = [{ label: 'Yes', value: "Yes" }, { label: 'No', value: "No" }];
 
@@ -13,12 +14,12 @@ class Tables extends Component {
         super(props);
         this.state = {
             tables: [
-                { id: "1", qr: "3245892", table: "1", takeaway: "Yes", directpayment: "No"},
-                { id: "2", qr: "9842325", table: "", takeaway: "No", directpayment: "Yes"},
-                { id: "3", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
-                { id: "4", qr: "9842325", table: "5", takeaway: "No", directpayment: "Yes"},
-                { id: "5", qr: "3245892", table: "", takeaway: "Yes", directpayment: "No"},
-                { id: "6", qr: "9842325", table: "7", takeaway: "No", directpayment: "Yes"}
+                { id: "1", qr: "3245892", table: "1"},
+                { id: "2", qr: "9842325", table: ""},
+                { id: "3", qr: "3245892", table: ""},
+                { id: "4", qr: "9842325", table: "5"},
+                { id: "5", qr: "3245892", table: ""},
+                { id: "6", qr: "9842325", table: "7"}
             ],
             editableRows : [],
             currentPage: 1,
@@ -38,8 +39,7 @@ class Tables extends Component {
             selectedItems: [],
             tableNo : '',
             qrcode: '',
-            takeaway: '',
-            directpayment: ''
+            options : []
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -56,10 +56,64 @@ class Tables extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.onAssignClick = this.onAssignClick.bind(this);
         this.handleTableNoFormChange = this.handleTableNoFormChange.bind(this);
+        this.renderOptions = this.renderOptions.bind((this));
     }
 
-    componentDidUpdate() {
+    componentDidMount() {
+        this.fetchTables()
+    }
 
+    fetchTables(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching tables");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/tables', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                let options = []
+                response.results.forEach(table => {
+                    options.push(<option value={table.id}>{table.table_number}</option>)
+                });
+                this.setState({
+                    options: options
+                })
+                console.log("options: ",options)
+            })
+            .catch(error => console.log(error))
     }
 
     handleClick(event) {
@@ -134,8 +188,6 @@ class Tables extends Component {
         currentEditableRows.concat(rowId);
         this.setState({
             tableNo : '',
-            takeaway : '',
-            directpayment : '',
             editableRows : newEditableRows
         });
     }
@@ -187,11 +239,49 @@ class Tables extends Component {
       handleSubmit(event) {
         alert("qrcode: "+ this.state.qrcode);
         alert("tableNo: "+ this.state.tableNo);
-        alert("takeaway: "+ this.state.takeaway);
-        alert("directpayment: "+ this.state.directpayment);
-        event.preventDefault();
-        //var newTable = { id: "2", name: "Table Kiebert"};    
-        //this.setState({ tables: this.state.tables.concat(newTable) 
+          event.preventDefault();
+          let resId = localStorage.getItem('restaurantId')
+          let isStuff = localStorage.getItem('isStuff')
+          const bearer = 'Bearer ' + localStorage.getItem('access');
+          let headers = {}
+          let bodyData = {
+              "table_id":this.state.tableNo,
+              "qr_code_id": this.state.qrcode
+          }
+          if(isStuff == "true") {
+              headers = {
+                  'X-Requested-With': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': bearer,
+                  'RESID': resId
+              }
+          }else{
+              headers = {
+                  'X-Requested-With': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': bearer
+              }
+          }
+          var api = 'api/qr-codes/assign-table/'
+          return fetch(baseUrl+api, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify(bodyData)
+          })
+              .then(response => {
+                      console.log("register response: ",response)
+                      if (response.ok) {
+                          return response;
+                      } else {
+                          var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                          error.response = response;
+                          console.log(error)
+                      }
+                  },
+                  error => {
+                      console.log(error)
+                  })
+              .catch(error => console.log(error))
       }
 
       toggleSelectAll() {
@@ -249,36 +339,16 @@ class Tables extends Component {
         const itemRows = [
         this.state.editableRows.includes(table.id)  ? 
         <tr key={"row--" + table.id}>
-                <td>
+                {/*<td>
                     <input
                         type="checkbox"
                         className="checkbox"
                     />
-                </td>
+                </td>*/}
                 <td>{table.qr}</td>
                 <td>
-                    <Input
-                        key = {table.id}
-                        type="text"
-                        id="tableNo"
-                        name="tableNo" 
-                        className="form-control"
-                        value={this.state.tableNo}  
-                        onChange={this.handleFormChange}
-                    />
-                </td>
-                <td>
-                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeaway} className="form-control">
-                        <option></option>
-                        <option>Yes</option>
-                        <option>No</option>
-                    </select>
-                </td>
-                <td>
-                    <select name="directpayment" onChange={this.handleFormChange} value={this.state.directpayment} className="form-control">
-                        <option></option>
-                        <option>Yes</option>
-                        <option>No</option>
+                    <select name="tableNo" key = {table.id} value={this.state.tableNo}  onChange={this.handleFormChange} className="form-control">
+                        {this.state.options}
                     </select>
                 </td>
                 <td>
@@ -302,7 +372,7 @@ class Tables extends Component {
                 </td>
         </tr> :
         <tr key={"row-"+table.id}>
-            <td>
+            {/*<td>
                 <input
                     type="checkbox"
                     checked={this.state.selectedItems.includes(table.id)}
@@ -310,13 +380,11 @@ class Tables extends Component {
                     name="selectOptions"
                     onChange={() => this.onItemSelect(table.id)}
                   />
-            </td>
+            </td>*/}
             <td>{table.qr}</td>
             <td>{table.table}</td>
-            <td>{table.takeaway == "Yes" ? "Yes" : "No"}</td>
-            <td>{table.directpayment == "Yes" ? "Yes" : "No"}</td>
             <td>
-                <Button type="button" 
+                {/*<Button type="button"
                 style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
@@ -324,7 +392,7 @@ class Tables extends Component {
                 key={"pause-button-" + table.id}
                 >
                     Pause
-                </Button>
+                </Button>*/}
                 {table.table == ""?
                 <Button type="button" 
                 style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
@@ -355,6 +423,14 @@ class Tables extends Component {
         return itemRows;    
     }
 
+    renderOptions(table){
+        const itemRows = [
+            <option>{table.table_number}</option>
+        ]
+        this.setState({
+            options: itemRows
+        })
+    }
     render() {
         let allItemRows = [];
         const { tables, currentPage, tablesPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
@@ -417,7 +493,7 @@ class Tables extends Component {
                                 <div className="col-lg-6">
                                 QR-CODE ASSIGNMENT
                                 </div>
-                                <div className="col-lg-6 text-right">
+                               {/* <div className="col-lg-6 text-right">
                                 <Button type="button"
                                 style={{backgroundColor: 'maroon'}}
                                 size="sm" 
@@ -425,7 +501,7 @@ class Tables extends Component {
                                 >
                                 Pause Selected
                                 </Button>
-                                </div>
+                                </div>*/}
                             </div>
                         </CardTitle>
                         <div className="table-responsive">
@@ -435,10 +511,10 @@ class Tables extends Component {
                                 onSubmit={this.handleSubmit}
                                 id={"updateTableForm"}
                             ></Form>
-                            <table className="table table-centered table-nowrap mb-0">
+                            <table className="table table-centered table-nowrap mb-0" style={{textAlign:'center'}}>
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '10%'}}>
+                                        {/*<th style={{width: '10%'}}>
                                         <input
                                             type="checkbox"
                                             className="select-all checkbox"
@@ -447,12 +523,10 @@ class Tables extends Component {
                                             checked={this.state.checkedBoxCheck}
                                             onChange={this.toggleSelectAll.bind(this)}
                                         />
-                                        </th>
-                                        <th style={{width: '15%'}}>QR #</th>
-                                        <th style={{width: '15%'}}>Table #</th>
-                                        <th style={{width: '15%'}}>Takeaway</th>
-                                        <th style={{width: '15%'}}>Direct Payment</th>
-                                        <th style={{width: '30%', textAlign: "center"}}>Actions</th>
+                                        </th>*/}
+                                        <th style={{width: '20%'}}>QR #</th>
+                                        <th style={{width: '20%'}}>Table #</th>
+                                        <th style={{width: '60%', textAlign: "center"}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablesBody">

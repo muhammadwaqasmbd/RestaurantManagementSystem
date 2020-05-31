@@ -87,10 +87,13 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    console.log(typeof(localStorage.getItem('isStuff')))
-    if(localStorage.getItem('access') && localStorage.getItem('isStuff') == "true"){
-      this.fetchRestaurants();
-    }
+      if(localStorage.getItem('access') && localStorage.getItem('isStuff') == "true"){
+        this.fetchRestaurants();
+      }
+  }
+
+  componentWillUnmount() {
+
   }
 
   fetchRestaurants(){

@@ -217,8 +217,8 @@ class Product extends Component {
         console.log(this.state.price);
         console.log(this.state.category);
         console.log(this.state.vat);
-        console.log(this.state.selectedImages);
-        console.log(this.state.selectedThumnails);
+        console.log(this.state.selectedImages[0]);
+        console.log(this.state.selectedThumnails[0]);
 
         console.log(this.state.defaultAttrName);
         console.log(this.state.defaultAttrPrice);
@@ -250,14 +250,15 @@ class Product extends Component {
         formData.append('description', this.state.description);
         formData.append('unit_price', this.state.price);
         formData.append('vat_percent', this.state.vat);
-        formData.append('category_id', this.state.category);
+        formData.append('category_id', "1");
+        formData.append("product_sku", "1");
         formData.append('image', this.state.selectedImages[0]);
         formData.append('thumb', this.state.selectedThumnails[0]);
 
         if(isStuff == "true") {
             headers = {
                 'X-Requested-With': 'application/json',
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data; boundary=---WebKitFormBoundary7MA4YWxkTrZu0gW>',
                 'Authorization': bearer,
                 'RESID': resId
             }
@@ -268,6 +269,13 @@ class Product extends Component {
                 'Authorization': bearer
             }
         }
+        console.log(headers)
+        for (var pair of formData.entries())
+        {
+            console.log(pair[0]+ ', '+ pair[1]);
+            console.log(typeof(pair[1]));
+        }
+        //console.log(formData.values())
         var api = this.props.id > 0 ? 'api/products/'+this.props.id+'/' : 'api/products/';
         var method = this.props.id > 0 ? 'PUT' : 'POST';
         return fetch(baseUrl+api, {

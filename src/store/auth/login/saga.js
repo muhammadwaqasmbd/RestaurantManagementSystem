@@ -14,9 +14,9 @@ function* loginUser({ payload: { user, history } }) {
         const response = yield call(auth.loginUser, user.email, user.password);
         yield put(loginSuccess(response));
         localStorage.getItem('access') ?
-            history.push('/dashboard')
-        :
-            history.push('/login')
+            localStorage.getItem('isStuff') == "true" ?
+                history.push('/admindashboard') : history.push('/dashboard')
+            : history.push('/login')
     } catch (error) {
         yield put(apiError(error));
     }
