@@ -69,7 +69,8 @@ class Resturants extends Component {
                 let resultsArr = response.results;
                 const results = resultsArr.map(item => ({
                     id: item.id,
-                    name: item.name
+                    name: item.name,
+                    feepercent: item.fee_percent
                 }));
                 console.log(results)
                 this.setState({
@@ -141,8 +142,61 @@ class Resturants extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
 
-    handleDeleteItem(rowId){
-        this.setState({ confirm_both: true })
+    handleDeleteItem(id){
+        const updatedRestaurants = this.state.items.filter(p => id !== p.id);
+
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/restaurants/'+id+"/";
+        return fetch(baseUrl+api, {
+            method: 'DELETE',
+            headers: headers
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Deleted",
+                            dynamic_description: "Restaurant has been deleted.",
+                            items : updatedRestaurants
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in deletion."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in deletion."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
     }
 
     pauseItem(id){
@@ -173,7 +227,7 @@ class Resturants extends Component {
                         Dashboard
                     </Button>
                 </Link>
-                <Button type="button" 
+                {/*<Button type="button"
                 style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
@@ -181,7 +235,7 @@ class Resturants extends Component {
                 key={"pause-button-" + item.id}
                 >
                     Pause
-                </Button>
+                </Button>*/}
                 <Link to={"/restaurant/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
@@ -335,14 +389,6 @@ class Resturants extends Component {
                                     {allItemRows}
                                 </tbody>    
                             </table>
-                            <Link to={"/restaurant/0"}>
-                            <Button
-                                color="secondary"
-                                className="btn btn-secondary btn-lg btn-block waves-effect"
-                            >
-                                Add New Item
-                            </Button>
-                            </Link>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

@@ -152,19 +152,35 @@ class FirebaseAuthBackend {
    * forget Password user with given details
    */
   forgetPassword = email => {
-    return new Promise((resolve, reject) => {
-      firebase
-        .auth()
-        .sendPasswordResetEmail(email, {
-          url: window.location.protocol + "//" + window.location.host + "/login"
-        })
-        .then(() => {
-          resolve(true);
-        })
-        .catch(error => {
-          reject(this._handleError(error));
-        });
-    });
+      let bodyData = {
+          "email":email
+      }
+      return fetch(baseUrl+'api/reset-password/', {
+          method: 'POST',
+          headers: {
+              'X-Requested-With':'application/json',
+              'Content-Type':'application/json'
+          },
+          body: JSON.stringify(bodyData)
+      })
+          .then(response => {
+                  console.log("email sent response: ",response)
+                  if (response.ok) {
+                      return response;
+                  } else {
+                      var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                      error.response = response;
+                      this._handleError(error)
+                  }
+              },
+              error => {
+                  this._handleError(error)
+              })
+          .then(response => response.json())
+          .then(response => {
+              console.log("response: ",response)
+          })
+          .catch(error => this._handleError(error))
   };
 
   /**

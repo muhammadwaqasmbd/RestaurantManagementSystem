@@ -47,7 +47,7 @@ class EditableTables extends Component {
         <div className="page-content">
           <div className="container-fluid">
 
-            <Breadcrumbs title="Tables" breadcrumbItem="Editable Tables" />
+            <Breadcrumbs title="Categories" breadcrumbItem="Editable Categories" />
 
             <Row>
               <Col>

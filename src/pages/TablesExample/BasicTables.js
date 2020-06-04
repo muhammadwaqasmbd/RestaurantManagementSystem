@@ -16,7 +16,7 @@ class BasicTable extends Component {
                 <div className="page-content">
                     <div className="container-fluid">
 
-                        <Breadcrumbs title="Tables" breadcrumbItem="Basic Tables" />
+                        <Breadcrumbs title="Categories" breadcrumbItem="Basic Categories" />
 
                         <Row>
                             <Col md={6}>

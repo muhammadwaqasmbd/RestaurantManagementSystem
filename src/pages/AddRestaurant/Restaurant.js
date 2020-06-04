@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import Dropzone from 'react-dropzone';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
-import QRCode from 'qrcode.react';
+import {baseUrl} from "../../helpers/baseUrl";
 
 const dropzoneStyle = {
     width  : "100%",
@@ -17,52 +17,85 @@ class Restaurant extends Component {
             private : false,
             name : '',
             selectedImages: [],
-            qrCode : ''
+            logoUrl : ''
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
-        this.downloadQRCode = this.downloadQRCode.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
     }
 
-    componentDidMount(){
-        if(this.props.id > 0){
-            const response = {color: '#679099',private:true,name:'test',qrCode:'8768980'};
-            this.state.color = response.color;
-            this.state.private = response.private;
-            this.state.name = response.name;
-            this.state.qrCode = response.qrCode;
+    componentDidUpdate(prevProps) {
+        let response = this.props.res;
+        console.log("res: ",response)
+        console.log(response.company_name)
+        if (prevProps !== this.props) {
+            this.setState({
+                name : response.company_name,
+                logoUrl : response.logo_url,
+                color: response.color,
+                private: response.private
 
+            })
         }
-    }
-
-    downloadQRCode(){
-        const canvas = document.getElementById("qrCode");
-        const pngUrl = canvas
-            .toDataURL("image/png")
-            .replace("image/png", "image/octet-stream");
-        let downloadLink = document.createElement("a");
-        const imageName = this.state.name == "" ? "qrCode.png" : this.state.name+".png";
-        downloadLink.href = pngUrl;
-        downloadLink.download = imageName;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
     }
 
     handleSubmit(event) {
         event.preventDefault();
         console.log(this.state.color);
-        console.log(this.state.private);
         console.log(this.state.name);
-        console.log(this.state.selectedImages);
-        console.log(this.state.qrCode);
-        if(this.props.id > 0){
-            console.log("Update")
+        console.log(this.state.private);
+        console.log(this.state.selectedImages[0]);
+
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let formData = new FormData();
+        formData.append('name', this.state.name);
+        formData.append('color', this.state.color);
+        formData.append('private', this.state.private ? "y" : "n");
+        formData.append('logo', this.state.selectedImages[0]);
+
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
         }else{
-            console.log("create")
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer
+            }
         }
-      }
+        console.log(headers)
+        for (var pair of formData.entries())
+        {
+            console.log(pair[0]+ ', '+ pair[1]);
+            console.log(typeof(pair[1]));
+        }
+        var api = 'api/restaurants/'+this.props.id+'/';
+        return fetch(baseUrl+api, {
+            method: 'PUT',
+            headers: headers,
+            body: formData
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
 
     handleFormChange(event) {
     const value = event.target.value;
@@ -94,6 +127,7 @@ class Restaurant extends Component {
 
     render() {
         return (
+
             <React.Fragment>
                                 <Card>
                                     <CardBody>
@@ -121,7 +155,7 @@ class Restaurant extends Component {
                                         </FormGroup>
                                         <FormGroup className="mb-4" row>
                                             <Col lg="12">
-                                                <Input id="name" name="name" type="text" onChange={this.handleFormChange} value={this.state.name} className="form-control" placeholder="Restaurant Name" />
+                                                <Input id="name" name="name" type="text" onChange={this.handleFormChange} value={this.state.name ? this.state.name : ""} className="form-control" placeholder="Restaurant Name" />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-4" row>
@@ -147,64 +181,65 @@ class Restaurant extends Component {
                                                     className="dropzone-previews mt-3"
                                                     id="file-previews"
                                                 >
-                                                    {this.state.selectedImages.map((f, i) => {
-                                                    return (
+                                                    {this.state.selectedImages.length > 0 ?
+                                                        this.state.selectedImages.map((f, i) => {
+                                                        return (
                                                         <Card
                                                         className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
                                                         key={i + "-file"}
                                                         >
                                                         <div className="p-2">
+                                                        <Row className="align-items-center">
+                                                        <Col className="col-auto">
+                                                        <img
+                                                        data-dz-thumbnail=""
+                                                        height="80"
+                                                        className="avatar-sm rounded bg-light"
+                                                        alt={f.name}
+                                                        src={f.preview}
+                                                        />
+                                                        </Col>
+                                                        <Col>
+                                                        <Link
+                                                        to="#"
+                                                        className="text-muted font-weight-bold"
+                                                        >
+                                                        {f.name}
+                                                        </Link>
+                                                        <p className="mb-0">
+                                                        <strong>{f.formattedSize}</strong>
+                                                        </p>
+                                                        </Col>
+                                                        </Row>
+                                                        </div>
+                                                        </Card>
+                                                        );
+                                                    })
+                                                     :<div className="p-2">
                                                             <Row className="align-items-center">
-                                                            <Col className="col-auto">
-                                                                <img
+                                                        <Col className="col-auto">
+                                                            <img
                                                                 data-dz-thumbnail=""
                                                                 height="80"
                                                                 className="avatar-sm rounded bg-light"
-                                                                alt={f.name}
-                                                                src={f.preview}
-                                                                />
-                                                            </Col>
-                                                            <Col>
-                                                                <Link
-                                                                to="#"
-                                                                className="text-muted font-weight-bold"
-                                                                >
-                                                                {f.name}
-                                                                </Link>
-                                                                <p className="mb-0">
-                                                                <strong>{f.formattedSize}</strong>
-                                                                </p>
-                                                            </Col>
+                                                                alt={this.state.logoUrl}
+                                                                src={this.state.logoUrl}
+                                                            />
+                                                        </Col>
                                                             </Row>
                                                         </div>
-                                                        </Card>
-                                                    );
-                                                    })}
+                                                    }
                                                 </div>
                                             </div>
                                             )}
                                                 </Dropzone>
                                                 </Col>
                                             </FormGroup>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="5">
-                                                    <Input name="qrCode" type="text" onChange={this.handleFormChange} value={this.state.qrCode} className="form-control" placeholder="Enter QR Code" />
-                                                </Col>
-                                                <Col lg="7">
-                                                    <Button type="button" onClick={this.downloadQRCode} color="primary">Download QR Code</Button>
-                                                </Col>
-                                                <Col lg="12">
-                                                <QRCode id="qrCode" level={"H"} size={290} includeMargin={true} value={this.state.qrCode} />
-                                                </Col>
-                                            </FormGroup>
                                             
                                         </Form>
                                         <Row className="justify-content-end">
-                                            <Col lg="8">
+                                            <Col lg="12">
                                                 <Button type="submit" color="primary" form="restaurantForm" style={{width:"100%"}}>Save</Button>
-                                            </Col>
-                                            <Col lg="4">
-                                                <Button type="cancel" color="white">Cancel</Button>
                                             </Col>
                                         </Row>
 

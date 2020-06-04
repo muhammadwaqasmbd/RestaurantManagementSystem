@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import Dropzone from 'react-dropzone';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
 import $ from 'jquery';
 import {baseUrl} from "../../helpers/baseUrl";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 const dropzoneStyle = {
     width  : "100%",
@@ -16,20 +17,21 @@ class Product extends Component {
         this.state = {
             selectedImages: [],
             selectedThumnails : [],
+            sku: '',
             name : '',
             description : '',
             price: 0,
             category : '',
             vat : '',
-            defaultAttrName : '',
-            defaultAttrPrice: '',
+            count : 1,
             attributes : [],
-            attrCount: 1,
-            attrName: [],
-            attrPrice: [],
-            attrValuesName : [],
-            attrValuesPrice : [],
-            tempCount : 0
+            attrs: [],
+            redirectToReferrer : false,
+            success_dlg: false,
+            error_dlg: false,
+            imageurl : '',
+            thumburl : '',
+            categories : []
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
         this.handleAcceptedThumnails = this.handleAcceptedThumnails.bind(this);
@@ -37,163 +39,272 @@ class Product extends Component {
         this.handleFormChange = this.handleFormChange.bind(this);
         this.addAttributeForm = this.addAttributeForm.bind(this);
         this.handleAttrChange = this.handleAttrChange.bind(this);
-        this.removePrinter = this.removePrinter.bind(this);
-        this.removeAddPrinter = this.removeAddPrinter.bind(this);
+        this.removeAttr = this.removeAttr.bind(this)
     }
 
     componentDidMount(){
         if(this.props.id > 0){
-            let response = [
-                {
-                    "id": "1",
-                    "name": "Test 1",
-                    "price": "576"
-                },
-                {
-                    "id": "2",
-                    "name": "Test 2",
-                    "price": "576"
-                },
-                {
-                    "id": "3",
-                    "name": "Test 3",
-                    "price": "576"
-                }
-            ]
-            let defaultAttrName = response.length > 0 ? response[0].name : "";
-            let defaultAttrPrice = response.length > 0 ? response[0].price : "";
-            let attrArrMAC = '';
-            let attrArrNo = '';
-            response = response.slice(1);
-            console.log("sliced: ",response)
-            response.forEach(item => {
-                attrArrMAC = attrArrMAC + "attrName"+item.id+"^*&"+item.name+",";
-                attrArrNo = attrArrNo + "attrPrice"+item.id+"^*&"+item.price+",";
-            });
-            attrArrMAC = attrArrMAC.substring(0,attrArrMAC.length-1)
-            attrArrNo = attrArrNo.substring(0,attrArrNo.length-1)
-            this.state.defaultAttrName = defaultAttrName;
-            this.state.defaultAttrPrice = defaultAttrPrice;
-
-            const attrValArrMAC = attrArrMAC.split(',');
-            const attrValArrNo = attrArrNo.split(',');
-            var attrValMap = {};
-            attrValArrMAC.forEach((key, i) => attrValMap[key] = attrValArrNo[i]);
-            console.log(attrValMap);
+            this.fetchProduct();
+        }else{
             var array = this.state.attributes;
-            for (const [key, value] of Object.entries(attrValMap)) {
-                const keyArr = key.split("^*&");
-                const valArr = value.split("^*&");
-                const count = parseInt(keyArr[0].substr(keyArr[0].length - 1));
-                array.push(
-                    <div  id={"attrrow"+count} key={"attrrow"+count}>
-                    <FormGroup  className="mb-4" row>
-                        <Col lg="11">
-                            <Input id={keyArr[0]}
-                                   name={keyArr[0]}
-                                   value={keyArr[1]}
+            array.push(
+                <div id={"attrrow" + this.state.count} key={"attrrow" + this.state.count}>
+                    <FormGroup className="mb-4" row>
+                        <Col lg="12">
+                            <Input id="name"
+                                   name="name"
                                    type="text"
                                    className="form-control"
                                    placeholder="Attribute Name"
-                                   onChange={this.handleFormChange}
+                                   onChange={this.handleAttrChange(this.state.count+"temp")}
                             />
                         </Col>
-                        <Col lg="1">
-                            <button type="button" onClick={() => { this.removePrinter(keyArr,valArr,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </Col>
                     </FormGroup>
-                    <FormGroup  className="mb-4" row>
+                    <FormGroup className="mb-4" row>
                         <Col lg="5">
                             <InputGroup>
                                 <Input
-                                    id={valArr[0]}
-                                    name={valArr[0]}
-                                    value={valArr[1]}
                                     type="number"
                                     className="form-control"
+                                    name = "price"
                                     placeholder="Price"
-                                    onChange={this.handleFormChange}
+                                    onChange={this.handleAttrChange(this.state.count+"temp")}
                                 />
                             </InputGroup>
                         </Col>
                     </FormGroup>
-            </div>
-                )
-                this.setState({
-                    attributeForm: array,
-                    attrName : [...this.state.attrName,keyArr[0]],
-                    attrPrice : [...this.state.attrPrice,valArr[0]],
-                    attrValuesName : [...this.state.attrValuesName,keyArr[0]+"^*&"+keyArr[1]],
-                    attrValuesPrice : [...this.state.attrValuesPrice,valArr[0]+"^*&"+valArr[1]],
-                    tempCount : count
-                });
-            }
+                </div>
+            )
         }
+        this.fetchCategories();
     }
 
-    removePrinter(MAC, No, rowNo){
-        if(MAC.length>0){
-            this.setState({attrName: this.state.attrName.filter(function(mac) {
-                    return mac !== MAC[0]
-                })});
-            this.setState({attrValuesName: this.state.attrValuesName.filter(function(mac) {
-                    return mac !== MAC[1]
-                })});
+    fetchCategories(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching tables");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
         }
-        if(No.length>0){
-            this.setState({attrPrice: this.state.attrPrice.filter(function(no) {
-                    return no !== No[0]
-                })});
-            this.setState({attrValuesPrice: this.state.attrValuesPrice.filter(function(no) {
-                    return no !== No[1]
-                })});
-        }
+        return fetch(baseUrl+'api/categories/', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                if(response.length > 0) {
+                    let options = []
+                    response.forEach(cat => {
+                        options.push(<option value={cat.id}>{cat.name}</option>)
+                    });
+                    this.setState({
+                        categories: options
+                    })
+                }
+            })
+            .catch(error => console.log(error))
+    }
+
+    removeAttr(id, rowNo){
+        this.setState({attrs: this.state.attrs.filter(function(attr) {
+                return attr.id !== id
+            })});
         $("#"+rowNo).remove();
     }
 
-    removeAddPrinter(attrNameKey, attrPriceKey, row){
-        this.setState({attrName: this.state.attrName.filter(function(key) {
-                return key !== attrNameKey
-            })});
-        this.setState({attrPrice: this.state.attrPrice.filter(function(key) {
-                return key !== attrPriceKey
-            })});
-        $("#"+row).remove();
+    fetchProduct(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching products");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/products/'+this.props.id+'', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("product response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("product response 2: ",response)
+                this.setState({
+                    attrs : response.attributes,
+                    sku: response.product_sku,
+                    name : response.name,
+                    description: response.description,
+                    price: response.unit_price,
+                    category: response.category_id,
+                    vat: response.vat_percent,
+                    imageurl: response.image_url,
+                    thumburl: response.image_thumb_url
+                })
+                let attrs = this.state.attrs;
+                console.log("attrs1: ",attrs)
+                for (var i = 0; i < attrs.length; i++) {
+                    attrs[i]['id'] = ""+parseInt(i+1)+"";
+                };
+                console.log("attrs: ",attrs)
+                var array = this.state.attributes;
+                if(attrs.length >0) {
+                    attrs.forEach(item => {
+                        array.push(
+                            <div id={"attrrow" + item.id} key={"attrrow" + item.id}>
+                                <FormGroup className="mb-4" row>
+                                    <Col lg="11">
+                                        <Input id="name"
+                                               name="name"
+                                               defaultValue={item.name}
+                                               type="text"
+                                               className="form-control"
+                                               placeholder="Attribute Name"
+                                               onChange={this.handleAttrChange(item.id)}
+                                        />
+                                    </Col>
+                                    <Col lg="1">
+                                        <button type="button" onClick={() => { this.removeAttr(item.id,"attrrow" + item.id)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </Col>
+                                </FormGroup>
+                                <FormGroup className="mb-4" row>
+                                <Col lg="5">
+                                    <InputGroup>
+                                        <Input
+                                            type="number"
+                                            className="form-control"
+                                            name = "price"
+                                            defaultValue={item.price}
+                                            placeholder="Price"
+                                            onChange={this.handleAttrChange(item.id)}
+                                        />
+                                    </InputGroup>
+                                </Col>
+                            </FormGroup>
+                            </div>
+                        )
+                    });
+                    var count = parseInt(attrs[attrs.length - 1].id) + 1
+                    this.setState({
+                        count: count
+                    });
+                }else{
+                    array.push(
+                        <div id={"attrrow" + this.state.count} key={"attrrow" + this.state.count}>
+                            <FormGroup className="mb-4" row>
+                                <Col lg="12">
+                                    <Input id="name"
+                                           name="name"
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Attribute Name"
+                                           onChange={this.handleAttrChange(this.state.count+"temp")}
+                                    />
+                                </Col>
+                            </FormGroup>
+                            <FormGroup className="mb-4" row>
+                                <Col lg="5">
+                                    <InputGroup>
+                                        <Input
+                                            type="number"
+                                            className="form-control"
+                                            name = "price"
+                                            placeholder="Price"
+                                            onChange={this.handleAttrChange(this.state.count+"temp")}
+                                        />
+                                    </InputGroup>
+                                </Col>
+                            </FormGroup>
+                        </div>
+                    )
+                }
+            })
+            .catch(error => console.log(error))
     }
 
     addAttributeForm() {
         var array = this.state.attributes;
-        let count = parseInt(this.state.tempCount + this.state.attrCount);
+        let count = this.state.count+1;
         array.push(
-            <div id={"attrrow"+count} key={"attrrow"+count}>
-                <FormGroup  className="mb-4" row>
+            <div id={"attrrow" + count} key={"attrrow" + count}>
+                <FormGroup className="mb-4" row>
                     <Col lg="11">
-                        <Input id="attrName"
-                               name={"attrName"+count}
+                        <Input id="name"
+                               name="name"
                                type="text"
                                className="form-control"
                                placeholder="Attribute Name"
-                               onChange={this.handleFormChange}
+                               onChange={this.handleAttrChange(count+"temp")}
                         />
                     </Col>
                     <Col lg="1">
-                        <button type="button" onClick={() => { this.removeAddPrinter("attrName"+count,"attrPrice"+count,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                        <button type="button" onClick={() => { this.removeAttr(count+"temp","attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </Col>
                 </FormGroup>
-                <FormGroup  className="mb-4" row>
+                <FormGroup className="mb-4" row>
                     <Col lg="5">
                         <InputGroup>
                             <Input
-                                id="attrPrice"
-                                name={"attrPrice"+count}
                                 type="number"
                                 className="form-control"
+                                name = "price"
                                 placeholder="Price"
-                                onChange={this.handleFormChange}
+                                onChange={this.handleAttrChange(count+"temp")}
                             />
                         </InputGroup>
                     </Col>
@@ -202,11 +313,8 @@ class Product extends Component {
         );
 
         this.setState({
-            attributeForm: array,
-            attrCount : count+1,
-            tempCount : 0,
-            attrName : [...this.state.attrName,"attrName"+count],
-            attrPrice : [...this.state.attrPrice,"attrPrice"+count]
+            attrs: [...this.state.attrs, {"id":count+"temp","name": "","price":0}],
+            count: count+1
         });
     }
 
@@ -220,52 +328,44 @@ class Product extends Component {
         console.log(this.state.selectedImages[0]);
         console.log(this.state.selectedThumnails[0]);
 
-        console.log(this.state.defaultAttrName);
-        console.log(this.state.defaultAttrPrice);
-        let attributesMAC = '';
-        attributesMAC = this.getAttr(this.state.attrName, this.state.attrValuesName);
-        attributesMAC = attributesMAC.substring(0, attributesMAC.length - 1);
-        console.log("attributesMAC: ",attributesMAC);
-        let attributesNo = '';
-        attributesNo = this.getAttr(this.state.attrPrice, this.state.attrValuesPrice);
-        attributesNo = attributesNo.substring(0, attributesNo.length - 1);
-        console.log("attributesNo: ",attributesNo);
-        if(this.props.id > 0){
-            console.log("Update")
-        }else{
-            console.log("create")
-        }
+        let attrsList  = this.state.attrs;
+        let newRecords = []
+        attrsList.forEach(function(item) {
+            var tempItem = Object.assign({}, item);
+                delete tempItem.id;
+                tempItem.price = parseInt(tempItem.price);
+                newRecords.push(tempItem);
+        });
+        let attributes = [];
+        attributes = attributes.concat(newRecords);
+        //attributes = attributes.concat(newRecords);
+        console.log(attributes)
 
-        event.preventDefault();
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
-        console.log(this.state.name)
-        console.log(this.state.description)
-        console.log(this.state.startTime)
-        console.log(this.state.closeTime)
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
         let formData = new FormData();
+
         formData.append('name', this.state.name);
         formData.append('description', this.state.description);
         formData.append('unit_price', this.state.price);
         formData.append('vat_percent', this.state.vat);
-        formData.append('category_id', "1");
-        formData.append("product_sku", "1");
+        formData.append('category_id', this.state.category);
+        formData.append("product_sku", this.state.sku);
         formData.append('image', this.state.selectedImages[0]);
         formData.append('thumb', this.state.selectedThumnails[0]);
+        formData.append('attributes', JSON.stringify(attributes));
 
         if(isStuff == "true") {
             headers = {
                 'X-Requested-With': 'application/json',
-                'Content-Type': 'multipart/form-data; boundary=---WebKitFormBoundary7MA4YWxkTrZu0gW>',
                 'Authorization': bearer,
                 'RESID': resId
             }
         }else{
             headers = {
                 'X-Requested-With': 'application/json',
-                'Content-Type': 'application/json',
                 'Authorization': bearer
             }
         }
@@ -286,8 +386,18 @@ class Product extends Component {
             .then(response => {
                     console.log(" response: ",response)
                     if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Created",
+                            dynamic_description: "Record has been created."
+                        })
                         return response;
                     } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in creation."
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
@@ -295,39 +405,17 @@ class Product extends Component {
 
                 },
                 error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in creation."
+                    })
                     console.log(error)
                 })
             .catch(error => console.log(error))
       }
 
-    getAttr(attrArrParam, attrValuesParam){
-        console.log("attrArrParam: ",attrArrParam);
-        console.log("attrValuesParam: ", attrValuesParam);
-        let attrArr = [];
-        attrValuesParam.forEach(item => {
-            if(item.includes("^*&")){
-                attrArr.push(item);
-            }
-        });
-        let mainArr = [];
-        attrArrParam.forEach(attrval => {
-            let tempArr = [];
-            attrArr.forEach(item => {
-                if(item.includes(attrval)){
-                    tempArr.push(item);
-                }
-            });
-            mainArr.push(tempArr);
-        });
-        console.log("mainarr: ",mainArr);
-        let attributes = '';
-        mainArr.forEach(arr => {
-            if(arr.length > 0){
-                attributes = attributes + arr.pop() + ",";
-            }
-        });
-        return attributes;
-    }
+
     handleFormChange(event) {
         const value = event.target.value;
         this.setState({
@@ -336,15 +424,15 @@ class Product extends Component {
         console.log(event.target.name+": "+value);
     }
 
-    handleAttrChange(event) {
-        const value = event.target.value;
-        const attrNameName = this.state.attrName.find(elem => elem == event.target.name);
-        const attrPriceName = this.state.attrPrice.find(elem => elem == event.target.name);
-        this.setState({
-            attrValuesName: [...this.state.attrValuesName,attrNameName+"^*&"+value],
-            attrValuesPrice: [...this.state.attrValuesPrice,attrPriceName+"^*&"+value]
-        });
-        console.log(event.target.name+": "+value);
+    handleAttrChange = id => (event) => {
+        let value = event.target.value
+        let name = event.target.name
+        this.setState(prevState => ({
+            attrs: prevState.attrs.map(
+                obj => (obj.id === id ? Object.assign(obj, {[name]: value}) : obj)
+            )
+        }));
+        console.log(this.state.attrs);
     }
 
     handleAcceptedImages = (files) => {
@@ -378,8 +466,33 @@ class Product extends Component {
     }
 
     render() {
+        const redirectToReferrer = this.state.redirectToReferrer;
+        if (redirectToReferrer === true) {
+            return <Redirect to="/products" />
+        }
+
         return (
             <React.Fragment>
+                {this.state.success_dlg ? (
+                    <SweetAlert
+                        success
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ success_dlg: false, redirectToReferrer:true })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null}
+
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ error_dlg: false, redirectToReferrer: true })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
+                }
                     <Container fluid>
                         <Row>
                             <Col lg="6">
@@ -413,7 +526,8 @@ class Product extends Component {
                                                     className="dropzone-previews mt-3"
                                                     id="file-previews"
                                                 >
-                                                    {this.state.selectedImages.map((f, i) => {
+                                                    {this.state.selectedImages.length > 0 ?
+                                                    this.state.selectedImages.map((f, i) => {
                                                     return (
                                                         <Card
                                                         className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
@@ -445,7 +559,21 @@ class Product extends Component {
                                                         </div>
                                                         </Card>
                                                     );
-                                                    })}
+                                                    })
+                                                        :<div className="p-2">
+                                                            <Row className="align-items-center">
+                                                                <Col className="col-auto">
+                                                                    <img
+                                                                        data-dz-thumbnail=""
+                                                                        height="80"
+                                                                        className="avatar-sm rounded bg-light"
+                                                                        alt={this.state.imageurl}
+                                                                        src={this.state.imageurl}
+                                                                    />
+                                                                </Col>
+                                                            </Row>
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
                                             )}
@@ -473,7 +601,8 @@ class Product extends Component {
                                                     className="dropzone-previews mt-3"
                                                     id="file-previews"
                                                 >
-                                                    {this.state.selectedThumnails.map((f, i) => {
+                                                    {this.state.selectedThumnails.length > 0 ?
+                                                    this.state.selectedThumnails.map((f, i) => {
                                                     return (
                                                         <Card
                                                         className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
@@ -505,7 +634,21 @@ class Product extends Component {
                                                         </div>
                                                         </Card>
                                                     );
-                                                    })}
+                                                    })
+                                                        :<div className="p-2">
+                                                        <Row className="align-items-center">
+                                                        <Col className="col-auto">
+                                                        <img
+                                                        data-dz-thumbnail=""
+                                                        height="80"
+                                                        className="avatar-sm rounded bg-light"
+                                                        alt={this.state.thumburl}
+                                                        src={this.state.thumburl}
+                                                        />
+                                                        </Col>
+                                                        </Row>
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
                                             )}
@@ -516,6 +659,11 @@ class Product extends Component {
                                             <FormGroup className="mb-4" row>
                                                 <Col lg="12">
                                                     <Input id="name" name="name" type="text" onChange={this.handleFormChange} value={this.state.name} className="form-control" placeholder="Enter Product Name" />
+                                                </Col>
+                                            </FormGroup>
+                                            <FormGroup className="mb-4" row>
+                                                <Col lg="12">
+                                                    <Input id="name" name="sku" type="text" onChange={this.handleFormChange} value={this.state.sku} className="form-control" placeholder="Enter SKU" />
                                                 </Col>
                                             </FormGroup>
                                             <FormGroup className="mb-4" row>
@@ -532,8 +680,7 @@ class Product extends Component {
                                                 <Col lg="12">
                                                     <select className="form-control" name="category" onChange={this.handleFormChange} value={this.state.category}>
                                                         <option>Select Category</option>
-                                                        <option>Soft Drinks</option>
-                                                        <option>Burgers</option>
+                                                        {this.state.categories}
                                                     </select>
                                                 </Col>
                                             </FormGroup>
@@ -541,36 +688,13 @@ class Product extends Component {
                                                 <Col lg="12">
                                                     <select className="form-control" name="vat" onChange={this.handleFormChange} value={this.state.vat}>
                                                         <option>VAT %</option>
-                                                        <option>5</option>
-                                                        <option>10</option>
+                                                        <option>0</option>
+                                                        <option>9</option>
+                                                        <option>21</option>
                                                     </select>
                                                 </Col>
                                             </FormGroup>
                                             <h5>Optional Attributes</h5>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="12">
-                                                    <Input id="defaultAttrName"
-                                                           name="defaultAttrName"
-                                                           type="text"
-                                                           className="form-control"
-                                                           placeholder="Attribute Name"
-                                                           onChange={this.handleFormChange} value={this.state.defaultAttrName}
-                                                    />
-                                                </Col>
-                                            </FormGroup>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="5">
-                                                    <InputGroup>
-                                                        <Input
-                                                            type="number"
-                                                            className="form-control"
-                                                            name = "defaultAttrPrice"
-                                                            placeholder="Price"
-                                                            onChange={this.handleFormChange} value={this.state.defaultAttrPrice}
-                                                        />
-                                                    </InputGroup>
-                                                </Col>
-                                            </FormGroup>
                                             { 
                                                 this.state.attributes.map(input => {
                                                     return input

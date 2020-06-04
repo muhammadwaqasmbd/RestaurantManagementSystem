@@ -19,7 +19,7 @@ class ResponsiveTables extends Component {
                 <div className="page-content">
                     <div className="container-fluid">
 
-                        <Breadcrumbs title="Tables" breadcrumbItem="Responsive Tables" />
+                        <Breadcrumbs title="Categories" breadcrumbItem="Responsive Categories" />
 
                         <Row>
                             <Col>

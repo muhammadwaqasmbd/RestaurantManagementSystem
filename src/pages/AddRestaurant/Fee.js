@@ -5,19 +5,11 @@ import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormG
 import Select from "react-select";
 import {baseUrl} from "../../helpers/baseUrl";
 
-const dropzoneStyle = {
-    width  : "100%",
-    height : "10px",
-};
-
-class Untill extends Component {
+class Fee extends Component {
     constructor() {
         super();
         this.state = {
-            username : '',
-            password : '',
-            IP: '',
-            port : ''
+            fee : ''
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
@@ -29,32 +21,22 @@ class Untill extends Component {
         console.log(response.company_name)
         if (prevProps !== this.props) {
             this.setState({
-                username : response.username,
-                password : response.password,
-                IP : response.ip,
-                port : response.port,
+                fee : response.fee_percent,
 
             })
         }
     }
 
-
     handleSubmit(event) {
         event.preventDefault();
-        console.log(this.state.username);
-        console.log(this.state.password);
-        console.log(this.state.IP);
-        console.log(this.state.port);
+        console.log(this.state.fee);
 
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
         let formData = new FormData();
-        formData.append('username', this.state.username);
-        formData.append('password', this.state.password);
-        formData.append('ip', this.state.IP);
-        formData.append('port', this.state.port);
+        formData.append('fee_percent', this.state.fee);
 
         if(isStuff == "true") {
             headers = {
@@ -110,35 +92,20 @@ class Untill extends Component {
             <React.Fragment>
                                 <Card>
                                     <CardBody>
-                                        <CardTitle className="mb-4">UNTILL</CardTitle>
                                         <Form
                                         onSubmit={this.handleSubmit}
-                                        id="untillForm"
+                                        id="feeForm"
                                         >
                                             <FormGroup className="mb-4" row>
                                                 <Col lg="12">
-                                                    <Input id="username" name="username" type="text" onChange={this.handleFormChange} value={this.state.username} className="form-control" placeholder="Enter Username" />
-                                                </Col>
-                                            </FormGroup>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="12">
-                                                    <Input id="password" name="password" type="text" onChange={this.handleFormChange} value={this.state.password} className="form-control" placeholder="Enter Password" />
-                                                </Col>
-                                            </FormGroup>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="12">
-                                                    <Input id="IP" name="IP" type="text" onChange={this.handleFormChange} value={this.state.IP} className="form-control" placeholder="Enter IP" />
-                                                </Col>
-                                            </FormGroup>
-                                            <FormGroup className="mb-4" row>
-                                                <Col lg="12">
-                                                    <Input id="port" name="port" type="text" onChange={this.handleFormChange} value={this.state.port} className="form-control" placeholder="Enter Port" />
+                                                    <label>Fee</label>
+                                                    <Input id="fee" name="fee" type="text" onChange={this.handleFormChange} value={this.state.fee} className="form-control" placeholder="Enter Username" />
                                                 </Col>
                                             </FormGroup>
                                         </Form>
                                         <Row className="justify-content-end">
                                             <Col lg="12">
-                                                <Button type="submit" color="primary" form="untillForm" style={{width:"100%"}}>Save</Button>
+                                                <Button type="submit" color="primary" form="feeForm" style={{width:"100%"}}>Save</Button>
                                             </Col>
                                         </Row>
 
@@ -149,4 +116,4 @@ class Untill extends Component {
     }
 }
 
-export default Untill;
+export default Fee;

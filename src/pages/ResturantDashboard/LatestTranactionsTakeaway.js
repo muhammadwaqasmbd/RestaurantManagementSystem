@@ -3,85 +3,13 @@ import React, { Component } from "react";
 import { Card, CardBody, CardTitle, Badge, Button, Collapse } from "reactstrap";
 import { Link } from "react-router-dom";
 import $ from 'jquery';
+import {baseUrl} from "../../helpers/baseUrl";
 
-class LatestTranactionsTakeaway extends Component {
+class LatestTranactionsRestaurant extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            transactions: [
-                { id: "customCheck2", orderId: "#SK2539", billingName: "Jamal Burnett", Date: "19 Dec, 2020", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                    { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                    { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                    { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                    { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                    { id: "customCheck2", orderId: "#SK2540", billingName: "Neal Matthews", Date: "07 Oct, 2019", total: "$400", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck3", orderId: "#SK2541", billingName: "Jamal Burnett", Date: "07 Oct, 2019", total: "$380", badgeClass: "danger", paymentStatus: "Chargeback", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck4", orderId: "#SK2542", billingName: "Juan Mitchell", Date: "06 Oct, 2019", total: "$384", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck5", orderId: "#SK2543", billingName: "Barry Dick", Date: "05 Oct, 2019", total: "$412", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-mastercard", paymentMethod: "Mastercard", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck6", orderId: "#SK2544", billingName: "Ronald Taylor", Date: "04 Oct, 2019", total: "$404", badgeClass: "warning", paymentStatus: "Refund", methodIcon: "fa-cc-visa", paymentMethod: "Visa", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} },
-                { id: "customCheck7", orderId: "#SK2545", billingName: "Jacob Hunter", Date: "04 Oct, 2019", total: "$392", badgeClass: "success", paymentStatus: "Paid", methodIcon: "fa-cc-paypal", paymentMethod: "Paypal", link: "#",
-                    details:{quantities :[1,1,2,3,1], items :["Coca Cola","Strawberrie pie","Apple pie", "French fries", "Coconut juice"]} }
-            ],
+            transactions: [],
             expandedRows : [],
             currentPage: 1,
             transactionsPerPage: 5,
@@ -92,24 +20,77 @@ class LatestTranactionsTakeaway extends Component {
             pageBound: 3
         };
         this.handleClick = this.handleClick.bind(this);
-            this.btnDecrementClick = this.btnDecrementClick.bind(this);
-            this.btnIncrementClick = this.btnIncrementClick.bind(this);
-            this.btnNextClick = this.btnNextClick.bind(this);
-            this.btnPrevClick = this.btnPrevClick.bind(this);
-            this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
+        this.btnDecrementClick = this.btnDecrementClick.bind(this);
+        this.btnIncrementClick = this.btnIncrementClick.bind(this);
+        this.btnNextClick = this.btnNextClick.bind(this);
+        this.btnPrevClick = this.btnPrevClick.bind(this);
+        this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount(){
+        this.fetchDashboard();
     }
 
     componentDidUpdate() {
-            $("ul li.active").removeClass('active');
-            $('ul li#'+this.state.currentPage).addClass('active');
+        $("ul li.active").removeClass('active');
+        $('ul li#'+this.state.currentPage).addClass('active');
     }
+
+
+    fetchDashboard(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching menus");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/restaurants/'+resId+'/dashboard/orders/?takeaway=y', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("2nd response: ",response)
+                if(response.results.length > 0){
+                    this.setState({
+                        transactions: response
+                    })
+                }
+            })
+            .catch(error => console.log(error))
+    }
+
     handleClick(event) {
         let listid = Number(event.target.id);
         this.setState({
-        currentPage: listid
+            currentPage: listid
         });
         $("ul li.active").removeClass('active');
         $('ul li#'+listid).addClass('active');
@@ -166,83 +147,83 @@ class LatestTranactionsTakeaway extends Component {
     handleRowClick(rowId) {
         const currentExpandedRows = this.state.expandedRows;
         const isRowCurrentlyExpanded = currentExpandedRows.includes(rowId);
-        const newExpandedRows = isRowCurrentlyExpanded ? 
-        currentExpandedRows.filter(id => id !== rowId) : 
-        currentExpandedRows.concat(rowId);
+        const newExpandedRows = isRowCurrentlyExpanded ?
+            currentExpandedRows.filter(id => id !== rowId) :
+            currentExpandedRows.concat(rowId);
         this.setState({expandedRows : newExpandedRows});
     }
-    
+
     renderTransactions(transaction) {
         const clickCallback = () => this.handleRowClick(transaction.id);
         const itemRows = [
-        <tr key={transaction.id}>
-            <td><Link to="#" className="text-body font-weight-bold"> {transaction.orderId} </Link> </td>
-            <td>{transaction.billingName}</td>
-            <td>
-                {transaction.Date}
-            </td>
-            <td>
-                {transaction.Date}
-            </td>
-            <td>
-                {transaction.total}
-            </td>
-            <td>
-                <Badge className={"font-size-12 badge-soft-" + transaction.badgeClass} color={transaction.badgeClass} pill>{transaction.paymentStatus}</Badge>
-            </td>
-            <td>
-                <i className={"fab " + transaction.methodIcon + " mr-1"}></i> {transaction.paymentMethod}
-            </td>
-            <td>
-                <Button type="button" 
-                style={{backgroundColor: !this.state.expandedRows.includes(transaction.id) ? 'red' : 'blue'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={clickCallback} 
-                key={"row-data-" + transaction.id}
-                >
-                    {
-                        !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
-                    }
-                </Button>
-                <Button type="button"
-                style={{backgroundColor: 'blue', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={clickCallback} 
-                key={"row-data-pos" + transaction.id}
-                >
-                   Payed or POS
-                </Button>
-            </td>
-        </tr>
+            <tr key={transaction.id}>
+                <td><Link to="#" className="text-body font-weight-bold"> {transaction.order_id} </Link> </td>
+                <td>{transaction.table_number}</td>
+                <td>
+                    {transaction.placed_at}
+                </td>
+                <td>
+                    {transaction.placed_at}
+                </td>
+                <td>
+                    {transaction.total}
+                </td>
+                <td>
+                    <Badge className={"font-size-12 badge-soft-"+transaction.paid? "success" : "danger"}  pill>{transaction.paid ? "Paid" : "Unpaid"}</Badge>
+                </td>
+                <td>
+                    <i className={"fab "+transaction.payment_method == "Visa" ? " fa-cc-visa " : transaction.payment_method == "Paypal" ? " fa-cc-paypal "
+                        : transaction.payment_method == "Mastercard" ? " fa-cc-mastercard " : " "+"mr-1"}></i> {transaction.payment_method}
+                </td>
+                <td>
+                    <Button type="button"
+                            style={{backgroundColor: !this.state.expandedRows.includes(transaction.id) ? 'red' : 'blue'}}
+                            size="sm"
+                            className="btn-rounded waves-effect waves-light"
+                            onClick={clickCallback}
+                            key={"row-data-" + transaction.id}
+                    >
+                        {
+                            !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
+                        }
+                    </Button>
+                    <Button type="button"
+                            style={{backgroundColor: 'blue', marginLeft : '10px'}}
+                            size="sm"
+                            className="btn-rounded waves-effect waves-light"
+                            onClick={clickCallback}
+                            key={"row-data-pos" + transaction.id}
+                    >
+                        Payed or POS
+                    </Button>
+                </td>
+            </tr>
         ];
-        
+
         if(!this.state.expandedRows.includes(transaction.id)) {
             itemRows.push(
                 <tr key={"row-expanded-" + transaction.id}>
-                    <td>
-                        {
-                            transaction.details.quantities.map((quantity, quantityKey) =>
-                                <p key={quantityKey}>
-                                    {quantity + " x"}
-                                </p>
-                            )
-                        }
-                    </td>
-                    <td>
-                        {
-                            transaction.details.items.map((item, itemKey) =>
-                                <p key={itemKey}>
-                                    {item}
-                                </p>
-                            )
-                        }
-                    </td>
+                    {
+                        transaction.products.map((item) =>
+                            <div>
+                                <td>
+
+                                    <p>
+                                        {item.quantity + " x"}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p>
+                                        {item.name}
+                                    </p>
+                                </td>
+                            </div>
+                        )
+                    }
                 </tr>
             );
         }
-        return itemRows;    
+        return itemRows;
     }
 
     render() {
@@ -303,36 +284,35 @@ class LatestTranactionsTakeaway extends Component {
                         <CardTitle className="mb-4">
                             <div className="row">
                                 <div className="col-lg-6">
-                                Latest Transaction
+                                    Latest Transaction
                                 </div>
                                 <div className="col-lg-6 text-right">
-                                <Button type="button"
-                                style={{backgroundColor: 'green'}}
-                                size="sm" 
-                                className="btn-rounded waves-effect waves-light" 
-                                >
-                                Print Excel
-                                </Button>
+                                    <Button type="button"
+                                            style={{backgroundColor: 'green'}}
+                                            size="sm"
+                                            className="btn-rounded waves-effect waves-light"
+                                    >
+                                        Print Excel
+                                    </Button>
                                 </div>
                             </div>
                         </CardTitle>
-                        
                         <div className="table-responsive">
                             <table className="table table-centered table-nowrap mb-0">
                                 <thead className="thead-light">
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Table Nr</th>
-                                        <th>Time</th>
-                                        <th>Date</th>
-                                        <th>Total</th>
-                                        <th>Payment Status</th>
-                                        <th>Payment Method</th>
-                                        <th>View Details</th>
-                                    </tr>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Table Nr</th>
+                                    <th>Time</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Payment Status</th>
+                                    <th>Payment Method</th>
+                                    <th>View Details</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {allItemRows}
+                                {allItemRows}
                                 </tbody>
                             </table>
                         </div>
@@ -353,7 +333,7 @@ class LatestTranactionsTakeaway extends Component {
                 </Card>
                 <Card>
                     <CardBody>
-                    
+
                     </CardBody>
                 </Card>
             </React.Fragment>
@@ -361,4 +341,4 @@ class LatestTranactionsTakeaway extends Component {
     }
 }
 
-export default LatestTranactionsTakeaway;
+export default LatestTranactionsRestaurant;

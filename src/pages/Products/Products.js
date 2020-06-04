@@ -148,8 +148,60 @@ class Resturants extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
 
-    handleDeleteItem(rowId){
-        this.setState({ confirm_both: true })
+    handleDeleteItem(id){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/tables/'+id;
+        return fetch(baseUrl+api, {
+            method: 'DELETE',
+            headers: headers
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Deleted",
+                            dynamic_description: "Item has been deleted."
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in deletion."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in deletion."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
     }
 
     pauseItem(id){

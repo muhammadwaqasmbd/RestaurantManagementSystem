@@ -3,17 +3,13 @@ import React, { Component } from "react";
 import { Card, CardBody, CardTitle, Badge, Button, Collapse } from "reactstrap";
 import $ from 'jquery';
 import SweetAlert from "react-bootstrap-sweetalert";
+import {baseUrl} from "../../helpers/baseUrl";
 
 class RestaurantsOverview extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            restaurants: [
-                { id: "1", name: "Restaurant Dirk", totalRevenue: "1,300.000", last30DaysRevenue: "85.095",
-                last7DaysRevenue: "234.400", totalOrder: "340.002", last30DaysOrders: "245.020", last7DaysOrders: "213"},
-                { id: "1", name: "Restaurant Dirk", totalRevenue: "1,300.000", last30DaysRevenue: "85.095",
-                last7DaysRevenue: "234.400", totalOrder: "340.002", last30DaysOrders: "245.020", last7DaysOrders: "213"}
-            ],
+            restaurants: [],
             expandedRows : [],
             currentPage: 1,
             restaurantsPerPage: 5,
@@ -33,6 +29,58 @@ class RestaurantsOverview extends Component {
             this.btnNextClick = this.btnNextClick.bind(this);
             this.btnPrevClick = this.btnPrevClick.bind(this);
             this.setPrevAndNextBtnClass = this.setPrevAndNextBtnClass.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchSummary();
+    }
+
+    fetchSummary() {
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching products");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if (isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        } else {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl + 'api/admin/dashboard/restaurants/', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ", response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("admin detail response: ", response)
+                this.setState({
+                    restaurants: response.results
+                })
+            })
+            .catch(error => console.log(error))
     }
 
     componentDidUpdate() {
@@ -113,14 +161,14 @@ class RestaurantsOverview extends Component {
         const clickCallback = () => this.handleRowClick(restaurant.id);
         const deleteCallBack = () => this.handleDeleteRestaurant(restaurant.id);
         const itemRows = [
-        <tr>
+        <tr key={restaurant.id}>
             <td>{restaurant.name}</td>
-            <td>{restaurant.totalRevenue}</td>
-            <td>{restaurant.last30DaysRevenue}</td>
-            <td>{restaurant.last7DaysRevenue}</td>
-            <td>{restaurant.totalOrder}</td>
-            <td>{restaurant.last30DaysOrders}</td>
-            <td>{restaurant.last7DaysOrders}</td>
+            <td>{restaurant.revenue_total}</td>
+            <td>{restaurant.revenue_thirty_days}</td>
+            <td>{restaurant.revenue_seven_days}</td>
+            <td>{restaurant.order_total}</td>
+            <td>{restaurant.order_thirty_days}</td>
+            <td>{restaurant.order_seven_days}</td>
         </tr>
         ];
         

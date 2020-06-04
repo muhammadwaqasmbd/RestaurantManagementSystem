@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import {baseUrl} from "../../helpers/baseUrl";
 import jwt from "jwt-decode";
+import QRCode from "qrcode.react";
 
 class QRCodes extends Component {
     constructor(props) {
@@ -22,7 +23,7 @@ class QRCodes extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            name : ''
+            qrCode : ''
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -72,11 +73,9 @@ class QRCodes extends Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
-                if(response.length>0){
                     this.setState({
-                        items: response.results
+                        items: response
                     })
-                }
             })
             .catch(error => console.log(error))
     }
@@ -155,19 +154,33 @@ class QRCodes extends Component {
       handleChange(event) {
         this.setState({name: event.target.value});
       }
-    
+
+    downloadQRCode(qr){
+        const canvas = document.getElementById("qrCode");
+        const pngUrl = canvas
+            .toDataURL("image/png")
+            .replace("image/png", "image/octet-stream");
+        let downloadLink = document.createElement("a");
+        const imageName = qr+".png";
+        downloadLink.href = pngUrl;
+        downloadLink.download = imageName;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
     renderItems(item) {
-        console.log(item)
-        const deleteCallBack = () => this.handleDeleteItem(item.id);
-        const pauseCallback = () => this.pauseItem(item.id);
         const itemRows = [
         <tr key={"row-"+item.id}>
             <td>
-                <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
-                <p className="text-muted mb-0">{item.start_time} - {item.end_time}</p>
+                <h5 className="text-truncate font-size-14 text-dark">{item.qr_code}</h5>
             </td>
             <td>
-                <Link to={"/menu/"+item.id}>
+                <a className="text-truncate font-size-14 text-dark" onClick={() => {this.downloadQRCode(item.qr_code)}}>Click to download</a>
+                <QRCode id="qrCode" level={"H"} size={290} includeMargin={true} value={item.qr_code} hidden />
+            </td>
+            <td>
+                <Link to={"/qrcode/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
@@ -177,43 +190,7 @@ class QRCodes extends Component {
                         Edit
                     </Button>
                 </Link>
-                <Button type="button" 
-                style={{width : '100px', marginLeft : '10px'}}
-                size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={deleteCallBack} 
-                key={"delete-button-" + item.id}
-                >
-                    Delete
-                </Button>
-                {this.state.confirm_both ? (
-                        <SweetAlert
-                            title="Are you sure?"
-                            warning
-                            showCancel
-                            confirmBtnBsStyle="success"
-                            cancelBtnBsStyle="danger"
-                            onConfirm={() =>
-                                this.setState({
-                                    confirm_both: false,
-                                    success_dlg: true,
-                                    dynamic_title: "Deleted",
-                                    dynamic_description: "Your file has been deleted."
-                                })
-                            }
-                            onCancel={() =>
-                                this.setState({
-                                    confirm_both: false,
-                                    error_dlg: true,
-                                    dynamic_title: "Cancelled",
-                                    dynamic_description: "Your imaginary file is safe :)"
-                                })
-                            }
-                        >
-                            You won't be able to revert this!
-                        </SweetAlert>
-                    ) : null
-                }
+
                 {this.state.success_dlg ? (
                         <SweetAlert
                             success
@@ -313,7 +290,8 @@ class QRCodes extends Component {
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '80%'}}>Name</th>
+                                        <th style={{width: '40%'}}>QRCode</th>
+                                        <th style={{width: '40%'}}>Download</th>
                                         <th style={{width: '20%'}}>Actions</th>
                                     </tr>
                                 </thead>
@@ -322,7 +300,7 @@ class QRCodes extends Component {
                                 </tbody>
                                 
                             </table>
-                            <Link to={"/table/0"}>
+                            <Link to={"/qrcode/0"}>
                             <Button
                                 color="secondary"
                                 className="btn btn-secondary btn-lg btn-block waves-effect"

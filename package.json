@@ -54,6 +54,7 @@
     "react-jvectormap": "^0.0.16",
     "react-modal-video": "^1.2.3",
     "react-perfect-scrollbar": "^1.5.8",
+    "react-places-autocomplete": "^7.2.1",
     "react-rangeslider": "^2.2.0",
     "react-rating": "^2.0.4",
     "react-rating-tooltip": "^1.1.6",

@@ -132,6 +132,8 @@ import Tables from "../pages/Tables/index";
 import AddTable from "../pages/AddTable/index";
 import QRCodes from "../pages/QRCodes/index";
 import AddQRCode from "../pages/AddQRCode/index";
+import Categories from "../pages/Categories/index";
+import AddCategory from "../pages/AddCategory/index";
 
 const authProtectedRoutes = [
 	{ path: "/admindashboard", component: AdminDashboard },
@@ -148,6 +150,8 @@ const authProtectedRoutes = [
 	{ path: "/menu/:id", component: AddMenu },
 	{ path: "/qrcodes", component: QRCodes },
 	{ path: "/qrcode/:id", component: AddQRCode },
+	{ path: "/categories", component: Categories },
+	{ path: "/category/:id", component: AddCategory },
 
 	//chat
 	{ path: "/chat", component: Chat },
@@ -254,7 +258,7 @@ const authProtectedRoutes = [
 
 
 	// this route should be at the end of all other routes
-	{ path: "/", exact: true, component: () => <Redirect to="/admindashboard" /> }
+	{ path: "/", exact: true, component: () => localStorage.getItem('access') != "null" ? localStorage.getItem('isStuff') == "true" ? <Redirect to="/admindashboard" /> : <Redirect to="/dashboard" /> : <Redirect to="/login" /> }
 ];
 
 const publicRoutes = [

@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import Select from "react-select";
 import {baseUrl} from "../../helpers/baseUrl";
+import { Route, Redirect } from "react-router-dom";
 
 const opts = [{ label: 'Yes', value: "Yes" }, { label: 'No', value: "No" }];
 
@@ -13,14 +14,7 @@ class Tables extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tables: [
-                { id: "1", qr: "3245892", table: "1"},
-                { id: "2", qr: "9842325", table: ""},
-                { id: "3", qr: "3245892", table: ""},
-                { id: "4", qr: "9842325", table: "5"},
-                { id: "5", qr: "3245892", table: ""},
-                { id: "6", qr: "9842325", table: "7"}
-            ],
+            qrcodes: [],
             editableRows : [],
             currentPage: 1,
             tablesPerPage: 5,
@@ -39,7 +33,10 @@ class Tables extends Component {
             selectedItems: [],
             tableNo : '',
             qrcode: '',
-            options : []
+            options : [],
+            takeway: '',
+            directpayment: '',
+            redirectToReferrer : false
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -57,10 +54,52 @@ class Tables extends Component {
         this.onAssignClick = this.onAssignClick.bind(this);
         this.handleTableNoFormChange = this.handleTableNoFormChange.bind(this);
         this.renderOptions = this.renderOptions.bind((this));
+        this.handleUnassignment = this.handleUnassignment.bind(this)
     }
 
     componentDidMount() {
-        this.fetchTables()
+        this.fetchQRCodes();
+        this.fetchTables();
+    }
+
+    fetchQRCodes(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching qrcodes");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        headers = {
+            'X-Requested-With': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': bearer,
+            'RESID': resId
+        }
+        return fetch(baseUrl+'api/qr-codes/', {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("response: ",response)
+                this.setState({
+                    qrcodes: response
+                })
+            })
+            .catch(error => console.log(error))
     }
 
     fetchTables(){
@@ -126,7 +165,7 @@ class Tables extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
     setPrevAndNextBtnClass(listid) {
-        let totalPage = Math.ceil(this.state.tables.length / this.state.tablesPerPage);
+        let totalPage = Math.ceil(this.state.qrcodes.length / this.state.tablesPerPage);
         this.setState({isNextBtnActive: 'disabled'});
         this.setState({isPrevBtnActive: 'disabled'});
         if(totalPage === listid && totalPage > 1){
@@ -176,8 +215,8 @@ class Tables extends Component {
 
     editTable(id){
         console.log(id);
-        //var newTable = { id: "2", name: "Table Kiebert"};    
-        //this.setState({ tables: this.state.tables.concat(newTable) }); 
+        //var newTable = { id: "2", name: "Category Kiebert"};
+        //this.setState({ tables: this.state.tables.concat(newTable) });
     }
 
     editTableRow(rowId){
@@ -188,13 +227,15 @@ class Tables extends Component {
         currentEditableRows.concat(rowId);
         this.setState({
             tableNo : '',
+            takeaway : '',
+            directpayment : '',
             editableRows : newEditableRows
         });
     }
 
     pauseTable(id){
         console.log(id);
-        //var newTable = { id: "2", name: "Table Kiebert"};    
+        //var newTable = { id: "2", name: "Category Kiebert"};
         //this.setState({ tables: this.state.tables.concat(newTable) }); 
     }
 
@@ -235,18 +276,83 @@ class Tables extends Component {
           });
 
       }
-    
+
+    handleUnassignment(id){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let bodyData = {
+            "qr_code_id": id
+        }
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/qr-codes/un-assign-table/'
+        return fetch(baseUrl+api, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(bodyData)
+        })
+            .then(response => {
+                    console.log("register response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Unassigned",
+                            dynamic_description: "Category Unassigned"
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Category not unassigned."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Category not assigned."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
+
       handleSubmit(event) {
-        alert("qrcode: "+ this.state.qrcode);
-        alert("tableNo: "+ this.state.tableNo);
           event.preventDefault();
+          let takeaway = this.state.takeaway == "Yes" ? true : false;
+          let payment = this.state.directpayment == "Yes" ? true : false;
+          console.log("qrcode: "+ this.state.qrcode);
+          console.log("tableNo: "+ this.state.tableNo);
+          console.log("takeaway: "+ takeaway);
+          console.log("payment: "+ payment);
           let resId = localStorage.getItem('restaurantId')
           let isStuff = localStorage.getItem('isStuff')
           const bearer = 'Bearer ' + localStorage.getItem('access');
           let headers = {}
           let bodyData = {
               "table_id":this.state.tableNo,
-              "qr_code_id": this.state.qrcode
+              "qr_code_id": this.qrcodeid.value,
+              "takeaway" : takeaway,
+              "direct_payment": payment
           }
           if(isStuff == "true") {
               headers = {
@@ -271,14 +377,29 @@ class Tables extends Component {
               .then(response => {
                       console.log("register response: ",response)
                       if (response.ok) {
+                          this.setState({
+                              success_dlg: true,
+                              dynamic_title: "Assigned",
+                              dynamic_description: "Category Assigned"
+                          })
                           return response;
                       } else {
+                          this.setState({
+                              error_dlg: true,
+                              dynamic_title: "Error",
+                              dynamic_description: "Category not assigned."
+                          })
                           var error = new Error('Error ' + response.status + ': ' + response.statusText);
                           error.response = response;
                           console.log(error)
                       }
                   },
                   error => {
+                      this.setState({
+                          error_dlg: true,
+                          dynamic_title: "Error",
+                          dynamic_description: "Category not assigned."
+                      })
                       console.log(error)
                   })
               .catch(error => console.log(error))
@@ -289,7 +410,7 @@ class Tables extends Component {
         var checkedBoxCheck = !this.state.checkedBoxCheck;
         // this.setState({ checkedBoxCheck: checkedBoxCheck });
         if (checkedBoxCheck) {
-          this.state.tables.forEach(x => {
+          this.state.qrcodes.forEach(x => {
             // selectedItems[x.id] = x.id
             selectedItems.push(x.id);
           });
@@ -325,7 +446,7 @@ class Tables extends Component {
             const newEditableRows = isRowCurrentlyExpanded ? 
             currentEditableRows.filter(id => id !== row) : 
             currentEditableRows.concat(row);
-            const dataRow = this.state.tables.filter(row => row.id == newEditableRows[0]);
+            const dataRow = this.state.qrcodes.filter(row => row.id == newEditableRows[0]);
             this.setState({
                 editableRows : newEditableRows,
                 qrcode : dataRow[0].qr    
@@ -333,22 +454,38 @@ class Tables extends Component {
         }
       }
 
-    renderTables(table) {
-        const editRowCallback = () => this.editTableRow(table.id);
-        const pauseCallback = () => this.pauseTable(table.id);
+    renderTables(qrcode) {
+        const editRowCallback = () => this.editTableRow(qrcode.id);
+        const pauseCallback = () => this.pauseTable(qrcode.id);
         const itemRows = [
-        this.state.editableRows.includes(table.id)  ? 
-        <tr key={"row--" + table.id}>
+        this.state.editableRows.includes(qrcode.id)  ?
+        <tr key={"row--" + qrcode.id}>
                 {/*<td>
                     <input
                         type="checkbox"
                         className="checkbox"
                     />
                 </td>*/}
-                <td>{table.qr}</td>
+                <input type="hidden" name="qrcode_id" ref={node => (this.qrcodeid = node)} value={qrcode.id}/>
+                <td>{qrcode.qr_code}</td>
                 <td>
-                    <select name="tableNo" key = {table.id} value={this.state.tableNo}  onChange={this.handleFormChange} className="form-control">
+                    <select name="tableNo" key = {qrcode.id} value={this.state.tableNo}  onChange={this.handleFormChange} className="form-control">
+                        <option></option>
                         {this.state.options}
+                    </select>
+                </td>
+                <td>
+                    <select name="takeaway" onChange={this.handleFormChange} value={this.state.takeaway} className="form-control">
+                        <option></option>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="directpayment" onChange={this.handleFormChange} value={this.state.directpayment} className="form-control">
+                        <option></option>
+                        <option>Yes</option>
+                        <option>No</option>
                     </select>
                 </td>
                 <td>
@@ -365,13 +502,13 @@ class Tables extends Component {
                     size="sm" 
                     className="btn-rounded waves-effect waves-light" 
                     onClick={editRowCallback} 
-                    key={"cancel-button-" + table.id}
+                    key={"cancel-button-" + qrcode.id}
                     >
                         Cancel
                     </Button>
                 </td>
         </tr> :
-        <tr key={"row-"+table.id}>
+        <tr key={"row-"+qrcode.id}>
             {/*<td>
                 <input
                     type="checkbox"
@@ -381,8 +518,10 @@ class Tables extends Component {
                     onChange={() => this.onItemSelect(table.id)}
                   />
             </td>*/}
-            <td>{table.qr}</td>
-            <td>{table.table}</td>
+            <td>{qrcode.qr_code}</td>
+            <td>{qrcode.table_number}</td>
+            <td>{qrcode.takeaway ? "Yes" : "No"}</td>
+            <td>{qrcode.direct_payment ? "Yes" : "No"}</td>
             <td>
                 {/*<Button type="button"
                 style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
@@ -393,14 +532,14 @@ class Tables extends Component {
                 >
                     Pause
                 </Button>*/}
-                {table.table == ""?
+                {qrcode.table_number == "" || qrcode.table_number == "null" || qrcode.table_number == null?
                 <Button type="button" 
                 style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
                 //onClick={editRowCallback} 
-                onClick={() => this.onAssignClick(table.id)}
-                key={"assign-button-" + table.id}
+                onClick={() => this.onAssignClick(qrcode.id)}
+                key={"assign-button-" + qrcode.id}
                 >
                     Assign
                 </Button>
@@ -410,8 +549,8 @@ class Tables extends Component {
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
                 //onClick={editRowCallback} 
-                onClick={() => this.onAssignClick(table.id)}
-                key={"assign-button-" + table.id}
+                onClick={() => this.handleUnassignment(qrcode.id)}
+                key={"assign-button-" + qrcode.id}
                 >
                     Unassign
                 </Button>
@@ -432,19 +571,23 @@ class Tables extends Component {
         })
     }
     render() {
+        const redirectToReferrer = this.state.redirectToReferrer;
+        if (redirectToReferrer === true) {
+            return <Redirect to="/" />
+        }
         let allItemRows = [];
-        const { tables, currentPage, tablesPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
+        const { qrcodes, currentPage, tablesPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
         const indexOfLastTable = currentPage * tablesPerPage;
         const indexOfFirstTable = indexOfLastTable - tablesPerPage;
-        const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
-        currentTables.forEach(table => {
-            const perItemRows = this.renderTables(table);
+        const currentQRCodes = qrcodes.slice(indexOfFirstTable, indexOfLastTable);
+        currentQRCodes.forEach(qrcode => {
+            const perItemRows = this.renderTables(qrcode);
             console.log(perItemRows);
             allItemRows = allItemRows.concat(perItemRows);
         });
 
         const pageNumbers = [];
-        for (let i = 1; i <= Math.ceil(tables.length / tablesPerPage); i++) {
+        for (let i = 1; i <= Math.ceil(qrcodes.length / tablesPerPage); i++) {
             pageNumbers.push(i);
         }
 
@@ -462,30 +605,50 @@ class Tables extends Component {
         });
         
         let pageIncrementBtn = null;
-        if(pageNumbers.length > upperPageBound && this.state.tables.length > 5){
+        if(pageNumbers.length > upperPageBound && this.state.qrcodes.length > 5){
             pageIncrementBtn = <li className='page-item'><a className='page-link page-link' onClick={this.btnIncrementClick}> &hellip; </a></li>
         }
         let pageDecrementBtn = null;
-        if(lowerPageBound >= 1 && this.state.tables.length > 5){
+        if(lowerPageBound >= 1 && this.state.qrcodes.length > 5){
             pageDecrementBtn = <li className='page-item'><a className='page-link page-link' onClick={this.btnDecrementClick}> &hellip; </a></li>
         }
         let renderPrevBtn = null;
         if(isPrevBtnActive === 'disabled') {
             renderPrevBtn = <li className='disabled page-item'><span id="btnPrev" className='page-link page-link'> Prev </span></li>
         }
-        else if(this.state.tables.length > 5){
+        else if(this.state.qrcodes.length > 5){
             renderPrevBtn = <li className='page-item'><a id="btnPrev" className='page-link page-link' onClick={this.btnPrevClick}> Prev </a></li>
         }
         let renderNextBtn = null;
         if(isNextBtnActive === 'disabled') {
             renderNextBtn = <li className='disabled page-item'><span className='page-link page-link' id="btnNext"> Next </span></li>
         }
-        else if(this.state.tables.length > 5){
+        else if(this.state.qrcodes.length > 5){
             renderNextBtn = <li className='page-item'><a id="btnNext" className='page-link page-link' onClick={this.btnNextClick}> Next </a></li>
         }
 
         return (
             <React.Fragment>
+                {this.state.success_dlg ? (
+                    <SweetAlert
+                        success
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ success_dlg: false , redirectToReferrer: true})}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null}
+
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ error_dlg: false, redirectToReferrer: true })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
+                }
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
@@ -526,7 +689,9 @@ class Tables extends Component {
                                         </th>*/}
                                         <th style={{width: '20%'}}>QR #</th>
                                         <th style={{width: '20%'}}>Table #</th>
-                                        <th style={{width: '60%', textAlign: "center"}}>Actions</th>
+                                        <th style={{width: '15%'}}>Takeaway</th>
+                                        <th style={{width: '15%'}}>Direct Payment</th>
+                                        <th style={{width: '30%', textAlign: "center"}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablesBody">

@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import {baseUrl} from "../../helpers/baseUrl";
 import jwt from "jwt-decode";
 
-class Tables extends Component {
+class Categories extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -22,7 +22,9 @@ class Tables extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            name : ''
+            name : '',
+            description:'',
+            priority : ''
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -36,10 +38,10 @@ class Tables extends Component {
     }
 
     componentDidMount() {
-        this.fetchTables();
+        this.fetchCategories();
     }
 
-    fetchTables(){
+    fetchCategories(){
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching tables");
@@ -59,7 +61,7 @@ class Tables extends Component {
                 'Authorization': bearer
             }
         }
-        return fetch(baseUrl+'api/tables', {
+        return fetch(baseUrl+'api/categories/', {
             method: 'GET',
             headers: headers
         })
@@ -80,9 +82,11 @@ class Tables extends Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
-                this.setState({
-                    items: response.results
-                })
+                if(response.length > 0) {
+                    this.setState({
+                        items: response
+                    })
+                }
             })
             .catch(error => console.log(error))
     }
@@ -167,7 +171,7 @@ class Tables extends Component {
                 'Authorization': bearer
             }
         }
-        var api = 'api/tables/'+id+"/";
+        var api = 'api/categories/'+id+"/";
         return fetch(baseUrl+api, {
             method: 'DELETE',
             headers: headers
@@ -222,10 +226,16 @@ class Tables extends Component {
         const itemRows = [
         <tr key={"row-"+item.id}>
             <td>
-                <h5 className="text-truncate font-size-14 text-dark">{item.table_number}</h5>
+                <h5 className="text-truncate font-size-14 text-dark">{item.name}</h5>
             </td>
             <td>
-                <Link to={"/table/"+item.id}>
+                <h5 className="text-truncate font-size-14 text-dark">{item.description}</h5>
+            </td>
+            <td>
+                <h5 className="text-truncate font-size-14 text-dark">{item.priority}</h5>
+            </td>
+            <td>
+                <Link to={"/category/"+item.id}>
                     <Button type="button" 
                     style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                     size="sm" 
@@ -341,8 +351,10 @@ class Tables extends Component {
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '70%'}}>Table No</th>
-                                        <th style={{width: '30%'}}>Actions</th>
+                                        <th style={{width: '25%'}}>Name</th>
+                                        <th style={{width: '25%'}}>Description</th>
+                                        <th style={{width: '25%'}}>Priority</th>
+                                        <th style={{width: '25%'}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
@@ -350,12 +362,12 @@ class Tables extends Component {
                                 </tbody>
                                 
                             </table>
-                            <Link to={"/table/0"}>
+                            <Link to={"/category/0"}>
                             <Button
                                 color="secondary"
                                 className="btn btn-secondary btn-lg btn-block waves-effect"
                             >
-                                Add New Table
+                                Add New Category
                             </Button>
                             </Link>
                         </div>
@@ -384,4 +396,4 @@ class Tables extends Component {
     }
 }
 
-export default Tables;
+export default Categories;

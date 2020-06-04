@@ -517,7 +517,7 @@ class DatatableTables extends Component {
         <div className="page-content">
           <div className="container-fluid">
 
-            <Breadcrumbs title="Tables" breadcrumbItem="Data Tables" />
+            <Breadcrumbs title="Categories" breadcrumbItem="Data Categories" />
 
             <Row>
               <Col className="col-12">

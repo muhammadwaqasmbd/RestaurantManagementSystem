@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
 import $ from 'jquery';
+import {baseUrl} from "../../helpers/baseUrl";
 
 const dropzoneStyle = {
     width  : "100%",
@@ -11,242 +12,221 @@ class Printer extends Component {
     constructor() {
         super();
         this.state = {
-            defaultAttrMAC : '',
-            defaultAttrPrinterNo: '',
             attributes : [],
-            attrCount: 1,
-            attrMAC: [],
-            attrNo: [],
-            attrValuesMAC : [],
-            attrValuesNo : [],
-            tempCount : 0
+            count: 1,
+            printers  : []
+
         }
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleFormChange = this.handleFormChange.bind(this);
         this.addAttributeForm = this.addAttributeForm.bind(this);
         this.handleAttrChange = this.handleAttrChange.bind(this);
         this.removePrinter = this.removePrinter.bind(this);
-        this.removeAddPrinter = this.removeAddPrinter.bind(this);
     }
 
-    componentDidMount(){
-        if(this.props.id > 0){
-            let response = [
-                {
-                    "id": "1",
-                    "printer_number": "1234",
-                    "printer_mac_address": "879835:3543:5343"
-                },
-                {
-                    "id": "2",
-                    "printer_number": "1238",
-                    "printer_mac_address": "879835:3543:5343"
-                },
-                {
-                    "id": "3",
-                    "printer_number": "1238",
-                    "printer_mac_address": "879835:3543:5343"
-                }
-            ]
-            let defaultAttrMAC = response.length > 0 ? response[0].printer_mac_address : "";
-            let defaultAttrPrinterNo = response.length > 0 ? response[0].printer_number : "";
-            let attrArrMAC = '';
-            let attrArrNo = '';
-            response = response.slice(1);
-            console.log("sliced: ",response)
-            response.forEach(item => {
-                attrArrMAC = attrArrMAC + "attrMAC"+item.id+"^*&"+item.printer_mac_address+",";
-                attrArrNo = attrArrNo + "attrNo"+item.id+"^*&"+item.printer_number+",";
-            });
-            attrArrMAC = attrArrMAC.substring(0,attrArrMAC.length-1)
-            attrArrNo = attrArrNo.substring(0,attrArrNo.length-1)
-            this.state.defaultAttrMAC = defaultAttrMAC;
-            this.state.defaultAttrPrinterNo = defaultAttrPrinterNo;
-
-            const attrValArrMAC = attrArrMAC.split(',');
-            const attrValArrNo = attrArrNo.split(',');
-            var attrValMap = {};
-            attrValArrMAC.forEach((key, i) => attrValMap[key] = attrValArrNo[i]);
-            console.log(attrValMap);
+    componentDidMount() {
+        let response = this.props.res;
+        console.log("res: ",response)
+        if(response.printers && response.printers.length > 0) {
+            this.setState({
+                printers : response.printers
+            })
+            let printers = this.state.printers;
             var array = this.state.attributes;
-            for (const [key, value] of Object.entries(attrValMap)) {
-                const keyArr = key.split("^*&");
-                const valArr = value.split("^*&");
-                const count = parseInt(keyArr[0].substr(keyArr[0].length - 1));
+            if (printers.length > 0) {
+                printers.forEach(item => {
+                    array.push(
+                        <FormGroup className="mb-4" id={"attrrow" + item.id} row key={"attrrow" + item.id}>
+                            <Col lg="7">
+                                <Input id={"printer_mac_address"}
+                                       name={"printer_mac_address"}
+                                       defaultValue={item.printer_mac_address}
+                                       type="text"
+                                       className="form-control"
+                                       placeholder="Printer MAC address"
+                                       onChange={this.handleAttrChange(item.id)}
+                                />
+                            </Col>
+                            <Col lg="4">
+                                <Input id={"printer_number"}
+                                       name={"printer_number"}
+                                       defaultValue={item.printer_number}
+                                       type="text"
+                                       className="form-control"
+                                       placeholder="Printer No"
+                                       onChange={this.handleAttrChange(item.id)}
+                                />
+                            </Col>
+                            <Col lg="1">
+                                <button type="button" onClick={() => {
+                                    this.removePrinter(item.id, "attrrow" + item.id)
+                                }} className="close" style={{color: "red", fontSize: '40px'}} aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </Col>
+                        </FormGroup>
+                    )
+                });
+                var count = parseInt(printers[printers.length - 1].id) + 1
+                this.setState({
+                    count: count
+                });
+            } else {
                 array.push(
-                    <FormGroup className="mb-4" id={"attrrow"+count} row key={"attrrow"+count}>
+                    <FormGroup className="mb-4" id={"attrrow" + this.state.count} row
+                               key={"attrrow" + this.state.count}>
                         <Col lg="7">
-                            <Input id={keyArr[0]}
-                                   name={keyArr[0]}
-                                   value={keyArr[1]}
+                            <Input id="printer_mac_address"
+                                   name={"printer_mac_address"}
                                    type="text"
                                    className="form-control"
                                    placeholder="Printer MAC address"
-                                   onChange={this.handleAttrChange}
+                                   onChange={this.handleAttrChange(this.state.count + "temp")}
                             />
                         </Col>
                         <Col lg="4">
-                            <Input id={valArr[0]}
-                                   name={valArr[0]}
-                                   value={valArr[1]}
+                            <Input id="printer_number"
+                                   name={"printer_number"}
                                    type="text"
                                    className="form-control"
                                    placeholder="Printer No"
-                                   onChange={this.handleAttrChange}
+                                   onChange={this.handleAttrChange(this.state.count + "temp")}
                             />
-                        </Col>
-                        <Col lg="1">
-                            <button type="button" onClick={() => { this.removePrinter(keyArr,valArr,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                         </Col>
                     </FormGroup>
                 )
-                this.setState({
-                    attributeForm: array,
-                    attrMAC : [...this.state.attrMAC,keyArr[0]],
-                    attrNo : [...this.state.attrNo,valArr[0]],
-                    attrValuesMAC : [...this.state.attrValuesMAC,keyArr[0]+"^*&"+keyArr[1]],
-                    attrValuesNo : [...this.state.attrValuesNo,valArr[0]+"^*&"+valArr[1]],
-                    tempCount : count
-                });
             }
+            this.setState({
+                attributes: array
+            });
         }
-    }
-    removePrinter(MAC, No, rowNo){
-        if(MAC.length>0){
-            this.setState({attrMAC: this.state.attrMAC.filter(function(mac) {
-                    return mac !== MAC[0]
-                })});
-            this.setState({attrValuesMAC: this.state.attrValuesMAC.filter(function(mac) {
-                    return mac !== MAC[1]
-                })});
-        }
-        if(No.length>0){
-            this.setState({attrNo: this.state.attrNo.filter(function(no) {
-                    return no !== No[0]
-                })});
-            this.setState({attrValuesNo: this.state.attrValuesNo.filter(function(no) {
-                    return no !== No[1]
-                })});
-        }
-        $("#"+rowNo).remove();
     }
 
-    removeAddPrinter(attrMACKey, attrNoKey, row){
-        this.setState({attrMAC: this.state.attrMAC.filter(function(key) {
-                return key !== attrMACKey
+
+    removePrinter(id, rowNo){
+        this.setState({printers: this.state.printers.filter(function(printer) {
+                return printer.id !== id
             })});
-        this.setState({attrNo: this.state.attrNo.filter(function(key) {
-                return key !== attrNoKey
-            })});
-        $("#"+row).remove();
+        $("#"+rowNo).remove();
     }
 
     addAttributeForm() {
         var array = this.state.attributes;
-        let count = parseInt(this.state.tempCount + this.state.attrCount);
+        let count = this.state.count+1;
         array.push(
             <FormGroup className="mb-4" id={"attrrow"+count} row key={"attrrow"+count}>
                 <Col lg="7">
-                    <Input id="attrMAC"
-                           name={"attrMAC"+count}
+                    <Input id="printer_mac_address"
+                           name={"printer_mac_address"}
                            type="text"
                            className="form-control"
                            placeholder="Printer MAC address"
-                           onChange={this.handleAttrChange}
+                           onChange={this.handleAttrChange(count+"temp")}
                     />
                 </Col>
                 <Col lg="4">
-                    <Input id="attrNo"
-                           name={"attrNo"+count}
+                    <Input id="printer_number"
+                           name={"printer_number"}
                            type="text"
                            className="form-control"
                            placeholder="Printer No"
-                           onChange={this.handleAttrChange}
+                           onChange={this.handleAttrChange(count+"temp")}
                     />
                 </Col>
                 <Col lg="1">
-                    <button type="button" onClick={() => { this.removeAddPrinter("attrMAC"+count,"attrNo"+count,"attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
+                    <button type="button" onClick={() => { this.removePrinter(count+"temp","attrrow"+count)}} className="close" style={{color:"red", fontSize: '40px'}} aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </Col>
             </FormGroup>
         );
-
         this.setState({
-            attributeForm: array,
-            attrCount : count+1,
-            tempCount : 0,
-            attrMAC : [...this.state.attrMAC,"attrMAC"+count],
-            attrNo : [...this.state.attrNo,"attrNo"+count]
+            attributes: array,
+            printers: [...this.state.printers, {"id":count+"temp","printer_number": "","printer_mac_address":""}],
+            count: count+1
         });
+
+        console.log(this.state.printers)
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        console.log(this.state.defaultAttrMAC);
-        console.log(this.state.defaultAttrPrinterNo);
-        let attributesMAC = '';
-        attributesMAC = this.getAttr(this.state.attrMAC, this.state.attrValuesMAC);
-        attributesMAC = attributesMAC.substring(0, attributesMAC.length - 1);
-        console.log("attributesMAC: ",attributesMAC);
-        let attributesNo = '';
-        attributesNo = this.getAttr(this.state.attrNo, this.state.attrValuesNo);
-        attributesNo = attributesNo.substring(0, attributesNo.length - 1);
-        console.log("attributesNo: ",attributesNo);
-        if(this.props.id > 0){
-            console.log("Update")
-        }else{
-            console.log("create")
+        function oldPrinters(item) {
+            return !item.id.includes("temp");
         }
-    }
-
-    getAttr(attrArrParam, attrValuesParam){
-        console.log("attrArrParam: ",attrArrParam);
-        console.log("attrValuesParam: ", attrValuesParam);
-        let attrArr = [];
-        attrValuesParam.forEach(item => {
-            if(item.includes("^*&")){
-                attrArr.push(item);
+        function newPrinters(item) {
+            return item.id.includes("temp");
+        }
+        let printersList  = this.state.printers;
+        let newRecordsList = printersList.filter(newPrinters);
+        let oldRecords = printersList.filter(oldPrinters);
+        let newRecords = []
+        newRecordsList.forEach(function(item) {
+            var tempItem = Object.assign({}, item);
+            if(tempItem.id.includes("temp")) {
+                delete tempItem.id;
+                newRecords.push(tempItem);
             }
         });
-        let mainArr = [];
-        attrArrParam.forEach(attrval => {
-            let tempArr = [];
-            attrArr.forEach(item => {
-                if(item.includes(attrval)){
-                    tempArr.push(item);
-                }
-            });
-            mainArr.push(tempArr);
-        });
-        console.log("mainarr: ",mainArr);
-        let attributes = '';
-        mainArr.forEach(arr => {
-            if(arr.length > 0){
-                attributes = attributes + arr.pop() + ",";
+        let printers = []
+        printers = printers.concat(oldRecords);
+        printers = printers.concat(newRecords);
+        console.log(printers)
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let formData = new FormData();
+        formData.append('printers', JSON.stringify(printers));
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
             }
-        });
-        return attributes;
-    }
-    handleFormChange(event) {
-        const value = event.target.value;
-        this.setState({
-            [event.target.name]: value
-        });
-        console.log(event.target.name+": "+value);
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        console.log(headers)
+        for (var pair of formData.entries())
+        {
+            console.log(pair[0]+ ', '+ pair[1]);
+            console.log(typeof(pair[1]));
+        }
+        var api = 'api/restaurants/'+this.props.id+'/';
+        return fetch(baseUrl+api, {
+            method: 'PUT',
+            headers: headers,
+            body: formData
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
     }
 
-    handleAttrChange(event) {
-        const value = event.target.value;
-        const attrMACName = this.state.attrMAC.find(elem => elem == event.target.name);
-        const attrNoName = this.state.attrNo.find(elem => elem == event.target.name);
-        this.setState({
-            attrValuesMAC: [...this.state.attrValuesMAC,attrMACName+"^*&"+value],
-            attrValuesNo: [...this.state.attrValuesNo,attrNoName+"^*&"+value]
-        });
-        console.log(event.target.name+": "+value);
+    handleAttrChange = id => (event) => {
+        let value = event.target.value
+        let name = event.target.name
+        this.setState(prevState => ({
+            printers: prevState.printers.map(
+                obj => (obj.id === id ? Object.assign(obj, {[name]: value}) : obj)
+            )
+        }));
+        console.log(this.state.printers);
     }
 
     render() {
@@ -258,27 +238,29 @@ class Printer extends Component {
                         <Form
                             onSubmit={this.handleSubmit}
                             id="printerForm"
-                        >
-                            <FormGroup className="mb-4" row>
+                        >{                            this.state.attributes.length == 0 ?
+                            <FormGroup className="mb-4" id={"attrrow" + this.state.count} row
+                                       key={"attrrow" + this.state.count}>
                                 <Col lg="7">
-                                    <Input id="defaultAttrMAC"
-                                           name="defaultAttrMAC"
+                                    <Input id="printer_mac_address"
+                                           name={"printer_mac_address"}
                                            type="text"
                                            className="form-control"
                                            placeholder="Printer MAC address"
-                                           onChange={this.handleFormChange} value={this.state.defaultAttrMAC}
+                                           onChange={this.handleAttrChange(this.state.count + "temp")}
                                     />
                                 </Col>
                                 <Col lg="4">
-                                    <Input id="defaultAttrPrinterNo"
-                                           name="defaultAttrPrinterNo"
+                                    <Input id="printer_number"
+                                           name={"printer_number"}
                                            type="text"
                                            className="form-control"
                                            placeholder="Printer No"
-                                           onChange={this.handleFormChange} value={this.state.defaultAttrPrinterNo}
+                                           onChange={this.handleAttrChange(this.state.count + "temp")}
                                     />
                                 </Col>
                             </FormGroup>
+                            :null}
                             {
                                 this.state.attributes.map(input => {
                                     return input
@@ -291,11 +273,8 @@ class Printer extends Component {
                             </FormGroup>
                         </Form>
                         <Row className="justify-content-end">
-                            <Col lg="8">
+                            <Col lg="12">
                                 <Button type="submit" color="primary" form="printerForm" style={{width:"100%"}}>Save</Button>
-                            </Col>
-                            <Col lg="4">
-                                <Button type="cancel" color="white">Cancel</Button>
                             </Col>
                         </Row>
 

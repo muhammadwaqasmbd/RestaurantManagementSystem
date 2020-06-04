@@ -5,11 +5,13 @@ import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Redirect} from "react-router-dom";
 
-class Table extends Component {
+class Category extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            table_no : '',
+            name : '',
+            description : '',
+            priority : '',
             success_dlg: false,
             error_dlg: false,
             redirectToReferrer: false
@@ -21,15 +23,15 @@ class Table extends Component {
     }
 
     componentDidMount() {
-        if(this.props.tableId > 0){
-            this.fetchTable()
+        if(this.props.catId > 0){
+            this.fetchCategory()
         }
     }
 
-    fetchTable(){
+    fetchCategory(){
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
-        console.log("fetching table");
+        console.log("fetching category");
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
         if(isStuff == "true") {
@@ -46,12 +48,12 @@ class Table extends Component {
                 'Authorization': bearer
             }
         }
-        return fetch(baseUrl+'api/tables/'+this.props.tableId+'', {
+        return fetch(baseUrl+'api/categories/'+this.props.catId+'', {
             method: 'GET',
             headers: headers
         })
             .then(response => {
-                    console.log("table response: ",response)
+                    console.log("category response: ",response)
                     if (response.ok) {
                         return response;
                     } else {
@@ -68,7 +70,9 @@ class Table extends Component {
                 // If response was successful, set the token in local storage
                 console.log("table 2nd response: ",response)
                 this.setState({
-                    table_no: response.table_number
+                    name: response.name,
+                    description: response.description,
+                    priority: response.priority
                 })
             })
             .catch(error => console.log(error))
@@ -81,7 +85,9 @@ class Table extends Component {
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
         let bodyData = {
-            "table_number":this.state.table_no
+            "name":this.state.name,
+            "description":this.state.description,
+            "priority":this.state.priority
         }
         if(isStuff == "true") {
             headers = {
@@ -97,15 +103,15 @@ class Table extends Component {
                 'Authorization': bearer
             }
         }
-        var api = this.props.tableId > 0 ? 'api/tables/'+this.props.tableId+'/' : 'api/tables/';
-        var method = this.props.tableId > 0 ? 'PUT' : 'POST';
+        var api = this.props.catId > 0 ? 'api/categories/'+this.props.catId+'/' : 'api/categories/';
+        var method = this.props.catId > 0 ? 'PUT' : 'POST';
         return fetch(baseUrl+api, {
             method: method,
             headers: headers,
             body: JSON.stringify(bodyData)
         })
             .then(response => {
-                    console.log("register response: ",response)
+                    console.log("category response: ",response)
                     if (response.ok) {
                         this.setState({
                             success_dlg: true,
@@ -128,7 +134,7 @@ class Table extends Component {
                     this.setState({
                         error_dlg: true,
                         dynamic_title: "Error",
-                        dynamic_description: "Error in deletion."
+                        dynamic_description: "Error in creation."
                     })
                     console.log(error)
                 })
@@ -143,10 +149,21 @@ class Table extends Component {
       }
     renderItems() {
         const menuProductRow = [
-            this.props.tableId == 0 ?
+            this.props.catId == 0 ?
             <tr key={"row-menu"}>
                 <td>
-                    <input type="text" name="table_no" onChange={this.handleFormChange} className="form-control" />
+                    <input type="text" name="name" onChange={this.handleFormChange} className="form-control" />
+                </td>
+                <td>
+                    <input type="text" name="description" onChange={this.handleFormChange} className="form-control" />
+                </td>
+                <td>
+                    <select name="priority" onChange={this.handleFormChange} className="form-control">
+                        <option></option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                    </select>
                 </td>
                 <td>
                 <Button
@@ -162,7 +179,18 @@ class Table extends Component {
                 :
                 <tr key={"row-menu"}>
                     <td>
-                        <input type="text" name="table_no" value={this.state.table_no} onChange={this.handleFormChange} className="form-control" />
+                        <input type="text" name="name" value={this.state.name} onChange={this.handleFormChange} className="form-control" />
+                    </td>
+                    <td>
+                        <input type="text" name="description" value={this.state.description}  onChange={this.handleFormChange} className="form-control" />
+                    </td>
+                    <td>
+                        <select name="priority" onChange={this.handleFormChange} value={this.state.priority} className="form-control">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                        </select>
                     </td>
                     <td>
                         <Button
@@ -183,7 +211,7 @@ class Table extends Component {
     render() {
         const redirectToReferrer = this.state.redirectToReferrer;
         if (redirectToReferrer === true) {
-            return <Redirect to="/tables" />
+            return <Redirect to="/categories" />
         }
 
         console.log(this.props.menuId);
@@ -218,9 +246,9 @@ class Table extends Component {
                     <CardBody>
                         <CardTitle className="mb-4">
                             {this.props.menuId > 0 ?
-                                <span>Table - {this.state.name} - Edit</span>
+                                <span>Category - {this.state.name} - Edit</span>
                                 :
-                                <span>Table - Add</span>
+                                <span>Category - Add</span>
                             }
 
                         </CardTitle>
@@ -234,8 +262,10 @@ class Table extends Component {
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
-                                        <th style={{width: '70%'}}>Table #</th>
-                                        <th style={{width: '30%'}}>Actions</th>
+                                        <th style={{width: '25%'}}>Name</th>
+                                        <th style={{width: '25%'}}>Description</th>
+                                        <th style={{width: '25%'}}>Priority</th>
+                                        <th style={{width: '25%'}}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
@@ -251,4 +281,4 @@ class Table extends Component {
     }
 }
 
-export default Table;
+export default Category;

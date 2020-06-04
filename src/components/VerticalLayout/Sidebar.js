@@ -83,6 +83,12 @@ const SidebarContent = props => {
                             <span>Tables</span>
                         </Link>
                     </li>
+                    <li>
+                        <Link to="/categories" className="waves-effect">
+                            <i className="bx bx-calendar"></i>
+                            <span>Categories</span>
+                        </Link>
+                    </li>
 
                 </ul>
             </div>

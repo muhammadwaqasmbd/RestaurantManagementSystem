@@ -5,6 +5,7 @@ import Drggable from "./draggable";
 import styled from "styled-components";
 import {baseUrl} from "../../helpers/baseUrl";
 import {Redirect} from "react-router-dom";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 const Item = styled.div`
     padding: 8px;
@@ -45,7 +46,10 @@ class Menu extends Component {
             name : '',
             description: '',
             startTime : '09:00',
-            closeTime : '12:00'
+            closeTime : '12:00',
+            success_dlg: false,
+            error_dlg: false,
+            redirectToReferrer : false
 
         };
         this.handleProductAdd = this.handleProductAdd.bind(this);
@@ -83,7 +87,7 @@ class Menu extends Component {
                 'Authorization': bearer
             }
         }
-        return fetch(baseUrl+'api/products/', {
+        return fetch(baseUrl+'api/products/?menu_id='+this.props.menuId, {
             method: 'GET',
             headers: headers
         })
@@ -297,8 +301,18 @@ class Menu extends Component {
             .then(response => {
                     console.log(" response: ",response)
                     if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Created",
+                            dynamic_description: "Record has been created."
+                        })
                         return response;
                     } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in creation."
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
@@ -306,6 +320,11 @@ class Menu extends Component {
 
                 },
                 error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in creation."
+                    })
                     console.log(error)
                 })
             .catch(error => console.log(error))
@@ -432,8 +451,33 @@ class Menu extends Component {
             otherProductRows = otherProductRows.concat(perItemRow);
         });
 
+        const redirectToReferrer = this.state.redirectToReferrer;
+        if (redirectToReferrer === true) {
+            return <Redirect to="/menus" />
+        }
+
         return (
             <React.Fragment>
+                {this.state.success_dlg ? (
+                    <SweetAlert
+                        success
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ success_dlg: false, redirectToReferrer:true })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null}
+
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ error_dlg: false, redirectToReferrer: true })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
+                }
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
