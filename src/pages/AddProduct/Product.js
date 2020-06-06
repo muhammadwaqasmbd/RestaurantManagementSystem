@@ -473,26 +473,7 @@ class Product extends Component {
 
         return (
             <React.Fragment>
-                {this.state.success_dlg ? (
-                    <SweetAlert
-                        success
-                        title={this.state.dynamic_title}
-                        onConfirm={() => this.setState({ success_dlg: false, redirectToReferrer:true })}
-                    >
-                        {this.state.dynamic_description}
-                    </SweetAlert>
-                ) : null}
-
-                {this.state.error_dlg ? (
-                    <SweetAlert
-                        error
-                        title={this.state.dynamic_title}
-                        onConfirm={() => this.setState({ error_dlg: false, redirectToReferrer: true })}
-                    >
-                        {this.state.dynamic_description}
-                    </SweetAlert>
-                ) : null
-                }
+                s
                     <Container fluid>
                         <Row>
                             <Col lg="6">

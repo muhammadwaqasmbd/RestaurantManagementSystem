@@ -14,6 +14,17 @@ const SidebarContent = props => {
     return (
         <>
             <div id="sidebar-menu">
+                {localStorage.getItem('isStuff') === "false" && localStorage.getItem("mollieSetup") && localStorage.getItem("mollieSetup") == "false"
+                ?
+                <ul className="metismenu list-unstyled" id="side-menu">
+                    <li>
+                        <Link to="/dashboard" className="waves-effect">
+                            <i className="bx bx-home-circle"></i>
+                            <span>Registration</span>
+                        </Link>
+                    </li>
+                </ul>
+                :
                 <ul className="metismenu list-unstyled" id="side-menu">
                     {localStorage.getItem('isStuff') == "true" ?
                     <li className="menu-title">Home</li>
@@ -91,6 +102,7 @@ const SidebarContent = props => {
                     </li>
 
                 </ul>
+                }
             </div>
         </>
     )

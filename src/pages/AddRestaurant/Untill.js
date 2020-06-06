@@ -4,6 +4,7 @@ import Dropzone from 'react-dropzone';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
 import Select from "react-select";
 import {baseUrl} from "../../helpers/baseUrl";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 const dropzoneStyle = {
     width  : "100%",
@@ -17,7 +18,9 @@ class Untill extends Component {
             username : '',
             password : '',
             IP: '',
-            port : ''
+            port : '',
+            success_dlg: false,
+            error_dlg: false,
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
@@ -83,8 +86,18 @@ class Untill extends Component {
             .then(response => {
                     console.log(" response: ",response)
                     if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Saved",
+                            dynamic_description: "Record has been saved."
+                        })
                         return response;
                     } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in saving the record."
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
@@ -92,6 +105,11 @@ class Untill extends Component {
 
                 },
                 error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in saving the record."
+                    })
                     console.log(error)
                 })
             .catch(error => console.log(error))
@@ -108,6 +126,26 @@ class Untill extends Component {
     render() {
         return (
             <React.Fragment>
+                {this.state.success_dlg ? (
+                    <SweetAlert
+                        success
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ success_dlg: false })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null}
+
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => this.setState({ error_dlg: false })}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
+                }
                                 <Card>
                                     <CardBody>
                                         <CardTitle className="mb-4">UNTILL</CardTitle>
