@@ -280,7 +280,7 @@ const publicRoutes = [
 	{ path: "/pages-login", component: Login1 },
 	{ path: "/pages-register", component: Register1 },
 	{ path: "/pages-forget-pwd", component: ForgetPwd1 },
-	{ path: "/customer/:id", component: CustomerPage },
+	{ path: "/qr-code/:id", component: CustomerPage },
 	{ path: "/customerproduct", component: ProductPageBase },
 	{ path: "/customercheckout", component: CheckoutPage },
 ];

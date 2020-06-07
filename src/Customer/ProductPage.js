@@ -98,7 +98,7 @@ class ProductPageBase extends React.Component {
         }
         localStorage.setItem("cart",JSON.stringify(cart));
         this.props.history.push({
-            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
             search: this.props.location.search
         });
 
@@ -107,7 +107,7 @@ class ProductPageBase extends React.Component {
     onClickCancel() {
         console.log(this.state.previousPage);
         this.props.history.push({
-            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
             search: this.props.location.search,
             state: {'restoreProduct': this.props.productId},
         });

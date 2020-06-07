@@ -131,7 +131,7 @@ class CheckoutBase extends React.Component {
                         return response;
                     } else {
                         this.props.history.push({
-                            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                             search: this.props.location.search
                         });
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
@@ -143,7 +143,7 @@ class CheckoutBase extends React.Component {
                 error => {
                     console.log(error)
                     this.props.history.push({
-                        pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                        pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                         search: this.props.location.search
                     });
                 })
@@ -154,7 +154,7 @@ class CheckoutBase extends React.Component {
                 if(response.payment_created == false) {
                     localStorage.setItem("orderId", response.new_order_id)
                     this.props.history.push({
-                        pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                        pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                         search: this.props.location.search
                     });
                 }else{
@@ -167,7 +167,7 @@ class CheckoutBase extends React.Component {
 
     goToLandingPage() {
         this.props.history.push({
-            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
             search: this.props.location.search
         });
     }
@@ -211,13 +211,13 @@ class CheckoutBase extends React.Component {
                         localStorage.removeItem("isFetched")
                         localStorage.removeItem("orderId")
                         this.props.history.push({
-                            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                             search: this.props.location.search
                         });
                         return response;
                     } else {
                         this.props.history.push({
-                            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                             search: this.props.location.search
                         });
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
@@ -229,7 +229,7 @@ class CheckoutBase extends React.Component {
                 error => {
                     console.log(error)
                     this.props.history.push({
-                        pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                        pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                         search: this.props.location.search
                     });
                 })
@@ -253,7 +253,7 @@ class CheckoutBase extends React.Component {
                     <div className="checkout-your-order">
                         <h5 className="font-weight-bold my-basket">My Basket</h5>
                         <span id="close-x" onClick={() => this.props.history.push({
-                            pathname: '/customer/'+localStorage.getItem('qrcode')+'',
+                            pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                             search: this.props.location.search
                         })}>
                             <CloseLogo alt="close" height="15px" width="15px" fill={this.context.primaryColor}/>
