@@ -4,6 +4,8 @@ import { baseUrl } from './baseUrl';
 // Add the Firebase products that you want to use
 import "firebase/auth";
 import "firebase/firestore";
+import React from "react";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 class FirebaseAuthBackend {
   constructor(firebaseConfig) {
@@ -112,10 +114,13 @@ class FirebaseAuthBackend {
       body: bodyFormData
     })
     .then(response => {
+            localStorage.removeItem("loggedIn")
         if (response.ok) {
           console.log("auth: ",response)
+            localStorage.setItem("loggedIn","true")
             return response;
         } else {
+            localStorage.setItem("loggedIn","false")
             localStorage.removeItem('access');
             localStorage.removeItem('refresh');
             localStorage.removeItem('userId');
@@ -128,6 +133,7 @@ class FirebaseAuthBackend {
           }
         },
         error => {
+        localStorage.setItem("loggedIn","false")
           this._handleError(error)
         })
     .then(response => response.json())

@@ -1,6 +1,7 @@
 import React from 'react';
 import {compose} from 'recompose';
 import {withRouter} from 'react-router-dom';
+import {baseUrl} from "../helpers/baseUrl";
 
 class RestaurantBannerBase extends React.Component {
     constructor(props) {
@@ -71,7 +72,7 @@ class RestaurantBannerBase extends React.Component {
             'X-Requested-With': 'application/json',
             'Content-Type': 'application/json'
         }
-        var api = 'https://cors-anywhere.herokuapp.com/https://orderme-stage.oldevops.nl/api/products/by-qr-code/'
+        var api = ''+baseUrl+'api/products/by-qr-code/'
         return fetch(api, {
             method: 'POST',
             headers: headers,

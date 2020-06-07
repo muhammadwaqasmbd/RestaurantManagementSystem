@@ -3,6 +3,7 @@ import {compose} from 'recompose';
 import {Link, withRouter} from "react-router-dom";
 import { ReactComponent as SearchIcon } from './img/search.svg';
 import {ReactComponent as BillLogo} from "./img/bill.svg";
+import {baseUrl} from "../helpers/baseUrl";
 
 class Menu extends React.Component {
     constructor(props) {
@@ -106,7 +107,7 @@ class Menu extends React.Component {
             'X-Requested-With': 'application/json',
             'Content-Type': 'application/json'
         }
-        var api = 'https://cors-anywhere.herokuapp.com/https://orderme-stage.oldevops.nl/api/products/by-qr-code/'
+        var api = ''+baseUrl+'api/products/by-qr-code/'
         return fetch(api, {
             method: 'POST',
             headers: headers,
