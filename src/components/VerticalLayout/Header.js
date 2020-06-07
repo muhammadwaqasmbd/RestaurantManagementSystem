@@ -198,6 +198,10 @@ class Header extends Component {
             </div>
 
             <div className="d-flex">
+              {localStorage.getItem('isStuff') == "false" ?
+                  <Dropdown className="d-none d-lg-inline-block ml-1" isOpen={this.state.restaurantDrp} toggle={() => { this.setState({ restaurantDrp: !this.state.restaurantDrp }) }}>
+                    {localStorage.getItem('restaurantId') != "null" ? <span>{this.state.restaurant_name}</span> : ""}
+                  </Dropdown> :
               <Dropdown className="d-none d-lg-inline-block ml-1" isOpen={this.state.restaurantDrp} toggle={() => { this.setState({ restaurantDrp: !this.state.restaurantDrp }) }}>
                 {localStorage.getItem('restaurantId') != "null" ? <span>{this.state.restaurant_name}</span> : ""}
 
@@ -209,7 +213,7 @@ class Header extends Component {
                     {restaurantItems}
                   </div>
                 </DropdownMenu>
-              </Dropdown>
+              </Dropdown> }
               <Dropdown className="d-none d-lg-inline-block ml-1" isOpen={this.state.socialDrp} toggle={() => { this.setState({ socialDrp: !this.state.socialDrp }) }}>
                 <DropdownToggle className="btn header-item noti-icon waves-effect" tag="button">
                   <i className="bx bx-cog "></i>

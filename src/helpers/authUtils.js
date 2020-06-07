@@ -148,6 +148,8 @@ class FirebaseAuthBackend {
     .catch(error => this._handleError(error))
     };
 
+
+
   /**
    * forget Password user with given details
    */

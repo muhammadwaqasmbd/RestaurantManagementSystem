@@ -23,7 +23,8 @@ class QRCodes extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            qrCode : ''
+            qrCode : '',
+            url : window.location.protocol+"//"+window.location.hostname+"/qr-code/"
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -177,7 +178,7 @@ class QRCodes extends Component {
             </td>
             <td>
                 <a className="text-truncate font-size-14 text-dark" onClick={() => {this.downloadQRCode(item.qr_code)}}>Click to download</a>
-                <QRCode id="qrCode" level={"H"} size={290} includeMargin={true} value={item.qr_code} hidden />
+                <QRCode id="qrCode" level={"H"} size={290} includeMargin={true} value={this.state.url+item.qr_code} hidden />
             </td>
             <td>
                 <Link to={"/qrcode/"+item.id}>

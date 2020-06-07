@@ -5,7 +5,7 @@ import { TabContent, TabPane, Collapse, NavLink, NavItem, CardText, Nav, CardTit
 import classnames from "classnames";
 import LatestTranactionsTakeaway from "./LatestTranactionsTakeaway";
 import {baseUrl} from "../../helpers/baseUrl";
-import {Link} from "react-router-dom";
+import queryString from 'query-string';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -45,12 +45,64 @@ class Dashboard extends Component {
 			localStorage.removeItem('restaurantId')
 			localStorage.setItem('restaurantId',restaurant_id)
 		}
-		this.fetchSummary();
+		let params = queryString.parse(this.props.location.search)
+		if(params.code){
+			this.authorizeMollie(params.code);
+		}else{
+			this.fetchSummary();
+		}
+
 	}
 
 	componentDidUpdate(prevProps) {
 		if (prevProps.location.pathname !== this.props.location.pathname) { window.location.reload();
 		}
+	}
+
+	authorizeMollie(code) {
+		console.log("updating mollie status");
+		let resId = localStorage.getItem('restaurantId')
+		let isStuff = localStorage.getItem('isStuff')
+		console.log("fetching products");
+		const bearer = 'Bearer ' + localStorage.getItem('access');
+		let headers = {}
+		if (isStuff == "true") {
+			headers = {
+				'X-Requested-With': 'application/json',
+				'Content-Type': 'application/json',
+				'Authorization': bearer,
+				'RESID': resId
+			}
+		} else {
+			headers = {
+				'X-Requested-With': 'application/json',
+				'Content-Type': 'application/json',
+				'Authorization': bearer
+			}
+		}
+		return fetch(baseUrl + 'api/mollie/access-token/?code='+code+'', {
+			method: 'GET',
+			headers: headers
+		})
+			.then(response => {
+					console.log("mollie response: ", response)
+					if (response.ok) {
+						return response;
+					} else {
+						var error = new Error('Error ' + response.status + ': ' + response.statusText);
+						error.response = response;
+						console.log(error)
+					}
+				},
+				error => {
+					console.log(error)
+				})
+			.then(response => response.json())
+			.then(response => {
+				// If response was successful, set the token in local storage
+				console.log("mollie 2nd  response: ", response)
+			})
+			.catch(error => console.log(error))
 	}
 
 	fetchSummary() {
@@ -102,6 +154,7 @@ class Dashboard extends Component {
 						last7: response.revenue_seven_days,
 						mollie_setup : true
 					})
+					localStorage.setItem("mollieSetup","true");
 				}else if(response.mollie_setup == false){
 					this.setState({
 						mollie_setup : response.mollie_setup,
@@ -117,6 +170,7 @@ class Dashboard extends Component {
 						last7: response.revenue_seven_days,
 						mollie_setup : true
 					})
+					localStorage.setItem("mollieSetup","true");
 				}
 			})
 			.catch(error => console.log(error))
@@ -137,7 +191,7 @@ class Dashboard extends Component {
     }
 
 	redirectUrl(url) {
-		window.open(url, '_blank')
+		window.open(url)
 	}
 
     render() {

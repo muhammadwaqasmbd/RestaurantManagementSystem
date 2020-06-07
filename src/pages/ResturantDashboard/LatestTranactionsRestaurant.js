@@ -80,7 +80,7 @@ class LatestTranactionsRestaurant extends Component {
                 console.log("2nd response: ",response)
                 if(response.results.length > 0){
                     this.setState({
-                        transactions: response
+                        transactions: response.results
                     })
                 }
             })
