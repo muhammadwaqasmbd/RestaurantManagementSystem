@@ -134,6 +134,10 @@ import QRCodes from "../pages/QRCodes/index";
 import AddQRCode from "../pages/AddQRCode/index";
 import Categories from "../pages/Categories/index";
 import AddCategory from "../pages/AddCategory/index";
+import ProductMenuPage from "../Customer/ProductMenu";
+import ProductPageBase from "../Customer/ProductPage";
+import CheckoutPage from "../Customer/Checkout";
+import CustomerPage from "../Customer/Index";
 
 const authProtectedRoutes = [
 	{ path: "/admindashboard", component: AdminDashboard },
@@ -275,7 +279,10 @@ const publicRoutes = [
 	//Authentication Inner
 	{ path: "/pages-login", component: Login1 },
 	{ path: "/pages-register", component: Register1 },
-	{ path: "/pages-forget-pwd", component: ForgetPwd1 }
+	{ path: "/pages-forget-pwd", component: ForgetPwd1 },
+	{ path: "/customer/:id", component: CustomerPage },
+	{ path: "/customerproduct", component: ProductPageBase },
+	{ path: "/customercheckout", component: CheckoutPage },
 ];
 
 export { authProtectedRoutes, publicRoutes };
