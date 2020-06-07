@@ -50,25 +50,6 @@ class Login extends Component {
 
         return (
             <React.Fragment>
-                {localStorage.getItem("loggedIn") === "true" ? (
-                    <SweetAlert
-                        success
-                        title={"Success"}
-                        onConfirm={() => localStorage.removeItem("loggedIn")}
-                    >
-                        {"Successfully Loggedin"}
-                    </SweetAlert>
-                ) : null}
-                {localStorage.getItem("loggedIn") === "false" ? (
-                    <SweetAlert
-                        error
-                        title={"Failed"}
-                        onConfirm={() => localStorage.removeItem("loggedIn")}
-                    >
-                        {"Login Failed"}
-                    </SweetAlert>
-                ) : null
-                }
                 <div className="home-btn d-none d-sm-block">
                     <Link to="/" className="text-dark"><i className="fas fa-home h2"></i></Link>
                 </div>

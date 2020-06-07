@@ -2,22 +2,32 @@ import React from "react";
 import {compose} from 'recompose';
 import {Link, withRouter} from "react-router-dom";
 import { ReactComponent as SearchIcon } from './img/search.svg';
-import {ReactComponent as BillLogo} from "./img/bill.svg";
 import {baseUrl} from "../helpers/baseUrl";
+import $ from 'jquery';
+import './ActiveMenuItem';
 
 class Menu extends React.Component {
     constructor(props) {
         super(props);
         var totalCount = 0;
         var totalPrice = 0.0;
-        var cart = []
+        var cart = [];
+        var url = new URL(window.location.href);
+        var restaurantId = url.searchParams.get("restaurantId");
+        var tableNumber = atob(url.searchParams.get("tn"));
         this.state = {
             response : {},
             filteredOrderedProducts : '',
             inputRef: React.createRef(),
             data : {},
             lat: 0.0,
-            lng : 0.0
+            lng : 0.0,
+            categoryNames:'',
+            imageUrl: '',
+            restaurantName: '',
+            tableNumber: tableNumber,
+            restaurantId: restaurantId,
+            message : ''
         };
         this.renderData = this.renderData.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -62,6 +72,14 @@ class Menu extends React.Component {
         //localStorage.removeItem("cart")
         //localStorage.removeItem("totalPrice")
         //localStorage.removeItem("totalCount")
+        $('a[href^="#"]').click(function () {
+            $('html, body').animate({
+                scrollTop: $('[name="' + $.attr(this, 'href').substr(1) + '"]').offset().top
+            }, 500);
+
+            return false;
+        });
+
         console.log("localstorage cart: ", localStorage.getItem("cart"))
         console.log("totalPrice", localStorage.getItem("totalPrice"))
         console.log("totalCount", localStorage.getItem("totalCount"))
@@ -130,9 +148,26 @@ class Menu extends React.Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("products response: ",response)
+                if(response.message && response.message!=""){
+                    this.setState({
+                        message: response.message
+                    })
+                }
                 this.setState({
                     response : response,
                     data : response['categories']
+                })
+                let categoryNames = [];
+                let products = response['categories'];
+                for (let [key, value] of Object.entries(products)) {
+                    if(key == "priority"){
+                        delete products[key]
+                    }
+                    if(key!="default")
+                        categoryNames.push(key);
+                }
+                this.setState({
+                    categoryNames: categoryNames
                 })
                 localStorage.setItem("restaurantId",response['restaurant_id']);
                 localStorage.setItem("tableId",response['table_id']);
@@ -244,49 +279,83 @@ class Menu extends React.Component {
 
     render() {
         let allItemRows = [];
+        var data = []
         console.log("data: ", this.state.data)
         console.log("filtereddata: ", this.state.filteredOrderedProducts)
-        var data = this.state.filteredOrderedProducts != '' ? this.state.filteredOrderedProducts : this.state.data
-        for (const [key, value] of Object.entries(data)) {
-            if(key == "default"){
-                continue
+        data = this.state.filteredOrderedProducts != '' ? this.state.filteredOrderedProducts : this.state.data
+        if(data!=null && data!= "" && data.length > 0) {
+            for (const [key, value] of Object.entries(data)) {
+                if (key == "default") {
+                    continue
+                }
+                const perItemRows = this.renderData(key, value);
+                allItemRows = allItemRows.concat(perItemRows)
             }
-            const perItemRows = this.renderData(key,value);
-            allItemRows = allItemRows.concat(perItemRows)
         }
-
         return (
             <React.Fragment>
-                <div id="menu">
-                    <div className="search-wrapper">
-                        <SearchIcon id="search-icon" height="25px" width="25px" onClick={() => this.onClickSearchIcon()}/>
-                        <input type="text"
-                               ref={(input) => { this.state.inputRef = input; }}
-                               placeholder="Search..."
-                               onChange={this.handleChange}
-                               id="search-input"
-                        />
-                    </div>
-                    <div className="category-list">
-                        <ul className="list-unstyled">
-                            {allItemRows}
-                        </ul>
-                    </div>
-                    <div className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
-                        <button className="order-button" onClick={() => this.openCheckout()}>
-                            <div className="w-100">
-                                <div className="box top-padding-2 ml-2">
-                                    {localStorage.getItem("totalCount")}
-                                </div>
-                                <div className="top-padding-3 order-price mr-2">€{localStorage.getItem("totalPrice")}</div>
-                            </div>
-                            <h5 className=" order-me-button w-100" style={{color:"white"}}>View OrderMe</h5>
-                        </button>
-                    </div>
 
-                </div>
+                    <div className="banner">
+                        <div id="current-table" className="w-100">
+                            <h3 className="font-weight-bold tablenumber ml-3 mt-3">{this.state.response['table_number']} </h3>
+                            {this.state.response['logo_url'] ?
+                                <img src={this.state.response['logo_url']} className="restaurant-logo mr-3"/> : ''}
+                        </div>
+
+                        <h3 id="restaurant-name"
+                            className="w-100 font-weight-bold">{this.state.response['restaurant_name']}</h3>
+                    </div>
+                    <div id="top-menu" className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
+                        <div className="row top-menu"> {this.buildTopMenu(this.state.categoryNames)} </div>
+                    </div>
+                    <div id="menu">
+                        <div className="search-wrapper">
+                            <SearchIcon id="search-icon" height="25px" width="25px" onClick={() => this.onClickSearchIcon()}/>
+                            <input type="text"
+                                   ref={(input) => { this.state.inputRef = input; }}
+                                   placeholder="Search..."
+                                   onChange={this.handleChange}
+                                   id="search-input"
+                            />
+                        </div>
+                        <div className="category-list">
+                            {this.state.message !== "" ?
+                                <h2>{this.state.message}</h2>
+                                :
+                                <ul className="list-unstyled">
+                                    {allItemRows}
+                                </ul>
+                            }
+                        </div>
+                        <div className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
+                            <button className="order-button" onClick={() => this.openCheckout()}>
+                                <div className="w-100">
+                                    <div className="box top-padding-2 ml-2">
+                                        {localStorage.getItem("totalCount")}
+                                    </div>
+                                    <div className="top-padding-3 order-price mr-2">€{localStorage.getItem("totalPrice")}</div>
+                                </div>
+                                <h5 className=" order-me-button w-100" style={{color:"white"}}>View OrderMe</h5>
+                            </button>
+                        </div>
+                    </div>
             </React.Fragment>
         );
+    }
+
+    buildTopMenu(categoryNames) {
+        var topMenu = [];
+        for (var i = 0, max = categoryNames.length; i < max; i++) {
+            var anchor = categoryNames[i];
+            if (i === 0) {
+                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor active-menu" href={"#" + anchor} smooth={true}
+                                                                         to={anchor}>{categoryNames[i]} </Link></div>);
+            } else {
+                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor" href={"#" + anchor} smooth={true}
+                                                                         to={anchor}>{categoryNames[i]}</Link></div>);
+            }
+        }
+        return topMenu;
     }
 
     openCheckout() {
