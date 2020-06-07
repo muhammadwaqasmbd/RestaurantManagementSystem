@@ -283,7 +283,7 @@ class Menu extends React.Component {
         console.log("data: ", this.state.data)
         console.log("filtereddata: ", this.state.filteredOrderedProducts)
         data = this.state.filteredOrderedProducts != '' ? this.state.filteredOrderedProducts : this.state.data
-        if(data!=null && data!= "" && data.length > 0) {
+        if(data!=null && data!= "" ) {
             for (const [key, value] of Object.entries(data)) {
                 if (key == "default") {
                     continue
@@ -319,7 +319,7 @@ class Menu extends React.Component {
                             />
                         </div>
                         <div className="category-list">
-                            {this.state.message !== "" ?
+                            {this.state.message !== "" && this.state.message !== "null" && this.state.message !== null?
                                 <h2>{this.state.message}</h2>
                                 :
                                 <ul className="list-unstyled">
