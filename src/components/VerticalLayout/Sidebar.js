@@ -95,7 +95,7 @@ const SidebarContent = props => {
             </div>
             :
             <div id="sidebar-menu">
-                {props.state.mollie_setup === false
+                {props.state && props.state.mollie_setup === false
                 ?
                 <ul className="metismenu list-unstyled" id="side-menu">
                     <li>
