@@ -46,6 +46,8 @@ class Product extends Component {
         if(this.props.id > 0){
             this.fetchProduct();
         }else{
+            let attrs = []
+            attrs.push({"printer_id":"1temp","printer_number": "","printer_mac_address":""})
             var array = this.state.attributes;
             array.push(
                 <div id={"attrrow" + this.state.count} key={"attrrow" + this.state.count}>

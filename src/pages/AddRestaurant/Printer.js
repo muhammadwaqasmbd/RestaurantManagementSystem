@@ -10,8 +10,8 @@ const dropzoneStyle = {
 };
 
 class Printer extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             attributes : [],
             count: 1,
@@ -26,88 +26,91 @@ class Printer extends Component {
         this.removePrinter = this.removePrinter.bind(this);
     }
 
-    componentDidMount() {
-        let response = this.props.res;
-        console.log("res: ",response)
-        if(response.printers && response.printers.length > 0) {
-            this.setState({
-                printers : response.printers
-            })
-            let printers = this.state.printers;
-            var array = this.state.attributes;
-            if (printers.length > 0) {
-                printers.forEach(item => {
-                    array.push(
-                        <FormGroup className="mb-4" id={"attrrow" + item.id} row key={"attrrow" + item.id}>
-                            <Col lg="7">
-                                <Input id={"printer_mac_address"}
-                                       name={"printer_mac_address"}
-                                       defaultValue={item.printer_mac_address}
-                                       type="text"
-                                       className="form-control"
-                                       placeholder="Printer MAC address"
-                                       onChange={this.handleAttrChange(item.id)}
-                                />
-                            </Col>
-                            <Col lg="4">
-                                <Input id={"printer_number"}
-                                       name={"printer_number"}
-                                       defaultValue={item.printer_number}
-                                       type="text"
-                                       className="form-control"
-                                       placeholder="Printer No"
-                                       onChange={this.handleAttrChange(item.id)}
-                                />
-                            </Col>
-                            <Col lg="1">
-                                <button type="button" onClick={() => {
-                                    this.removePrinter(item.id, "attrrow" + item.id)
-                                }} className="close" style={{color: "red", fontSize: '40px'}} aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </Col>
-                        </FormGroup>
-                    )
-                });
-                var count = parseInt(printers[printers.length - 1].id) + 1
-                this.setState({
-                    count: count
-                });
-            } else {
-                array.push(
-                    <FormGroup className="mb-4" id={"attrrow" + this.state.count} row
-                               key={"attrrow" + this.state.count}>
-                        <Col lg="7">
-                            <Input id="printer_mac_address"
-                                   name={"printer_mac_address"}
-                                   type="text"
-                                   className="form-control"
-                                   placeholder="Printer MAC address"
-                                   onChange={this.handleAttrChange(this.state.count + "temp")}
-                            />
-                        </Col>
-                        <Col lg="4">
-                            <Input id="printer_number"
-                                   name={"printer_number"}
-                                   type="text"
-                                   className="form-control"
-                                   placeholder="Printer No"
-                                   onChange={this.handleAttrChange(this.state.count + "temp")}
-                            />
-                        </Col>
-                    </FormGroup>
-                )
-            }
-            this.setState({
-                attributes: array
-            });
+    componentDidUpdate(prevProps) {
+        if (prevProps !== this.props) {
+            let response = this.props.res;
+            console.log("res: ", response)
+                let printers = response.printers;
+                var array = this.state.attributes;
+                if (printers!=null && printers!="" && printers!="null") {
+                    printers.forEach(item => {
+                        array.push(
+                            <FormGroup className="mb-4" id={"attrrow" + item.printer_id} row key={"attrrow" + item.printer_id}>
+                                <Col lg="7">
+                                    <Input id={"printer_mac_address"}
+                                           name={"printer_mac_address"}
+                                           defaultValue={item.printer_mac_address}
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer MAC address"
+                                           onChange={this.handleAttrChange(item.printer_id)}
+                                    />
+                                </Col>
+                                <Col lg="4">
+                                    <Input id={"printer_number"}
+                                           name={"printer_number"}
+                                           defaultValue={item.printer_number}
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer No"
+                                           onChange={this.handleAttrChange(item.printer_id)}
+                                    />
+                                </Col>
+                                <Col lg="1">
+                                    <button type="button" onClick={() => {
+                                        this.removePrinter(item.printer_id, "attrrow" + item.printer_id)
+                                    }} className="close" style={{color: "red", fontSize: '40px'}} aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </Col>
+                            </FormGroup>
+                        )
+                    });
+                    var count = parseInt(printers[printers.length - 1].printer_id) + 1
+                    this.setState({
+                        count: count
+                    });
+                } else {
+                    response.printers = []
+                    response.printers.push({"printer_id":"1temp","printer_number": "","printer_mac_address":""})
+                    let count = 1
+                    if(array.length == 0) {
+                        array.push(
+                            <FormGroup className="mb-4" id={"attrrow" + count} row
+                                       key={"attrrow" + count}>
+                                <Col lg="7">
+                                    <Input id="printer_mac_address"
+                                           name={"printer_mac_address"}
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer MAC address"
+                                           onChange={this.handleAttrChange(count + "temp")}
+                                    />
+                                </Col>
+                                <Col lg="4">
+                                    <Input id="printer_number"
+                                           name={"printer_number"}
+                                           type="text"
+                                           className="form-control"
+                                           placeholder="Printer No"
+                                           onChange={this.handleAttrChange(count + "temp")}
+                                    />
+                                </Col>
+                            </FormGroup>
+                        )
+                    }
+                }
+                    this.setState({
+                        attributes: array,
+                        printers: response.printers
+                    });
         }
     }
 
 
     removePrinter(id, rowNo){
         this.setState({printers: this.state.printers.filter(function(printer) {
-                return printer.id !== id
+                return printer.printer_id !== id
             })});
         $("#"+rowNo).remove();
     }
@@ -144,7 +147,7 @@ class Printer extends Component {
         );
         this.setState({
             attributes: array,
-            printers: [...this.state.printers, {"id":count+"temp","printer_number": "","printer_mac_address":""}],
+            printers: [...this.state.printers, {"printer_id":count+"temp","printer_number": "","printer_mac_address":""}],
             count: count+1
         });
 
@@ -154,10 +157,10 @@ class Printer extends Component {
     handleSubmit(event) {
         event.preventDefault();
         function oldPrinters(item) {
-            return !item.id.includes("temp");
+            return item && item.printer_id && !item.printer_id.toString().includes("temp");
         }
         function newPrinters(item) {
-            return item.id.includes("temp");
+            return item && item.printer_id && item.printer_id.toString().includes("temp");
         }
         let printersList  = this.state.printers;
         let newRecordsList = printersList.filter(newPrinters);
@@ -165,8 +168,8 @@ class Printer extends Component {
         let newRecords = []
         newRecordsList.forEach(function(item) {
             var tempItem = Object.assign({}, item);
-            if(tempItem.id.includes("temp")) {
-                delete tempItem.id;
+            if(tempItem.printer_id.includes("temp")) {
+                delete tempItem.printer_id;
                 newRecords.push(tempItem);
             }
         });
@@ -241,7 +244,7 @@ class Printer extends Component {
         let name = event.target.name
         this.setState(prevState => ({
             printers: prevState.printers.map(
-                obj => (obj.id === id ? Object.assign(obj, {[name]: value}) : obj)
+                obj => (obj.printer_id === id ? Object.assign(obj, {[name]: value}) : obj)
             )
         }));
         console.log(this.state.printers);
@@ -276,7 +279,7 @@ class Printer extends Component {
                         <Form
                             onSubmit={this.handleSubmit}
                             id="printerForm"
-                        >{                            this.state.attributes.length == 0 ?
+                        >{this.state.attributes.length == 0 ?
                             <FormGroup className="mb-4" id={"attrrow" + this.state.count} row
                                        key={"attrrow" + this.state.count}>
                                 <Col lg="7">
