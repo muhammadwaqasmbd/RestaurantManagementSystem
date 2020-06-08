@@ -37,6 +37,66 @@ class LatestTranactionsRestaurant extends Component {
     }
 
 
+    payedOrPos(orderId, paymentMethod) {
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let bodyData = {
+            "order_id":parseInt(orderId),
+            "payment_type":"cash",
+        }
+        if(isStuff == "true") {
+            headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/orders/complete-order/';
+        return fetch(baseUrl+api, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(bodyData)
+        })
+            .then(response => {
+                    console.log("category response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Payed",
+                            dynamic_description: "Payed."
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in payment."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in payment."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
+
     fetchDashboard(){
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
@@ -190,8 +250,8 @@ class LatestTranactionsRestaurant extends Component {
                 <Button type="button"
                 style={{backgroundColor: 'blue', marginLeft : '10px'}}
                 size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                onClick={clickCallback} 
+                className="btn-rounded waves-effect waves-light"
+                        onClick={() => {this.payedOrPos(transaction.order_id,transaction.payment_method)}}
                 key={"row-data-pos" + transaction.id}
                 >
                    Payed or POS

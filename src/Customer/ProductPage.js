@@ -18,7 +18,8 @@ class ProductPageBase extends React.Component {
             extraAttributes: [],
             totalPrice : this.props.location.state.product.unit_price,
             cart : [],
-            showAttrs : false
+            showAttrs : false,
+            color: this.props.location.state.color
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -142,7 +143,7 @@ class ProductPageBase extends React.Component {
                 <div className="product-detail-wrapper">
                     <img className="product-image" id="product-image" src={this.state.product.image_url}/>
                     <div className="product-detail">
-                        <h5 className="card-name">{this.state.product.name}</h5>
+                        <h5 style={{color:this.state.color}} className="card-name">{this.state.product.name}</h5>
                         <span
                             className="card-description-product-page text-grey w-100">{this.state.product.description}</span>
                         <textarea placeholder="Add your comment." rows="4" className="w-100 border-dark pl-2 mt-2" name="comment"
@@ -152,14 +153,14 @@ class ProductPageBase extends React.Component {
                         {this.state.showAttrs ? this.state.product.attributes : ""}
                         <div className="row counter mt-2">
                             <span className="" onClick={() => this.onClick(-1)}><MinusLogo alt="minus" height="25px" width="25px" fill={this.context.primaryColor}/></span>
-                            <h4 className="font-weight-bold counter">{this.state.count}</h4>
+                            <h4 className="font-weight-bold counter" style={{color:this.state.color}}>{this.state.count}</h4>
                             <span className="" onClick={() => this.onClick(1)}><PlusLogo alt="add" height="25px" width="25px"  fill={this.context.primaryColor}/></span>
                         </div>
                         <br/>
                     </div>
                     <div className="height-100"></div>
                     <div className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
-                        <button className="col-7 order-button" onClick={() => this.addProduct()}>
+                        <button className="col-7 order-button" onClick={() => this.addProduct()} style={{backgroundColor:this.state.color}}>
                             OrderMe for €{this.state.totalPrice}
                         </button>
                         <button className="col-4 cancel-button offset-1 mt-2" onClick={() => this.onClickCancel()}>

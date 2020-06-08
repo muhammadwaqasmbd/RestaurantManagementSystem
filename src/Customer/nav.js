@@ -9,11 +9,19 @@ import {baseUrl} from "../helpers/baseUrl";
 class Navigation extends React.Component {
     constructor(props) {
         super(props);
+        var url = new URL(window.location.href);
+        var restaurantId = url.searchParams.get("restaurantId");
+        var tableNumber = atob(url.searchParams.get("tn"));
         this.state = {
+            response : {},
             categoryNames:'',
             data : {},
             lat:0.0,
-            lng:0.0
+            lng:0.0,
+            imageUrl: '',
+            restaurantName: '',
+            tableNumber: tableNumber,
+            restaurantId: restaurantId,
         };
     }
 
@@ -24,27 +32,30 @@ class Navigation extends React.Component {
     componentDidMount() {
         var lat = 0.0;
         var lng = 0.0;
+        let self = this;
         if (navigator.geolocation) {
-            var location_timeout = setTimeout("geolocFail()", 10000);
-            let self = this;
+            navigator.geolocation.getCurrentPosition(function () {
+            }, function () {
+            }, {});
             navigator.geolocation.getCurrentPosition(function (position) {
-                clearTimeout(location_timeout);
-
                 lat = position.coords.latitude;
                 lng = position.coords.longitude;
                 self.setState({
                     lat: lat,
                     lng: lng
                 })
+                localStorage.removeItem("lat")
+                localStorage.removeItem("lng")
+                localStorage.setItem("lat", self.state.lat);
+                localStorage.setItem("lng", self.state.lng);
+                console.log("lat local: ", localStorage.getItem("lat"))
+                console.log("lng local: ", localStorage.getItem("lng"))
                 self.fetchData();
-            }, function (error) {
-                clearTimeout(location_timeout);
-                console.log("error in fetching geolocation")
+            }, function (e) {
+                console.log("Geolocation not found")
+            }, {
+                enableHighAccuracy: true
             });
-
-        } else {
-            // Fallback for no geolocation
-            console.log("no geolocation")
         }
 
         $('a[href^="#"]').click(function () {
@@ -68,6 +79,7 @@ class Navigation extends React.Component {
         }else if(!isNaN(path.substring(path.length - 4))){
             qrcode = path.substring(path.length - 4)
         }
+        localStorage.setItem("qrcode",qrcode)
         console.log("fetching products");
         let headers = {}
         let lat = this.state.lat;
@@ -104,8 +116,14 @@ class Navigation extends React.Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("products response: ",response)
+                if(response.message && response.message!=""){
+                    this.setState({
+                        message: response.message
+                    })
+                }
                 this.setState({
-                    data : response,
+                    response : response,
+                    data : response['categories']
                 })
                 let categoryNames = [];
                 let products = response['categories'];
@@ -119,14 +137,29 @@ class Navigation extends React.Component {
                 this.setState({
                     categoryNames: categoryNames
                 })
+                localStorage.setItem("restaurantId",response['restaurant_id']);
+                localStorage.setItem("tableId",response['table_id']);
+                localStorage.setItem("isFetched","true");
             })
             .catch(error => console.log(error))
     }
 
     render() {
         return (
-            <div id="top-menu" className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
+            <div>
+            <div className="banner">
+                <div id="current-table" className="w-100">
+                    <h3 style={{color:this.state.response['color']}} className="font-weight-bold tablenumber ml-3 mt-3">{this.state.response['table_number']} </h3>
+                    {this.state.response['logo_url'] ?
+                        <img src={this.state.response['logo_url']} className="restaurant-logo mr-3"/> : ''}
+                </div>
+
+                <h3 id="restaurant-name" style={{color:this.state.response['color']}}
+                    className="w-100 font-weight-bold">{this.state.response['restaurant_name']}</h3>
+            </div>
+            <div id="top-menu">
                 <div className="row top-menu"> {this.buildTopMenu(this.state.categoryNames)} </div>
+            </div>
             </div>
         );
     }
@@ -136,10 +169,10 @@ class Navigation extends React.Component {
         for (var i = 0, max = categoryNames.length; i < max; i++) {
             var anchor = categoryNames[i];
             if (i === 0) {
-                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor active-menu" href={"#" + anchor} smooth={true}
+                topMenu.push(<div key={i} className="top-category"><Link style={{backgroundColor:this.state.response['color']}} className="top-category-anchor active-menu" href={"#" + anchor} smooth={true}
                                                                          to={anchor}>{categoryNames[i]} </Link></div>);
             } else {
-                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor" href={"#" + anchor} smooth={true}
+                topMenu.push(<div key={i} className="top-category"><Link style={{color:this.state.response['color']}}className="top-category-anchor" href={"#" + anchor} smooth={true}
                                                                          to={anchor}>{categoryNames[i]}</Link></div>);
             }
         }
@@ -147,7 +180,7 @@ class Navigation extends React.Component {
     }
 }
 const NavigationMenu = compose(
-    withRouter,
+    withRouter
 )(Navigation);
 
 export default NavigationMenu;

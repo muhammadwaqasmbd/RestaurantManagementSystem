@@ -31,6 +31,7 @@ class CheckoutBase extends React.Component {
             totalPrice : 0.0,
             directPayment : directPayment,
             takeaway:takeaway,
+            color: this.props.location.state.color
         };
     }
 
@@ -251,7 +252,7 @@ class CheckoutBase extends React.Component {
             <div className="checkout-wrapper">
                 <div className="checkout-products">
                     <div className="checkout-your-order">
-                        <h5 className="font-weight-bold my-basket">My Basket</h5>
+                        <h5 className="font-weight-bold my-basket" style={{color:this.state.color}}>My Basket</h5>
                         <span id="close-x" onClick={() => this.props.history.push({
                             pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
                             search: this.props.location.search
@@ -271,10 +272,10 @@ class CheckoutBase extends React.Component {
                     </div>
                     {!localStorage.getItem("orderId") || localStorage.getItem("orderId") == "null" && this.state.directPayment ?
                         <div>
-                            <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px"}} id="ordermenow-button"
+                            <button className="col-3 order-button"style={{marginLeft:"5px",marginRight:"5px",backgroundColor:this.state.color}} id="ordermenow-button"
                                     onClick={() => this.checkOutOrder()}>Order and pay now
                             </button>
-                            <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px"}} id="ordermenow-button"
+                            <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px",backgroundColor:this.state.color}} id="ordermenow-button"
                                     onClick={() => this.checkOutOrder()}>Order and pay later
                             </button>
                             <button className="col-3 offset-1 cancel-button"
@@ -283,7 +284,7 @@ class CheckoutBase extends React.Component {
                         </div>
                         :
                         <div>
-                        <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px"}} id="ordermenow-button"
+                        <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px",backgroundColor:this.state.color}} id="ordermenow-button"
                                 onClick={() => localStorage.getItem("orderId") && localStorage.getItem("orderId") != "null" && localStorage.getItem("orderId")!=null
                                 && localStorage.getItem("orderId")!= "" ? this.completeOrder() : this.checkOutOrder() }>Order and pay later
                         </button>

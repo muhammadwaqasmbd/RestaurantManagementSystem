@@ -8,6 +8,7 @@ class TopBanner extends React.Component {
     render() {
         return(
                 <div id="customerwrapper" style={{textAlign:"left"}}>
+                    <NavigationMenu/>
                     <ProductMenuPage />
                 </div>
 

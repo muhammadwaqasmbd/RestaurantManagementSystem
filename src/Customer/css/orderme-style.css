@@ -1,7 +1,7 @@
 #customerwrapper {
     background-color: white;
     font-family: customcalibri;
-    --main-color: #842e6b;
+    --main-color: white;
 }
 
 /*//TODO fix this*/
@@ -359,7 +359,7 @@ div.double-button-wrapper {
 
 button.order-button {
     border-radius: 0px;
-    background-color:  #842e6b;
+    background-color:  white;
     border: none;
     color: white;
     padding: 0;
@@ -427,7 +427,7 @@ a.active-menu {
 
 div#top-menu {
     float: left;
-    width: 600px;
+    width: 100%;
     overflow: hidden;
     position: -webkit-sticky; /* Safari */
     position: sticky;

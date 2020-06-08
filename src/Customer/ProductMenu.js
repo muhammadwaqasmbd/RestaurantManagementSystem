@@ -12,9 +12,6 @@ class Menu extends React.Component {
         var totalCount = 0;
         var totalPrice = 0.0;
         var cart = [];
-        var url = new URL(window.location.href);
-        var restaurantId = url.searchParams.get("restaurantId");
-        var tableNumber = atob(url.searchParams.get("tn"));
         this.state = {
             response : {},
             filteredOrderedProducts : '',
@@ -23,10 +20,6 @@ class Menu extends React.Component {
             lat: 0.0,
             lng : 0.0,
             categoryNames:'',
-            imageUrl: '',
-            restaurantName: '',
-            tableNumber: tableNumber,
-            restaurantId: restaurantId,
             message : ''
         };
         this.renderData = this.renderData.bind(this);
@@ -34,7 +27,6 @@ class Menu extends React.Component {
     }
 
     componentDidMount() {
-
         var lat = 0.0;
         var lng = 0.0;
         /*if (navigator.geolocation) {
@@ -189,6 +181,7 @@ class Menu extends React.Component {
                     response : response,
                     data : response['categories']
                 })
+
                 let categoryNames = [];
                 let products = response['categories'];
                 for (let [key, value] of Object.entries(products)) {
@@ -209,6 +202,7 @@ class Menu extends React.Component {
     }
 
     renderData(category, products){
+        var color = this.state.response['color'];
         for (let [key, value] of Object.entries(products)) {
             if(key == "priority"){
                 delete products[key]
@@ -224,22 +218,23 @@ class Menu extends React.Component {
                         <h4 className="ml-3 category-title mt-3 pt-3">{category}</h4>
                         <p className="ml-3 category-description pb-1">Description</p>
                     </div>
-                    <div className="product_list">
-                        <ul className="list-unstyled">
+                    <div className="product_list" style={{backgroundColor:this.state.response['color']}}>
+                        <ul className="list-unstyled" style={{backgroundColor:this.state.response['color']}}>
                             {Object.keys(products).forEach(function(key) {
                                 value = products[key];
                                 for (let val of value) {
                                     const newTo = {
                                         pathname: '/customerproduct',
                                         state: {
-                                            product: val
+                                            product: val,
+                                            color: color
                                         }
                                     };
                                     const subRecord = [
-                                        <Link to={newTo}>
-                                            <li key={{key}}>
+                                        <Link to={newTo} style={{backgroundColor:color}}>
+                                            <li key={{key}} >
                                                 <div className={"product-card pl-2 pr-2 background-strip"} id={val.id}>
-                                                    <div className={"product-card-content col-8"}>
+                                                    <div className={"product-card-content col-8"} >
                                                         <h6 className="product-card-title font-weight-bold width-100 mt-3">
                                                             {val.name}
                                                         </h6>
@@ -326,20 +321,6 @@ class Menu extends React.Component {
         }
         return (
             <React.Fragment>
-
-                    <div className="banner">
-                        <div id="current-table" className="w-100">
-                            <h3 className="font-weight-bold tablenumber ml-3 mt-3">{this.state.response['table_number']} </h3>
-                            {this.state.response['logo_url'] ?
-                                <img src={this.state.response['logo_url']} className="restaurant-logo mr-3"/> : ''}
-                        </div>
-
-                        <h3 id="restaurant-name"
-                            className="w-100 font-weight-bold">{this.state.response['restaurant_name']}</h3>
-                    </div>
-                    <div id="top-menu" className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
-                        <div className="row top-menu"> {this.buildTopMenu(this.state.categoryNames)} </div>
-                    </div>
                     <div id="menu">
                         <div className="search-wrapper">
                             <SearchIcon id="search-icon" height="25px" width="25px" onClick={() => this.onClickSearchIcon()}/>
@@ -360,7 +341,7 @@ class Menu extends React.Component {
                             }
                         </div>
                         <div className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
-                            <button className="order-button" onClick={() => this.openCheckout()}>
+                            <button className="order-button" onClick={() => this.openCheckout()} style={{backgroundColor:this.state.response['color']}} >
                                 <div className="w-100">
                                     <div className="box top-padding-2 ml-2">
                                         {localStorage.getItem("totalCount")}
@@ -375,20 +356,6 @@ class Menu extends React.Component {
         );
     }
 
-    buildTopMenu(categoryNames) {
-        var topMenu = [];
-        for (var i = 0, max = categoryNames.length; i < max; i++) {
-            var anchor = categoryNames[i];
-            if (i === 0) {
-                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor active-menu" href={"#" + anchor} smooth={true}
-                                                                         to={anchor}>{categoryNames[i]} </Link></div>);
-            } else {
-                topMenu.push(<div key={i} className="top-category"><Link className="top-category-anchor" href={"#" + anchor} smooth={true}
-                                                                         to={anchor}>{categoryNames[i]}</Link></div>);
-            }
-        }
-        return topMenu;
-    }
 
     openCheckout() {
         this.props.history.push({
@@ -396,7 +363,8 @@ class Menu extends React.Component {
             search: this.props.location.search,
             state: {
                 directPayment: this.state.response['direct_payment'],
-                takeaway: this.state.response['takeaway']
+                takeaway: this.state.response['takeaway'],
+                color: this.state.response['color']
             },
         });
     }
