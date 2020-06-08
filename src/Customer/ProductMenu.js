@@ -31,7 +31,6 @@ class Menu extends React.Component {
         };
         this.renderData = this.renderData.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.geolocFail = this.geolocFail.bind(this);
     }
 
     componentDidMount() {
@@ -39,9 +38,14 @@ class Menu extends React.Component {
         var lat = 0.0;
         var lng = 0.0;
         if (navigator.geolocation) {
-            var location_timeout = setTimeout("this.geolocFail()", 10000);
+            var location_timeout = setTimeout(function () {
+                                        try {
+                                            console.log("Timing out");
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
+                                    }, 10000);
             let self = this;
-            var mapLocation;
             var geolocation = navigator.geolocation.watchPosition(function(position) {
                 clearTimeout(location_timeout);
 
@@ -61,6 +65,8 @@ class Menu extends React.Component {
             }, function(error) {
                 clearTimeout(location_timeout);
                 console.log("error in fetching geolocation")
+            },{
+                enableHighAccuracy: true
             });
             window.setTimeout( function () {
                     navigator.geolocation.clearWatch( geolocation )
@@ -85,11 +91,6 @@ class Menu extends React.Component {
         console.log("totalPrice", localStorage.getItem("totalPrice"))
         console.log("totalCount", localStorage.getItem("totalCount"))
         console.log("orderId", localStorage.getItem("orderId"))
-    }
-
-    geolocFail(){
-       let error ="Geolocation timeout error"
-       return error;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
