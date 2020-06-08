@@ -37,7 +37,7 @@ class Menu extends React.Component {
 
         var lat = 0.0;
         var lng = 0.0;
-        if (navigator.geolocation) {
+        /*if (navigator.geolocation) {
             var location_timeout = setTimeout(function () {
                                         try {
                                             console.log("Timing out");
@@ -75,6 +75,31 @@ class Menu extends React.Component {
             );
         } else {
             console.log("no geolocation")
+        }*/
+        let self = this;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function () {
+            }, function () {
+            }, {});
+            navigator.geolocation.getCurrentPosition(function (position) {
+                lat = position.coords.latitude;
+                lng = position.coords.longitude;
+                self.setState({
+                    lat: lat,
+                    lng: lng
+                })
+                localStorage.removeItem("lat")
+                localStorage.removeItem("lng")
+                localStorage.setItem("lat", self.state.lat);
+                localStorage.setItem("lng", self.state.lng);
+                console.log("lat local: ", localStorage.getItem("lat"))
+                console.log("lng local: ", localStorage.getItem("lng"))
+                self.fetchData();
+            }, function (e) {
+                console.log("Geolocation not found")
+            }, {
+                enableHighAccuracy: true
+            });
         }
         //localStorage.removeItem("cart")
         //localStorage.removeItem("totalPrice")
