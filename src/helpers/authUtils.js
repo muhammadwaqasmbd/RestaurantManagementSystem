@@ -234,7 +234,8 @@ class FirebaseAuthBackend {
   _handleError(error) {
     // var errorCode = error.code;
     var errorMessage = error.message;
-    return errorMessage;
+    localStorage.setItem("loginFailed", "true");
+    return (errorMessage);
   }
 }
 

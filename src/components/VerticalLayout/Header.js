@@ -175,7 +175,7 @@ class Header extends Component {
               <div className="navbar-brand-box">
                 <Link to="/" className="logo logo-dark">
                   <span className="logo-sm">
-                    ORDER ME
+                    O.ME
                   </span>
                   <span className="logo-lg">
                   ORDER ME
@@ -184,7 +184,7 @@ class Header extends Component {
 
                 <Link to="/" className="logo logo-light">
                   <span className="logo-sm">
-                  ORDER ME
+                    O.ME
                   </span>
                   <span className="logo-lg" style={{color:'white', fontSize:  "30px"}}>
                   ORDER ME

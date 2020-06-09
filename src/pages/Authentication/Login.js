@@ -22,7 +22,6 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            error_dlg: localStorage.getItem("loggedIn") == "false" ? true : false,
         }
 
         // handleValidSubmit
@@ -43,20 +42,21 @@ class Login extends Component {
         localStorage.removeItem('isStuff');
         localStorage.removeItem('restaurantId');
         localStorage.removeItem('username');
+        localStorage.removeItem("loginFailed");
     }
 
     render() {
         return (
             <React.Fragment>
-                {/*{this.state.error_dlg ? (
+                {localStorage.getItem("loginFailed") == "true" ? (
                 <SweetAlert
                     error
                     title={"Failed"}
-                    onConfirm={() => this.setState({error_dlg : false})}
+                    onConfirm={() => window.location.reload()}
                     >
                     {"Login Failed!"}
                     </SweetAlert>
-                    ) : null}*/}
+                    ) : null}
                 <div className="home-btn d-none d-sm-block">
                     <Link to="/" className="text-dark"><i className="fas fa-home h2"></i></Link>
                 </div>
