@@ -405,6 +405,124 @@ class Tables extends Component {
               .catch(error => console.log(error))
       }
 
+    pauseQRCode(id){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let bodyData = {
+            "qr_code_id_list": id
+        }
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/qr-codes/pause/'
+        return fetch(baseUrl+api, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(bodyData)
+        })
+            .then(response => {
+                    console.log("register response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Unassigned",
+                            dynamic_description: "Category Unassigned"
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Category not unassigned."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Category not assigned."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
+
+    unpauseQRCode(id){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        let bodyData = {
+            "qr_code_id_list": id
+        }
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/qr-codes/unpause/'
+        return fetch(baseUrl+api, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(bodyData)
+        })
+            .then(response => {
+                    console.log("register response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Unassigned",
+                            dynamic_description: "Category Unassigned"
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Category not unassigned."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Category not assigned."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
+
       toggleSelectAll() {
         let selectedItems = [];
         var checkedBoxCheck = !this.state.checkedBoxCheck;
@@ -435,7 +553,6 @@ class Tables extends Component {
         await this.setState({
           selectedItems
         });
-        console.log("Hello", this.state.selectedItems);
 
       }
 
@@ -460,12 +577,12 @@ class Tables extends Component {
         const itemRows = [
         this.state.editableRows.includes(qrcode.id)  ?
         <tr key={"row--" + qrcode.id}>
-                {/*<td>
+                {<td>
                     <input
                         type="checkbox"
                         className="checkbox"
                     />
-                </td>*/}
+                </td>}
                 <input type="hidden" name="qrcode_id" ref={node => (this.qrcodeid = node)} value={qrcode.id}/>
                 <td>{qrcode.qr_code}</td>
                 <td>
@@ -509,15 +626,15 @@ class Tables extends Component {
                 </td>
         </tr> :
         <tr key={"row-"+qrcode.id}>
-            {/*<td>
+            {<td>
                 <input
                     type="checkbox"
-                    checked={this.state.selectedItems.includes(table.id)}
+                    checked={this.state.selectedItems.includes(qrcode.id)}
                     className="checkbox"
                     name="selectOptions"
-                    onChange={() => this.onItemSelect(table.id)}
+                    onChange={() => this.onItemSelect(qrcode.id)}
                   />
-            </td>*/}
+            </td>}
             <td>{qrcode.qr_code}</td>
             <td>{qrcode.table_number}</td>
             <td>{qrcode.takeaway ? "Yes" : "No"}</td>
@@ -537,7 +654,7 @@ class Tables extends Component {
                 style={{backgroundColor: 'Blue', width : '100px', marginLeft : '10px'}}
                 size="sm" 
                 className="btn-rounded waves-effect waves-light" 
-                //onClick={editRowCallback} 
+                key={"assign"+qrcode.id}
                 onClick={() => this.onAssignClick(qrcode.id)}
                 key={"assign-button-" + qrcode.id}
                 >
@@ -547,14 +664,34 @@ class Tables extends Component {
                 <Button type="button" 
                 style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
                 size="sm" 
-                className="btn-rounded waves-effect waves-light" 
-                //onClick={editRowCallback} 
+                className="btn-rounded waves-effect waves-light"
+                        key={"unassign"+qrcode.id}
                 onClick={() => this.handleUnassignment(qrcode.id)}
                 key={"assign-button-" + qrcode.id}
                 >
                     Unassign
                 </Button>
                 }
+                {qrcode.active == true?
+                <Button type="button"
+                        style={{backgroundColor: 'Maroon', width : '100px', marginLeft : '10px'}}
+                        size="sm"
+                        className="btn-rounded waves-effect waves-light"
+                        onClick={() => this.pauseQRCode([qrcode.id])}
+                        key={"assign-button-" + qrcode.id}
+                >
+                    Pause
+                </Button>
+                    :
+                <Button type="button"
+                        style={{backgroundColor: 'Purple', width : '100px', marginLeft : '10px'}}
+                        size="sm"
+                        className="btn-rounded waves-effect waves-light"
+                        onClick={() => this.unpauseQRCode([qrcode.id])}
+                        key={"assign-button-" + qrcode.id}
+                >
+                    Unpause
+                </Button>}
             </td>
         </tr>
         ];
@@ -656,15 +793,24 @@ class Tables extends Component {
                                 <div className="col-lg-6">
                                 QR-CODE ASSIGNMENT
                                 </div>
-                               {/* <div className="col-lg-6 text-right">
+                               { <div className="col-lg-6 text-right">
                                 <Button type="button"
                                 style={{backgroundColor: 'maroon'}}
                                 size="sm" 
-                                className="btn-rounded waves-effect waves-light" 
+                                className="btn-rounded waves-effect waves-light"
+                                        onClick={() => this.pauseQRCode(this.state.selectedItems)}
                                 >
                                 Pause Selected
                                 </Button>
-                                </div>*/}
+                                   <Button type="button"
+                                           style={{backgroundColor: 'purple'}}
+                                           size="sm"
+                                           className="btn-rounded waves-effect waves-light"
+                                           onClick={() => this.unpauseQRCode(this.state.selectedItems)}
+                                   >
+                                       Unpause Selected
+                                   </Button>
+                                </div>}
                             </div>
                         </CardTitle>
                         <div className="table-responsive">
@@ -677,7 +823,7 @@ class Tables extends Component {
                             <table className="table table-centered table-nowrap mb-0" style={{textAlign:'center'}}>
                                 <thead className="thead-light">
                                     <tr>
-                                        {/*<th style={{width: '10%'}}>
+                                        {<th style={{width: '10%'}}>
                                         <input
                                             type="checkbox"
                                             className="select-all checkbox"
@@ -686,7 +832,7 @@ class Tables extends Component {
                                             checked={this.state.checkedBoxCheck}
                                             onChange={this.toggleSelectAll.bind(this)}
                                         />
-                                        </th>*/}
+                                        </th>}
                                         <th style={{width: '20%'}}>QR #</th>
                                         <th style={{width: '20%'}}>Table #</th>
                                         <th style={{width: '15%'}}>Takeaway</th>

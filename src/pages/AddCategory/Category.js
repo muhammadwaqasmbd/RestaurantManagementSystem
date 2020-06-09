@@ -4,6 +4,7 @@ import styled from "styled-components";
 import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Redirect} from "react-router-dom";
+import Loader from 'react-loader-spinner'
 
 class Category extends Component {
     constructor(props) {
@@ -14,7 +15,8 @@ class Category extends Component {
             priority : '',
             success_dlg: false,
             error_dlg: false,
-            redirectToReferrer: false
+            redirectToReferrer: false,
+            proceeded : false
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -29,6 +31,9 @@ class Category extends Component {
     }
 
     fetchCategory(){
+        this.setState({
+            proceeded : true
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching category");
@@ -57,12 +62,18 @@ class Category extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            proceeded : true
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        proceeded : true
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -72,7 +83,8 @@ class Category extends Component {
                 this.setState({
                     name: response.name,
                     description: response.description,
-                    priority: response.priority
+                    priority: response.priority,
+                    proceeded : false
                 })
             })
             .catch(error => console.log(error))
@@ -222,6 +234,15 @@ class Category extends Component {
 
         return (
             <React.Fragment>
+               {/* {this.state.proceeded ?
+                    <Loader
+                        type="Puff"
+                        color="#00BFFF"
+                        height={100}
+                        width={100}
+
+                    />
+                 : ""}*/}
                 {this.state.success_dlg ? (
                     <SweetAlert
                         success

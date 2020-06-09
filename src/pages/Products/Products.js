@@ -225,7 +225,7 @@ class Resturants extends Component {
                 <p className="text-muted mb-0">{item.description}</p>
             </td>
             <td>{item.unit_price}</td>
-            <td>{item.product_sku}</td>
+            <td>{item.printer_number}</td>
             <td>{item.id}</td>
             <td>{item.category}</td>
             <td>{item.menu}</td>

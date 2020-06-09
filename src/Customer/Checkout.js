@@ -4,6 +4,7 @@ import {withRouter} from 'react-router-dom';
 import {ReactComponent as CloseLogo} from "./img/x.svg";
 import {ReactComponent as MinusLogo} from "./img/minus.svg";
 import {ReactComponent as PlusLogo} from "./img/add.svg";
+import {Input} from "reactstrap";
 
 class CheckoutBase extends React.Component {
     constructor(props) {
@@ -31,8 +32,18 @@ class CheckoutBase extends React.Component {
             totalPrice : 0.0,
             directPayment : directPayment,
             takeaway:takeaway,
-            color: this.props.location.state.color
+            color: this.props.location.state.color,
+            tip : 0
         };
+        this.handleFormChange = this.handleFormChange.bind(this);
+    }
+
+    handleFormChange(event) {
+        const value = event.target.value;
+        this.setState({
+            [event.target.name]: value
+        });
+        console.log(event.target.name+": "+value);
     }
 
     componentDidMount() {
@@ -108,6 +119,7 @@ class CheckoutBase extends React.Component {
             "order_price": this.state.totalPrice,
             "payment_type": "cash",
             "direct_payment": this.state.directPayment,
+            "tip": this.state.tip,
             "products" : products
         }
         console.log("order: ",JSON.stringify(bodyData))
@@ -240,9 +252,6 @@ class CheckoutBase extends React.Component {
 
     render() {
         console.log("products: ",this.props.products);
-        if (this.state.noProduct) {
-            return 'There are no products in your basket';
-        }
         let checkoutItems = []
         for (let product of this.state.products) {
             const row = this.renderItems(product);
@@ -260,11 +269,20 @@ class CheckoutBase extends React.Component {
                             <CloseLogo alt="close" height="15px" width="15px" fill={this.context.primaryColor}/>
                         </span>
                     </div>
+                    {this.state.noProduct ?
+                        <div className="checkout-items">
+                            <h5>There are no Products in your basket</h5>
+                        </div>
+                        :
                     <div className="checkout-items">
                         {checkoutItems}
-                    </div>
+                    </div>}
+
                 </div>
                 <div className="checkout-buttons mt-4">
+                    <div className="checkout-items">
+                        <input name={"tip"} placeholder={"Tip"} onChange={this.handleFormChange} />
+                    </div>
                     <div className="mt-2">
                         <div className="checkout-item-left font-weight-bold">Total</div>
                         <div

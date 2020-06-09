@@ -26,12 +26,14 @@ class Product extends Component {
             count : 1,
             attributes : [],
             attrs: [],
+            printer_id : '',
             redirectToReferrer : false,
             success_dlg: false,
             error_dlg: false,
             imageurl : '',
             thumburl : '',
-            categories : []
+            categories : [],
+            printers: []
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
         this.handleAcceptedThumnails = this.handleAcceptedThumnails.bind(this);
@@ -43,6 +45,7 @@ class Product extends Component {
     }
 
     componentDidMount(){
+        this.fetchRestaurants();
         if(this.props.id > 0){
             this.fetchProduct();
         }else{
@@ -66,7 +69,7 @@ class Product extends Component {
                         <Col lg="5">
                             <InputGroup>
                                 <Input
-                                    type="number"
+                                    type="text"
                                     className="form-control"
                                     name = "price"
                                     placeholder="Price"
@@ -79,6 +82,62 @@ class Product extends Component {
             )
         }
         this.fetchCategories();
+    }
+
+    fetchRestaurants(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching restaurants");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/restaurants/'+resId+'', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With':'application/json',
+                'Content-Type':'application/json',
+                'Authorization': bearer
+            }
+        })
+            .then(response => {
+                    console.log("register response: ",response)
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log(response)
+                let printers = []
+                response.printers.forEach(printer => {
+                    printers.push(<option value={printer.printer_id}>{printer.printer_number}</option>)
+                });
+                this.setState({
+                    printers: printers
+                })
+            })
+            .catch(error => console.log(error))
     }
 
     fetchCategories(){
@@ -192,7 +251,8 @@ class Product extends Component {
                     category: response.category_id,
                     vat: response.vat_percent,
                     imageurl: response.image_url,
-                    thumburl: response.image_thumb_url
+                    thumburl: response.image_thumb_url,
+                    printer_id: response.printer_id
                 })
                 let attrs = this.state.attrs;
                 console.log("attrs1: ",attrs)
@@ -226,7 +286,7 @@ class Product extends Component {
                                 <Col lg="5">
                                     <InputGroup>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             className="form-control"
                                             name = "price"
                                             defaultValue={item.price}
@@ -261,7 +321,7 @@ class Product extends Component {
                                 <Col lg="5">
                                     <InputGroup>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             className="form-control"
                                             name = "price"
                                             placeholder="Price"
@@ -302,7 +362,7 @@ class Product extends Component {
                     <Col lg="5">
                         <InputGroup>
                             <Input
-                                type="number"
+                                type="text"
                                 className="form-control"
                                 name = "price"
                                 placeholder="Price"
@@ -335,7 +395,9 @@ class Product extends Component {
         attrsList.forEach(function(item) {
             var tempItem = Object.assign({}, item);
                 delete tempItem.id;
-                tempItem.price = parseInt(tempItem.price);
+                let price = '';
+                price = parseFloat(tempItem.price.replace(/,/g, "."));
+                tempItem.price = price;
                 newRecords.push(tempItem);
         });
         let attributes = [];
@@ -348,15 +410,17 @@ class Product extends Component {
         const bearer = 'Bearer ' + localStorage.getItem('access');
         let headers = {}
         let formData = new FormData();
-
+        let price = '';
+        price = parseFloat(this.state.price.replace(/,/g, "."));
         formData.append('name', this.state.name);
         formData.append('description', this.state.description);
-        formData.append('unit_price', this.state.price);
+        formData.append('unit_price', price);
         formData.append('vat_percent', this.state.vat);
         formData.append('category_id', this.state.category);
         formData.append("product_sku", this.state.sku);
         formData.append('image', this.state.selectedImages[0]);
         formData.append('thumb', this.state.selectedThumnails[0]);
+        formData.append('printer_id', this.state.printer_id);
         formData.append('attributes', JSON.stringify(attributes));
 
         if(isStuff == "true") {
@@ -675,7 +739,7 @@ class Product extends Component {
                                             </FormGroup>
                                             <FormGroup className="mb-4" row>
                                                 <Col lg="4">
-                                                    <Input id="price" name="price" type="number" onChange={this.handleFormChange} value={this.state.price} className="form-control" placeholder="Enter Price" />
+                                                    <Input id="price" name="price" type="text" onChange={this.handleFormChange} value={this.state.price} className="form-control" placeholder="Enter Price" />
                                                 </Col>
                                             </FormGroup>
                                             <FormGroup className="mb-4" row>
@@ -683,6 +747,14 @@ class Product extends Component {
                                                     <select className="form-control" name="category" onChange={this.handleFormChange} value={this.state.category}>
                                                         <option>Select Category</option>
                                                         {this.state.categories}
+                                                    </select>
+                                                </Col>
+                                            </FormGroup>
+                                            <FormGroup className="mb-4" row>
+                                                <Col lg="12">
+                                                    <select name="printer_id" value={this.state.printer_id}  onChange={this.handleFormChange} className="form-control">
+                                                        <option>Select Printer</option>
+                                                        {this.state.printers}
                                                     </select>
                                                 </Col>
                                             </FormGroup>

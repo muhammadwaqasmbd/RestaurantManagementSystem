@@ -29,45 +29,6 @@ class Menu extends React.Component {
     componentDidMount() {
         var lat = 0.0;
         var lng = 0.0;
-        /*if (navigator.geolocation) {
-            var location_timeout = setTimeout(function () {
-                                        try {
-                                            console.log("Timing out");
-                                        } catch (e) {
-                                            console.error(e);
-                                        }
-                                    }, 10000);
-            let self = this;
-            var geolocation = navigator.geolocation.watchPosition(function(position) {
-                clearTimeout(location_timeout);
-
-                lat = position.coords.latitude;
-                lng = position.coords.longitude;
-                self.setState({
-                    lat:lat,
-                    lng:lng
-                })
-                localStorage.removeItem("lat")
-                localStorage.removeItem("lng")
-                localStorage.setItem("lat",self.state.lat);
-                localStorage.setItem("lng",self.state.lng);
-                console.log("lat local: ", localStorage.getItem("lat"))
-                console.log("lng local: ", localStorage.getItem("lng"))
-                self.fetchData();
-            }, function(error) {
-                clearTimeout(location_timeout);
-                console.log("error in fetching geolocation")
-            },{
-                enableHighAccuracy: true
-            });
-            window.setTimeout( function () {
-                    navigator.geolocation.clearWatch( geolocation )
-                },
-                1000 //stop checking after 5 seconds
-            );
-        } else {
-            console.log("no geolocation")
-        }*/
         let self = this;
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function () {
@@ -135,6 +96,11 @@ class Menu extends React.Component {
         }else if(!isNaN(path.substring(path.length - 4))){
             qrcode = path.substring(path.length - 4)
         }
+        if(qrcode!= "" && qrcode != localStorage.getItem('qrcode')){
+            localStorage.removeItem("cart");
+            localStorage.removeItem("totalCount");
+            localStorage.removeItem("totalPrice");
+        }
         localStorage.setItem("qrcode",qrcode)
         console.log("fetching products");
         let headers = {}
@@ -197,6 +163,7 @@ class Menu extends React.Component {
                 localStorage.setItem("restaurantId",response['restaurant_id']);
                 localStorage.setItem("tableId",response['table_id']);
                 localStorage.setItem("isFetched","true");
+                localStorage.setItem("qrcode",qrcode);
             })
             .catch(error => console.log(error))
     }

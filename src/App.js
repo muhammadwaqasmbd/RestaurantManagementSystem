@@ -16,6 +16,8 @@ import "./assets/scss/theme.scss";
 // Import Firebase Configuration file
 import { initFirebaseBackend } from "./helpers/authUtils";
 
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
+
 const firebaseConfig = {
 	 apiKey: "AIzaSyBzj6YFFuQKcAV0YSPD4LwxdkkAbzgUwP4",
   authDomain: "confusionserver-311ec.firebaseapp.com",

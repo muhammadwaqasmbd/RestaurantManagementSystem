@@ -22,8 +22,7 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            success_dlg: false,
-            error_dlg: false,
+            error_dlg: localStorage.getItem("loggedIn") == "false" ? true : false,
         }
 
         // handleValidSubmit
@@ -47,9 +46,17 @@ class Login extends Component {
     }
 
     render() {
-
         return (
             <React.Fragment>
+                {/*{this.state.error_dlg ? (
+                <SweetAlert
+                    error
+                    title={"Failed"}
+                    onConfirm={() => this.setState({error_dlg : false})}
+                    >
+                    {"Login Failed!"}
+                    </SweetAlert>
+                    ) : null}*/}
                 <div className="home-btn d-none d-sm-block">
                     <Link to="/" className="text-dark"><i className="fas fa-home h2"></i></Link>
                 </div>

@@ -4,6 +4,8 @@ import { Card, CardBody, CardTitle, Badge, Button, Collapse } from "reactstrap";
 import { Link } from "react-router-dom";
 import $ from 'jquery';
 import {baseUrl} from "../../helpers/baseUrl";
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import SweetAlert from "react-bootstrap-sweetalert";
 
 class LatestTranactionsRestaurant extends Component {
     constructor(props) {
@@ -17,7 +19,9 @@ class LatestTranactionsRestaurant extends Component {
             lowerPageBound: 0,
             isPrevBtnActive: 'disabled',
             isNextBtnActive: '',
-            pageBound: 3
+            pageBound: 3,
+            success_dlg: false,
+            error_dlg: false,
         };
         this.handleClick = this.handleClick.bind(this);
         this.btnDecrementClick = this.btnDecrementClick.bind(this);
@@ -157,13 +161,16 @@ class LatestTranactionsRestaurant extends Component {
         const clickCallback = () => this.handleRowClick(transaction.id);
         const itemRows = [
             <tr key={transaction.id}>
-                <td><Link to="#" className="text-body font-weight-bold"> {transaction.order_id} </Link> </td>
+                <td><Link to="#" className="text-body font-weight-bold"> {transaction.id} </Link> </td>
                 <td>{transaction.table_number}</td>
                 <td>
                     {transaction.placed_at}
                 </td>
                 <td>
                     {transaction.placed_at}
+                </td>
+                <td>
+                    {transaction.tip}
                 </td>
                 <td>
                     {transaction.total}
@@ -187,15 +194,17 @@ class LatestTranactionsRestaurant extends Component {
                             !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
                         }
                     </Button>
-                    <Button type="button"
-                            style={{backgroundColor: 'blue', marginLeft : '10px'}}
-                            size="sm"
-                            className="btn-rounded waves-effect waves-light"
-                            onClick={() => {this.payedOrPos(transaction.order_id,transaction.payment_method)}}
-                            key={"row-data-pos" + transaction.id}
-                    >
-                        Payed or POS
-                    </Button>
+                    {transaction.paid ?
+                        "":
+                        <Button type="button"
+                                style={{backgroundColor: 'blue', marginLeft : '10px'}}
+                                size="sm"
+                                className="btn-rounded waves-effect waves-light"
+                                onClick={() => {this.payedOrPos(transaction.id,transaction.payment_method)}}
+                                key={"row-data-pos" + transaction.id}
+                        >
+                            Payed or POS
+                        </Button>}
                 </td>
             </tr>
         ];
@@ -339,6 +348,26 @@ class LatestTranactionsRestaurant extends Component {
         }
         return (
             <React.Fragment>
+                {this.state.success_dlg ? (
+                    <SweetAlert
+                        success
+                        title={this.state.dynamic_title}
+                        onConfirm={() =>  window.location.reload()}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null}
+
+                {this.state.error_dlg ? (
+                    <SweetAlert
+                        error
+                        title={this.state.dynamic_title}
+                        onConfirm={() => window.location.reload()}
+                    >
+                        {this.state.dynamic_description}
+                    </SweetAlert>
+                ) : null
+                }
                 <Card>
                     <CardBody>
                         <CardTitle className="mb-4">
@@ -347,24 +376,25 @@ class LatestTranactionsRestaurant extends Component {
                                     Latest Transaction
                                 </div>
                                 <div className="col-lg-6 text-right">
-                                    <Button type="button"
-                                            style={{backgroundColor: 'green'}}
-                                            size="sm"
-                                            className="btn-rounded waves-effect waves-light"
-                                    >
-                                        Print Excel
-                                    </Button>
+                                    <ReactHTMLTableToExcel
+                                        id="test-table-xls-button"
+                                        className="btn-success btn-rounded"
+                                        table="transaction-takeaway"
+                                        filename="Restaurant Takeaway"
+                                        sheet="Restaurant Takeaway"
+                                        buttonText="Print Excel"/>
                                 </div>
                             </div>
                         </CardTitle>
                         <div className="table-responsive">
-                            <table className="table table-centered table-nowrap mb-0">
+                            <table className="table table-centered table-nowrap mb-0" id="transaction-takeaway">
                                 <thead className="thead-light">
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Table Nr</th>
                                     <th>Time</th>
                                     <th>Date</th>
+                                    <th>Tip</th>
                                     <th>Total</th>
                                     <th>Payment Status</th>
                                     <th>Payment Method</th>

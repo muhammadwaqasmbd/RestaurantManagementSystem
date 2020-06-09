@@ -114,10 +114,8 @@ class FirebaseAuthBackend {
       body: bodyFormData
     })
     .then(response => {
-            localStorage.removeItem("loggedIn")
         if (response.ok) {
           console.log("auth: ",response)
-            localStorage.setItem("loggedIn","true")
             return response;
         } else {
             localStorage.setItem("loggedIn","false")
@@ -150,6 +148,7 @@ class FirebaseAuthBackend {
           localStorage.setItem('isStuff', access.is_stuff);
           localStorage.setItem('restaurantId', access.restaurant_id);
           localStorage.setItem('username', access.username);
+            localStorage.setItem("loggedIn","true")
     })
     .catch(error => this._handleError(error))
     };

@@ -142,10 +142,6 @@ class QRCodes extends Component {
         this.setPrevAndNextBtnClass(listid);
     }
 
-    handleDeleteItem(rowId){
-        this.setState({ confirm_both: true })
-    }
-
     pauseItem(id){
         console.log(id);
         //var newItem = { id: "2", name: "Item Kiebert"};    
@@ -170,6 +166,67 @@ class QRCodes extends Component {
         document.body.removeChild(downloadLink);
     }
 
+    viewQRcode(url){
+        window.open(url,"_blank")
+    }
+
+    handleDeleteItem(id){
+        const updatedRecords = this.state.items.filter(p => id !== p.id);
+
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        var api = 'api/qr-codes/'+id+"/";
+        return fetch(baseUrl+api, {
+            method: 'DELETE',
+            headers: headers
+        })
+            .then(response => {
+                    console.log(" response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Deleted",
+                            dynamic_description: "Item has been deleted.",
+                            items : updatedRecords
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in deletion."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in deletion."
+                    })
+                    console.log(error)
+                })
+            .catch(error => console.log(error))
+    }
+
     renderItems(item) {
         const itemRows = [
         <tr key={"row-"+item.id}>
@@ -191,6 +248,26 @@ class QRCodes extends Component {
                         Edit
                     </Button>
                 </Link>
+
+                <Button type="button"
+                        style={{backgroundColor: 'Red', width : '100px', marginLeft : '10px'}}
+                        size="sm"
+                        className="btn-rounded waves-effect waves-light"
+                        key={"edit-button-" + item.id}
+                        onClick={() => {this.handleDeleteItem(item.id)}}
+                >
+                    Delete
+                </Button>
+
+                <Button type="button"
+                        style={{backgroundColor: 'Green', width : '100px', marginLeft : '10px'}}
+                        size="sm"
+                        className="btn-rounded waves-effect waves-light"
+                        key={"edit-button-" + item.id}
+                        onClick={() => {this.viewQRcode(this.state.url+item.qr_code)}}
+                >
+                    View
+                </Button>
 
                 {this.state.success_dlg ? (
                         <SweetAlert
