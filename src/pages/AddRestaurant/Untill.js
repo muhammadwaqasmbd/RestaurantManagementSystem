@@ -123,6 +123,66 @@ class Untill extends Component {
     console.log(event.target.name+": "+value);
     }
 
+    fetchProducts(){
+        let resId = localStorage.getItem('restaurantId')
+        let isStuff = localStorage.getItem('isStuff')
+        console.log("fetching menus");
+        const bearer = 'Bearer ' + localStorage.getItem('access');
+        let headers = {}
+        if(isStuff == "true") {
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer,
+                'RESID': resId
+            }
+        }else{
+            headers = {
+                'X-Requested-With': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': bearer
+            }
+        }
+        return fetch(baseUrl+'api/fetch-products/', {
+            method: 'POST',
+            headers: headers
+        })
+            .then(response => {
+                    console.log("response: ",response)
+                    if (response.ok) {
+                        this.setState({
+                            success_dlg: true,
+                            dynamic_title: "Fetched",
+                            dynamic_description: "Fetched Successfully."
+                        })
+                        return response;
+                    } else {
+                        this.setState({
+                            error_dlg: true,
+                            dynamic_title: "Error",
+                            dynamic_description: "Error in fetching products."
+                        })
+                        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                        error.response = response;
+                        console.log(error)
+                    }
+                },
+                error => {
+                    this.setState({
+                        error_dlg: true,
+                        dynamic_title: "Error",
+                        dynamic_description: "Error in fetching products."
+                    })
+                    console.log(error)
+                })
+            .then(response => response.json())
+            .then(response => {
+                // If response was successful, set the token in local storage
+                console.log("2nd response: ",response)
+            })
+            .catch(error => console.log(error))
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -177,6 +237,11 @@ class Untill extends Component {
                                         <Row className="justify-content-end">
                                             <Col lg="12">
                                                 <Button type="submit" color="primary" form="untillForm" style={{width:"100%"}}>Save</Button>
+                                            </Col>
+                                        </Row>
+                                        <Row className="justify-content-end" style={{paddingTop:"10px"}}>
+                                            <Col lg="12">
+                                                <Button type="button" onClick={() => {this.fetchProducts()}} color="primary" form="untillForm" style={{width:"100%"}}>Fetch Products</Button>
                                             </Col>
                                         </Row>
 

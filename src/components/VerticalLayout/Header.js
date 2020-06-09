@@ -227,15 +227,17 @@ class Header extends Component {
                         </Link>
                       </Col>
                     </Row>
+                    {localStorage.getItem('restaurantId') && localStorage.getItem('restaurantId') != "null" ?
 
-                    <Row className="no-gutters">
-                      <Col>
-                        <Link className="dropdown-icon-item" to="#">
-                          <span>Account</span>
-                        </Link>
-                      </Col>
-                    </Row>
-
+                          <Row className="no-gutters">
+                            <Col>
+                              <Link className="dropdown-icon-item" to={"/restaurant/"+localStorage.getItem('restaurantId')}>
+                                <span>Account</span>
+                              </Link>
+                            </Col>
+                          </Row>
+                       : ""
+                    }
                     <Row className="no-gutters">
                       <Col>
                         <Link className="dropdown-icon-item" to="/login">

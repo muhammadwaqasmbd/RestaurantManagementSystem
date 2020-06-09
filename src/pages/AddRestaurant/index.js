@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Row, Col} from "reactstrap";
+import {Container, Row, Col, Button} from "reactstrap";
 import Restaurant from "./Restaurant";
 import Printer from "./Printer";
 import Untill from "./Untill";
@@ -68,9 +68,10 @@ class Dashboard extends Component {
             .then(response => {
                 // If response was successful, set the token in local storage
                 console.log("restaurant response 2: ",response)
+                if(parseInt(localStorage.getItem('restaurantId'))==response.id){
                 this.setState({
                     response:response
-                })
+                })}
             })
             .catch(error => console.log(error))
     }
