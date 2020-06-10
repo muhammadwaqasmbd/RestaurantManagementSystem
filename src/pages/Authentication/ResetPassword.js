@@ -35,8 +35,6 @@ class ResetPasswordPage extends Component {
   }
 
   forgetPassword(password){
-    alert(password)
-    alert(this.state.code)
     let bodyData = {
       "password":password
     }
