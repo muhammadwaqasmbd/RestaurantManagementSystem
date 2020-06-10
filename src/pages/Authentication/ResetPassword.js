@@ -21,7 +21,9 @@ import queryString from 'query-string';
 class ResetPasswordPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      code: ''
+    };
 
     // handleValidSubmit
     this.handleValidSubmit = this.handleValidSubmit.bind(this);
@@ -33,10 +35,12 @@ class ResetPasswordPage extends Component {
   }
 
   forgetPassword(password){
+    alert(password)
+    alert(this.state.code)
     let bodyData = {
       "password":password
     }
-    return fetch(baseUrl+'api/reset-password/'+this.state.code+'', {
+    return fetch(baseUrl+'api/reset-password/'+this.state.code+'/', {
       method: 'POST',
       headers: {
         'X-Requested-With':'application/json',
@@ -51,17 +55,17 @@ class ResetPasswordPage extends Component {
               } else {
                 var error = new Error('Error ' + response.status + ': ' + response.statusText);
                 error.response = response;
-                this._handleError(error)
+                console.log("error: ",error);
               }
             },
             error => {
-              this._handleError(error)
+              console.log("error: ",error);
             })
         .then(response => response.json())
         .then(response => {
           console.log("response: ",response)
         })
-        .catch(error => this._handleError(error))
+        .catch(error => console.log("error: ",error))
   };
 
   componentDidMount() {
