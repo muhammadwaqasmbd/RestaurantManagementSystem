@@ -260,6 +260,7 @@ class CheckoutBase extends React.Component {
         }
         return (
             <div className="checkout-wrapper">
+                <div style={{height:"20px",backgroundColor:this.state.color}}></div>
                 <div className="checkout-products">
                     <div className="checkout-your-order">
                         <h5 className="font-weight-bold my-basket" style={{color:this.state.color}}>My Basket</h5>
@@ -290,19 +291,19 @@ class CheckoutBase extends React.Component {
                             onChange={value => this.setState({ value })} />
                     </div>
                     <div className="mt-4">
-                        <div className="checkout-item-left font-weight-bold font-size-128">Total</div>
+                        <div className="checkout-item-left font-weight-bold" style={{fontSize:"18px"}}>Total</div>
                         <div
-                            className="checkout-item-right font-weight-bold">€{this.state.totalPrice}</div>
+                            className="checkout-item-right font-weight-bold" style={{fontSize:"18px"}}>€{this.state.totalPrice}</div>
                     </div>
                     {!localStorage.getItem("orderId") || localStorage.getItem("orderId") == "null" && this.state.directPayment ?
                         <div>
-                            <button className="col-3 order-button"style={{marginLeft:"5px",marginRight:"5px",backgroundColor:this.state.color}} id="ordermenow-button"
+                            <button className="col-3 order-button" style={{backgroundColor:this.state.color}} id="ordermenow-button"
                                     onClick={() => this.checkOutOrder()}>Order and pay now
                             </button>
                             <button className="col-3 order-button" style={{marginLeft:"5px",marginRight:"5px",backgroundColor:this.state.color}} id="ordermenow-button"
                                     onClick={() => this.checkOutOrder()}>Order and pay later
                             </button>
-                            <button className="col-3 offset-1 cancel-button"
+                            <button className="col-3 order-button" style={{backgroundColor:"white", border:"1px solid", color:this.state.color}}
                                     onClick={() => this.goToLandingPage()}>Cancel
                             </button>
                         </div>
@@ -312,7 +313,7 @@ class CheckoutBase extends React.Component {
                                 onClick={() => localStorage.getItem("orderId") && localStorage.getItem("orderId") != "null" && localStorage.getItem("orderId")!=null
                                 && localStorage.getItem("orderId")!= "" ? this.completeOrder() : this.checkOutOrder() }>Order and pay later
                         </button>
-                        <button className="col-3 offset-1 cancel-button"
+                        <button className="col-3 order-button" style={{backgroundColor:"white", border:"1px solid", color:this.state.color}}
                             onClick={() => this.goToLandingPage()}>Cancel
                         </button>
                         </div>

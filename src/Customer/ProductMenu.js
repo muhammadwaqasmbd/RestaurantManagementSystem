@@ -289,7 +289,7 @@ class Menu extends React.Component {
         return (
             <React.Fragment>
                     <div id="menu">
-                        <div className="search-wrapper">
+                        <div className="search-wrapper mt-4">
                             <SearchIcon id="search-icon" height="25px" width="25px" onClick={() => this.onClickSearchIcon()}/>
                             <input type="text"
                                    ref={(input) => { this.state.inputRef = input; }}
@@ -310,12 +310,12 @@ class Menu extends React.Component {
                         <div className="pp-buttons fixed-buttons">
                             <button className="order-button" onClick={() => this.openCheckout()} style={{backgroundColor:this.state.response['color']}} >
                                 <div className="">
-                                    <div className="box top-padding-2 ml-2">
+                                    <div className="box top-padding-2 ml-2" style={{fontSize:"18px"}}>
                                         {localStorage.getItem("totalCount")}
                                     </div>
-                                    <div className="top-padding-3 order-price mr-2">€{localStorage.getItem("totalPrice")}</div>
+                                    <div className="top-padding-3 order-price mr-2" style={{fontSize:"18px"}}>€{localStorage.getItem("totalPrice")}</div>
                                 </div>
-                                <h5 className="order-me-button" style={{color:"white"}}>View OrderMe</h5>
+                                <h5 className="order-me-button" style={{color:"white", fontSize:"25px"}}>View OrderMe</h5>
                             </button>
                         </div>
                     </div>

@@ -183,6 +183,9 @@ class QRCodes extends Component {
     }
 
     handleDeleteItem(id){
+        this.setState({
+            loaded: false
+        })
         const updatedRecords = this.state.items.filter(p => id !== p.id);
 
         let resId = localStorage.getItem('restaurantId')
@@ -210,6 +213,7 @@ class QRCodes extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Deleted",
                             dynamic_description: "Item has been deleted.",
@@ -218,6 +222,7 @@ class QRCodes extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in deletion."
@@ -230,6 +235,7 @@ class QRCodes extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in deletion."

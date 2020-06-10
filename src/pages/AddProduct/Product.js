@@ -396,7 +396,11 @@ class Product extends Component {
             var tempItem = Object.assign({}, item);
                 delete tempItem.id;
                 let price = '';
-                price = parseFloat(tempItem.price.replace(/,/g, "."));
+                if(typeof(tempItem.price) !== 'number') {
+                    price = parseFloat(tempItem.price.replace(/,/g, "."));
+                }else{
+                    price = tempItem.price.toString();
+                }
                 tempItem.price = price;
                 newRecords.push(tempItem);
         });
@@ -411,7 +415,11 @@ class Product extends Component {
         let headers = {}
         let formData = new FormData();
         let price = '';
-        price = parseFloat(this.state.price.replace(/,/g, "."));
+        if(typeof(this.state.price) !== 'number') {
+            price = parseFloat(this.state.price.replace(/,/g, "."));
+        }else{
+            price = this.state.price.toString();
+        }
         formData.append('name', this.state.name);
         formData.append('description', this.state.description);
         formData.append('unit_price', price);

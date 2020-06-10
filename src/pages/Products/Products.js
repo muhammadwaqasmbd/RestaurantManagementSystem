@@ -161,6 +161,9 @@ class Resturants extends Component {
     }
 
     handleDeleteItem(id){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
@@ -188,6 +191,7 @@ class Resturants extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Deleted",
                             dynamic_description: "Item has been deleted."
@@ -195,6 +199,7 @@ class Resturants extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in deletion."
@@ -207,6 +212,7 @@ class Resturants extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in deletion."

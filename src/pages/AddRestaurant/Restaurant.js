@@ -4,6 +4,7 @@ import Dropzone from 'react-dropzone';
 import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormGroup, Input, Label, Button } from "reactstrap";
 import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
+var Loader = require('react-loader');
 
 const dropzoneStyle = {
     width  : "100%",

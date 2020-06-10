@@ -6,6 +6,7 @@ import $ from 'jquery';
 import {baseUrl} from "../../helpers/baseUrl";
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 import SweetAlert from "react-bootstrap-sweetalert";
+var Loader = require('react-loader');
 
 class LatestTranactionsRestaurant extends Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class LatestTranactionsRestaurant extends Component {
             pageBound: 3,
             success_dlg: false,
             error_dlg: false,
+            loaded: true,
         };
         this.handleClick = this.handleClick.bind(this);
             this.btnDecrementClick = this.btnDecrementClick.bind(this);
@@ -42,6 +44,9 @@ class LatestTranactionsRestaurant extends Component {
 
 
     payedOrPos(orderId, paymentMethod) {
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
@@ -74,6 +79,7 @@ class LatestTranactionsRestaurant extends Component {
                     console.log("category response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Payed",
                             dynamic_description: "Payed."
@@ -81,6 +87,7 @@ class LatestTranactionsRestaurant extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in payment."
@@ -92,6 +99,7 @@ class LatestTranactionsRestaurant extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in payment."
@@ -387,6 +395,7 @@ class LatestTranactionsRestaurant extends Component {
                             </div>
                         </CardTitle>
                         <div className="table-responsive">
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-nowrap mb-0" id="transaction-restaurants">
                                 <thead className="thead-light">
                                     <tr>
@@ -405,6 +414,7 @@ class LatestTranactionsRestaurant extends Component {
                                     {allItemRows}
                                 </tbody>
                             </table>
+                            </Loader>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

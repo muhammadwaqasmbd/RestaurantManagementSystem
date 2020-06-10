@@ -163,7 +163,7 @@ class ProductPageBase extends React.Component {
                         <button className="col-7 order-button" onClick={() => this.addProduct()} style={{backgroundColor:this.state.color}}>
                             OrderMe for €{this.state.totalPrice}
                         </button>
-                        <button className="col-4 cancel-button offset-1 mt-2" onClick={() => this.onClickCancel()}>
+                        <button className="col-4 order-button" style={{marginLeft:"5px", backgroundColor:"white", border:"1px solid", color:this.state.color}} onClick={() => this.onClickCancel()}>
                             Cancel
                         </button>
                     </div>
