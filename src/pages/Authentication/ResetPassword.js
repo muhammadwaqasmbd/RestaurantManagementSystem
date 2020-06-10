@@ -15,6 +15,8 @@ import { userForgetPassword } from "../../store/actions";
 // import images
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/logo.svg";
+import {baseUrl} from "../../helpers/baseUrl";
+import queryString from 'query-string';
 
 class ResetPasswordPage extends Component {
   constructor(props) {
@@ -27,8 +29,51 @@ class ResetPasswordPage extends Component {
 
   // handleValidSubmit
   handleValidSubmit(event, values) {
-    this.props.userForgetPassword(values, this.props.history);
+    this.forgetPassword(values.password)
   }
+
+  forgetPassword(password){
+    let bodyData = {
+      "password":password
+    }
+    return fetch(baseUrl+'api/reset-password/'+this.state.code+'', {
+      method: 'POST',
+      headers: {
+        'X-Requested-With':'application/json',
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(bodyData)
+    })
+        .then(response => {
+              console.log("email sent response: ",response)
+              if (response.ok) {
+                return response;
+              } else {
+                var error = new Error('Error ' + response.status + ': ' + response.statusText);
+                error.response = response;
+                this._handleError(error)
+              }
+            },
+            error => {
+              this._handleError(error)
+            })
+        .then(response => response.json())
+        .then(response => {
+          console.log("response: ",response)
+        })
+        .catch(error => this._handleError(error))
+  };
+
+  componentDidMount() {
+    let params = queryString.parse(this.props.location.search)
+    if(params.code){
+      this.setState({
+        code:params.code
+      })
+    }
+  }
+
+
 
   render() {
     return (
