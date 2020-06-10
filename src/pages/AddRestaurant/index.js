@@ -88,7 +88,8 @@ class Dashboard extends Component {
                             <Col lg="4">
                                 <Printer id = {this.props.match.params.id} res={this.state.response}/>
                                 <Payment id = {this.props.match.params.id} res={this.state.response}/>
-                                <Fee id = {this.props.match.params.id} res={this.state.response}/>
+                                {localStorage.getItem('isStuff') == "false" || localStorage.getItem('isStuff') == "null" ? "" :
+                                <Fee id = {this.props.match.params.id} res={this.state.response}/>}
                             </Col>
                             <Col lg="4">
                                 <Untill id = {this.props.match.params.id} res={this.state.response}/>

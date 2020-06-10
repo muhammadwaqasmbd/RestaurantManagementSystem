@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Container, Row, Col, Button, Card, CardBody, Media } from "reactstrap";
 import RestaurantsOverview from "./RestaurantsOverview";
 import {baseUrl} from "../../helpers/baseUrl";
+var Loader = require('react-loader');
 
 class Dashboard extends Component {
     constructor(props) {
@@ -10,7 +11,8 @@ class Dashboard extends Component {
             orders : '',
             revenue : '',
             last30: '',
-            last7 : ''
+            last7 : '',
+            loaded: true
         };
         this.togglemodal.bind(this);
     }
@@ -20,6 +22,9 @@ class Dashboard extends Component {
     }
 
     fetchSummary() {
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching products");
@@ -48,12 +53,18 @@ class Dashboard extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -61,6 +72,7 @@ class Dashboard extends Component {
                 // If response was successful, set the token in local storage
                 console.log("admin summary response: ", response)
                 this.setState({
+                    loaded: true,
                     orders : response.order_total,
                     revenue : response.revenue_total,
                     last30: response.revenue_thirty_days,
@@ -155,12 +167,13 @@ class Dashboard extends Component {
                                 </Row>
                             </Col>
                         </Row>
-
+                        <Loader loaded={this.state.loaded}>
                         <Row>
                             <Col lg="12">
                                 <RestaurantsOverview />
                             </Col>
                         </Row>
+                        </Loader>
                     </Container>
                 </div>
             </React.Fragment>

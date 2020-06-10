@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import {baseUrl} from "../../helpers/baseUrl";
 import jwt from "jwt-decode";
+var Loader = require('react-loader');
 
 class Menus extends Component {
     constructor(props) {
@@ -22,7 +23,8 @@ class Menus extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            name : ''
+            name : '',
+            loaded: true
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -40,6 +42,9 @@ class Menus extends Component {
     }
 
     fetchMenus(){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching menus");
@@ -68,12 +73,18 @@ class Menus extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -81,6 +92,7 @@ class Menus extends Component {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
                 this.setState({
+                    loaded: true,
                     items: response.results
                 })
             })
@@ -367,6 +379,7 @@ class Menus extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -379,6 +392,7 @@ class Menus extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                             <Link to={"/menu/0"}>
                             <Button
                                 color="secondary"

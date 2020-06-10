@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import {baseUrl} from "../../helpers/baseUrl";
 import jwt from "jwt-decode";
+var Loader = require('react-loader');
 
 class Categories extends Component {
     constructor(props) {
@@ -24,7 +25,8 @@ class Categories extends Component {
             error_dlg: false,
             name : '',
             description:'',
-            priority : ''
+            priority : '',
+            loaded: true
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -42,6 +44,9 @@ class Categories extends Component {
     }
 
     fetchCategories(){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching tables");
@@ -70,12 +75,18 @@ class Categories extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -84,6 +95,7 @@ class Categories extends Component {
                 console.log("response: ",response)
                 if(response.length > 0) {
                     this.setState({
+                        loaded: true,
                         items: response
                     })
                 }
@@ -153,6 +165,9 @@ class Categories extends Component {
     }
 
     handleDeleteItem(id){
+        this.setState({
+            loaded: false
+        })
         const updatedRecords = this.state.items.filter(p => id !== p.id);
 
         let resId = localStorage.getItem('restaurantId')
@@ -180,6 +195,7 @@ class Categories extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Deleted",
                             dynamic_description: "Item has been deleted.",
@@ -188,6 +204,7 @@ class Categories extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in deletion."
@@ -200,6 +217,7 @@ class Categories extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in deletion."
@@ -348,6 +366,7 @@ class Categories extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -362,6 +381,7 @@ class Categories extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                             <Link to={"/category/0"}>
                             <Button
                                 color="secondary"

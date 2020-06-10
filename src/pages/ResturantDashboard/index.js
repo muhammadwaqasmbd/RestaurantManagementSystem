@@ -6,6 +6,7 @@ import classnames from "classnames";
 import LatestTranactionsTakeaway from "./LatestTranactionsTakeaway";
 import {baseUrl} from "../../helpers/baseUrl";
 import queryString from 'query-string';
+var Loader = require('react-loader');
 
 class Dashboard extends Component {
     constructor(props) {
@@ -19,7 +20,8 @@ class Dashboard extends Component {
             activeTab1: "5",
 			mollie_setup :false,
 			mollie_status : '',
-			onboardingUrl: ''
+			onboardingUrl: '',
+			loaded: true
         };
         this.togglemodal.bind(this);
         this.toggle1 = this.toggle1.bind(this);
@@ -106,6 +108,9 @@ class Dashboard extends Component {
 	}
 
 	fetchSummary() {
+		this.setState({
+			loaded: false
+		})
 		let resId = localStorage.getItem('restaurantId')
 		let isStuff = localStorage.getItem('isStuff')
 		console.log("fetching products");
@@ -134,12 +139,18 @@ class Dashboard extends Component {
 					if (response.ok) {
 						return response;
 					} else {
+						this.setState({
+							loaded: true,
+						})
 						var error = new Error('Error ' + response.status + ': ' + response.statusText);
 						error.response = response;
 						console.log(error)
 					}
 				},
 				error => {
+					this.setState({
+						loaded: true,
+					})
 					console.log(error)
 				})
 			.then(response => response.json())
@@ -148,6 +159,7 @@ class Dashboard extends Component {
 				console.log("admin summary response: ", response)
 				if(localStorage.getItem('isStuff') && localStorage.getItem('isStuff') === "true") {
 					this.setState({
+						loaded: true,
 						orders: response.order_total,
 						revenue: response.revenue_total,
 						last30: response.revenue_thirty_days,
@@ -157,6 +169,7 @@ class Dashboard extends Component {
 					localStorage.setItem("mollieSetup","true");
 				}else if(response.mollie_setup == false){
 					this.setState({
+						loaded: true,
 						mollie_setup : response.mollie_setup,
 						mollie_status : response.mollie_status,
 						onboardingUrl: response.onboarding_url
@@ -164,6 +177,7 @@ class Dashboard extends Component {
 					localStorage.setItem("mollieSetup","false");
 				}else if(response.mollie_setup == true){
 					this.setState({
+						loaded: true,
 						orders: response.order_total,
 						revenue: response.revenue_total,
 						last30: response.revenue_thirty_days,
@@ -200,6 +214,7 @@ class Dashboard extends Component {
                 <div className="page-content">
 					{ this.state.mollie_setup == true?
 						<Container fluid>
+							<Loader loaded={this.state.loaded}>
 							<Row>
 								<Col xl="12">
 									<Row>
@@ -280,7 +295,7 @@ class Dashboard extends Component {
 									</Row>
 								</Col>
 							</Row>
-
+							</Loader>
 							<Row>
 								<Col lg="12">
 									<Card>
@@ -385,7 +400,7 @@ class Dashboard extends Component {
 														size="sm"
 														className="btn-rounded waves-effect waves-light"
 														key={"Connect"}
-														onClick={() => this.redirectUrl(this.state.onboardingUrl)}
+														onClick={() => this.redirectUrl('https://www.mollie.com/dashboard/login?lang=en')}
 												>
 													Add additional data
 												</Button>
@@ -414,7 +429,7 @@ class Dashboard extends Component {
 															size="sm"
 															className="btn-rounded waves-effect waves-light"
 															key={"Connect"}
-															onClick={() => this.redirectUrl(this.state.onboardingUrl)}
+															onClick={() => this.redirectUrl('https://www.mollie.com/dashboard/login?lang=en')}
 													>
 														Add additional data
 													</Button>

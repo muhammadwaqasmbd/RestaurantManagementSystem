@@ -5,6 +5,7 @@ import {ReactComponent as CloseLogo} from "./img/x.svg";
 import {ReactComponent as MinusLogo} from "./img/minus.svg";
 import {ReactComponent as PlusLogo} from "./img/add.svg";
 import {Input} from "reactstrap";
+import InputRange from 'react-input-range';
 
 class CheckoutBase extends React.Component {
     constructor(props) {
@@ -33,7 +34,7 @@ class CheckoutBase extends React.Component {
             directPayment : directPayment,
             takeaway:takeaway,
             color: this.props.location.state.color,
-            tip : 0
+            value : 10
         };
         this.handleFormChange = this.handleFormChange.bind(this);
     }
@@ -119,7 +120,7 @@ class CheckoutBase extends React.Component {
             "order_price": this.state.totalPrice,
             "payment_type": "cash",
             "direct_payment": this.state.directPayment,
-            "tip": this.state.tip,
+            "tip": this.state.value,
             "products" : products
         }
         console.log("order: ",JSON.stringify(bodyData))
@@ -127,7 +128,7 @@ class CheckoutBase extends React.Component {
             'X-Requested-With': 'application/json',
             'Content-Type': 'application/json',
         }
-        var api = 'https://cors-anywhere.herokuapp.com/https://orderme-stage.oldevops.nl/api/orders/';
+        var api = 'https://orderme-stage.oldevops.nl/api/orders/';
         return fetch(api, {
             method: 'POST',
             headers: headers,
@@ -171,7 +172,7 @@ class CheckoutBase extends React.Component {
                         search: this.props.location.search
                     });
                 }else{
-                    window.open(response.onboarding_url, '_blank')
+                    window.open(response.checkout_url, '_blank')
                 }
 
             })
@@ -208,7 +209,7 @@ class CheckoutBase extends React.Component {
             'X-Requested-With': 'application/json',
             'Content-Type': 'application/json',
         }
-        var api = 'https://cors-anywhere.herokuapp.com/https://orderme-stage.oldevops.nl/api/orders/add-products/';
+        var api = 'https://orderme-stage.oldevops.nl/api/orders/add-products/';
         return fetch(api, {
             method: 'POST',
             headers: headers,
@@ -281,10 +282,15 @@ class CheckoutBase extends React.Component {
                 </div>
                 <div className="checkout-buttons mt-4">
                     <div className="checkout-items">
-                        <input name={"tip"} placeholder={"Tip"} onChange={this.handleFormChange} />
+                        <InputRange
+                            name={"value"}
+                            maxValue={20}
+                            minValue={0}
+                            value={this.state.value}
+                            onChange={value => this.setState({ value })} />
                     </div>
-                    <div className="mt-2">
-                        <div className="checkout-item-left font-weight-bold">Total</div>
+                    <div className="mt-4">
+                        <div className="checkout-item-left font-weight-bold font-size-128">Total</div>
                         <div
                             className="checkout-item-right font-weight-bold">€{this.state.totalPrice}</div>
                     </div>

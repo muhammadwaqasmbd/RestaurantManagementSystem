@@ -132,7 +132,7 @@ class Location extends Component {
                                         >
                                             {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                                                 <div>
-                                                    <input
+                                                    <input className="form-control" style={{width:"100%"}}
                                                         {...getInputProps({
                                                             placeholder: 'Search Places ...',
                                                             className: 'location-search-input',

@@ -251,7 +251,7 @@ class LatestTranactionsRestaurant extends Component {
                 key={"row-data-" + transaction.id}
                 >
                     {
-                        !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
+                        !this.state.expandedRows.includes(transaction.id) ? 'Hide Details' : 'View Details'
                     }
                 </Button>
                 {transaction.paid ?
@@ -378,7 +378,7 @@ class LatestTranactionsRestaurant extends Component {
                                 <div className="col-lg-6 text-right">
                                     <ReactHTMLTableToExcel
                                         id="test-table-xls-button"
-                                        className="btn-success btn-rounded"
+                                        className="btn-success btn-rounded waves-effect waves-light"
                                         table="transaction-restaurants"
                                         filename="Restaurant Transactions"
                                         sheet="Restaurant Transactions"

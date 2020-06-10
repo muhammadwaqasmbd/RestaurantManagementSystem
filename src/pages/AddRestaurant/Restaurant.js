@@ -187,7 +187,7 @@ class Restaurant extends Component {
                                             <Col lg="12">
                                             <div className="custom-control custom-checkbox mb-3">
                                                 <input type="checkbox" className="custom-control-input" id="CustomCheck1" onChange={() => false} checked={this.state.private} />
-                                                <label className="custom-control-label" onClick={() => { this.setState({ private: !this.state.private }) }} >Private? (Only reataurant owner can see url)</label>
+                                                <label className="custom-control-label" onClick={() => { this.setState({ private: !this.state.private }) }} >Private? (Only restaurant owner can see url)</label>
                                             </div>
                                             </Col>
                                         </FormGroup>

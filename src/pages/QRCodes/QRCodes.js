@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import {baseUrl} from "../../helpers/baseUrl";
 import jwt from "jwt-decode";
 import QRCode from "qrcode.react";
+var Loader = require('react-loader');
 
 class QRCodes extends Component {
     constructor(props) {
@@ -24,7 +25,8 @@ class QRCodes extends Component {
             success_dlg: false,
             error_dlg: false,
             qrCode : '',
-            url : window.location.protocol+"//"+window.location.hostname+"/qr-code/"
+            url : window.location.protocol+"//"+window.location.hostname+"/qr-code/",
+            loaded: true
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -42,6 +44,9 @@ class QRCodes extends Component {
     }
 
     fetchQRCodes(){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching qrcodes");
@@ -62,12 +67,18 @@ class QRCodes extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -75,6 +86,7 @@ class QRCodes extends Component {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
                     this.setState({
+                        loaded: true,
                         items: response
                     })
             })
@@ -365,6 +377,7 @@ class QRCodes extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -378,6 +391,7 @@ class QRCodes extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                             <Link to={"/qrcode/0"}>
                             <Button
                                 color="secondary"

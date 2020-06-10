@@ -57,9 +57,6 @@ class Login extends Component {
                     {"Login Failed!"}
                     </SweetAlert>
                     ) : null}
-                <div className="home-btn d-none d-sm-block">
-                    <Link to="/" className="text-dark"><i className="fas fa-home h2"></i></Link>
-                </div>
                 <div className="account-pages my-5 pt-sm-5">
                     <div className="container">
                         <Row className="justify-content-center">
@@ -95,11 +92,11 @@ class Login extends Component {
                                                 {this.props.error && this.props.error ? <Alert color="danger">{this.props.error}</Alert> : null}
 
                                                 <div className="form-group">
-                                                    <AvField name="email" label="Email" value="admin" className="form-control" placeholder="Enter email" type="username" required />
+                                                    <AvField name="email" label="Username" value="" className="form-control" placeholder="Enter username" type="username" required />
                                                 </div>
 
                                                 <div className="form-group">
-                                                    <AvField name="password" label="Password" value="123123" type="password" required placeholder="Enter Password" />
+                                                    <AvField name="password" label="Password" value="" type="password" required placeholder="Enter Password" />
                                                 </div>
 
                                                 <div className="custom-control custom-checkbox">

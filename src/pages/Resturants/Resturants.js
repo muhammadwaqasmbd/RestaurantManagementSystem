@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import { submit } from "redux-form";
 import {baseUrl} from "../../helpers/baseUrl";
+var Loader = require('react-loader');
 
 class Resturants extends Component {
     constructor(props) {
@@ -22,7 +23,8 @@ class Resturants extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            name : ''
+            name : '',
+            loaded: true
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -40,6 +42,9 @@ class Resturants extends Component {
     }
 
     fetchRestaurants(){
+        this.setState({
+            loaded: false
+        })
         console.log("fetching restaurants");
         const bearer = 'Bearer ' + localStorage.getItem('access');
         return fetch(baseUrl+'api/restaurants/', {
@@ -55,12 +60,18 @@ class Resturants extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -74,6 +85,7 @@ class Resturants extends Component {
                 }));
                 console.log(results)
                 this.setState({
+                    loaded: true,
                     items: results
                 })
 
@@ -377,6 +389,7 @@ class Resturants extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -389,6 +402,7 @@ class Resturants extends Component {
                                     {allItemRows}
                                 </tbody>    
                             </table>
+                            </Loader>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

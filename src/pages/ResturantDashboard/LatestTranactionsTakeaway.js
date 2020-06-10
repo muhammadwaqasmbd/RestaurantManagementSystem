@@ -191,7 +191,7 @@ class LatestTranactionsRestaurant extends Component {
                             key={"row-data-" + transaction.id}
                     >
                         {
-                            !this.state.expandedRows.includes(transaction.id) ? 'Hide Deials' : 'View Details'
+                            !this.state.expandedRows.includes(transaction.id) ? 'Hide Details' : 'View Details'
                         }
                     </Button>
                     {transaction.paid ?
@@ -380,8 +380,8 @@ class LatestTranactionsRestaurant extends Component {
                                         id="test-table-xls-button"
                                         className="btn-success btn-rounded"
                                         table="transaction-takeaway"
-                                        filename="Restaurant Takeaway"
-                                        sheet="Restaurant Takeaway"
+                                        filename="Takeaway Transactions"
+                                        sheet="Takeaway Transactions"
                                         buttonText="Print Excel"/>
                                 </div>
                             </div>

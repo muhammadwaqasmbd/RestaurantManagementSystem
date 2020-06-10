@@ -6,6 +6,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { Link } from "react-router-dom";
 import { submit } from "redux-form";
 import {baseUrl} from "../../helpers/baseUrl";
+var Loader = require('react-loader');
 
 class Resturants extends Component {
     constructor(props) {
@@ -22,7 +23,8 @@ class Resturants extends Component {
             confirm_both: false,
             success_dlg: false,
             error_dlg: false,
-            name : ''
+            name : '',
+            loaded: true
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -40,6 +42,9 @@ class Resturants extends Component {
     }
 
     fetchProducts(){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching products");
@@ -68,12 +73,18 @@ class Resturants extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -81,6 +92,7 @@ class Resturants extends Component {
                 // If response was successful, set the token in local storage
                 console.log("response: ",response)
                 this.setState({
+                    loaded: true,
                     items: response.results
                 })
             })
@@ -371,6 +383,7 @@ class Resturants extends Component {
                                 onSubmit={this.handleSubmit}
                                 id="addItemForm"
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -384,11 +397,12 @@ class Resturants extends Component {
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody id="itemsBody">
                                     {allItemRows}
                                 </tbody>
-                                
                             </table>
+                            </Loader>
                             <Link to={"/product/0"}>
                             <Button
                                 color="secondary"

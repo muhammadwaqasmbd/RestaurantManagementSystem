@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import Select from "react-select";
 import {baseUrl} from "../../helpers/baseUrl";
 import { Route, Redirect } from "react-router-dom";
+var Loader = require('react-loader');
 
 const opts = [{ label: 'Yes', value: "Yes" }, { label: 'No', value: "No" }];
 
@@ -36,7 +37,9 @@ class Tables extends Component {
             options : [],
             takeway: '',
             directpayment: '',
-            redirectToReferrer : false
+            redirectToReferrer : false,
+            loaded: true,
+            dynamic_title : ''
 
         };
         this.handleClick = this.handleClick.bind(this);
@@ -103,6 +106,9 @@ class Tables extends Component {
     }
 
     fetchTables(){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         console.log("fetching tables");
@@ -131,12 +137,18 @@ class Tables extends Component {
                     if (response.ok) {
                         return response;
                     } else {
+                        this.setState({
+                            loaded: true,
+                        })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
                         console.log(error)
                     }
                 },
                 error => {
+                    this.setState({
+                        loaded: true,
+                    })
                     console.log(error)
                 })
             .then(response => response.json())
@@ -148,6 +160,7 @@ class Tables extends Component {
                     options.push(<option value={table.id}>{table.table_number}</option>)
                 });
                 this.setState({
+                    loaded: true,
                     options: options
                 })
                 console.log("options: ",options)
@@ -278,6 +291,9 @@ class Tables extends Component {
       }
 
     handleUnassignment(id){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
@@ -309,6 +325,7 @@ class Tables extends Component {
                     console.log("register response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Unassigned",
                             dynamic_description: "Category Unassigned"
@@ -316,6 +333,7 @@ class Tables extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Category not unassigned."
@@ -327,6 +345,7 @@ class Tables extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Category not assigned."
@@ -337,6 +356,9 @@ class Tables extends Component {
     }
 
       handleSubmit(event) {
+          this.setState({
+              loaded: false
+          })
           event.preventDefault();
           let takeaway = this.state.takeaway == "Yes" ? true : false;
           let payment = this.state.directpayment == "Yes" ? true : false;
@@ -378,6 +400,7 @@ class Tables extends Component {
                       console.log("register response: ",response)
                       if (response.ok) {
                           this.setState({
+                              loaded: true,
                               success_dlg: true,
                               dynamic_title: "Assigned",
                               dynamic_description: "Category Assigned"
@@ -385,6 +408,7 @@ class Tables extends Component {
                           return response;
                       } else {
                           this.setState({
+                              loaded: true,
                               error_dlg: true,
                               dynamic_title: "Error",
                               dynamic_description: "Category not assigned."
@@ -396,6 +420,7 @@ class Tables extends Component {
                   },
                   error => {
                       this.setState({
+                          loaded: true,
                           error_dlg: true,
                           dynamic_title: "Error",
                           dynamic_description: "Category not assigned."
@@ -406,6 +431,9 @@ class Tables extends Component {
       }
 
     pauseQRCode(id){
+        this.setState({
+            loaded: false
+        })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
@@ -437,16 +465,18 @@ class Tables extends Component {
                     console.log("register response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
-                            dynamic_title: "Unassigned",
-                            dynamic_description: "Category Unassigned"
+                            dynamic_title: "Pause",
+                            dynamic_description: "QRCode Paused"
                         })
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
-                            dynamic_description: "Category not unassigned."
+                            dynamic_description: "QRCode not paused"
                         })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
@@ -455,9 +485,10 @@ class Tables extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
-                        dynamic_description: "Category not assigned."
+                        dynamic_description: "QRCode not paused"
                     })
                     console.log(error)
                 })
@@ -465,6 +496,9 @@ class Tables extends Component {
     }
 
     unpauseQRCode(id){
+          this.setState({
+              loaded: false,
+          })
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
         const bearer = 'Bearer ' + localStorage.getItem('access');
@@ -496,16 +530,18 @@ class Tables extends Component {
                     console.log("register response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
-                            dynamic_title: "Unassigned",
-                            dynamic_description: "Category Unassigned"
+                            dynamic_title: "Unpaused",
+                            dynamic_description: "QRCode Unpaused"
                         })
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
-                            dynamic_description: "Category not unassigned."
+                            dynamic_description: "QRCode not Unpaused."
                         })
                         var error = new Error('Error ' + response.status + ': ' + response.statusText);
                         error.response = response;
@@ -514,9 +550,10 @@ class Tables extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
-                        dynamic_description: "Category not assigned."
+                        dynamic_description: "QRCode not Unpaused."
                     })
                     console.log(error)
                 })
@@ -708,10 +745,6 @@ class Tables extends Component {
         })
     }
     render() {
-        const redirectToReferrer = this.state.redirectToReferrer;
-        if (redirectToReferrer === true) {
-            return <Redirect to="/" />
-        }
         let allItemRows = [];
         const { qrcodes, currentPage, tablesPerPage,upperPageBound,lowerPageBound,isPrevBtnActive,isNextBtnActive } = this.state;
         const indexOfLastTable = currentPage * tablesPerPage;
@@ -770,7 +803,7 @@ class Tables extends Component {
                     <SweetAlert
                         success
                         title={this.state.dynamic_title}
-                        onConfirm={() => this.setState({ success_dlg: false , redirectToReferrer: true})}
+                        onConfirm={() => this.state.dynamic_title !="Assigned" ? window.location.reload() : this.setState({ success_dlg: false , redirectToReferrer: true})}
                     >
                         {this.state.dynamic_description}
                     </SweetAlert>
@@ -820,6 +853,7 @@ class Tables extends Component {
                                 onSubmit={this.handleSubmit}
                                 id={"updateTableForm"}
                             ></Form>
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-nowrap mb-0" style={{textAlign:'center'}}>
                                 <thead className="thead-light">
                                     <tr>
@@ -845,6 +879,7 @@ class Tables extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                         </div>
                         <div className="row">
                             <div className="col-lg-12">

@@ -307,15 +307,15 @@ class Menu extends React.Component {
                                 </ul>
                             }
                         </div>
-                        <div className="pb-3 pl-4 pr-4 pp-buttons fixed-buttons">
+                        <div className="pp-buttons fixed-buttons">
                             <button className="order-button" onClick={() => this.openCheckout()} style={{backgroundColor:this.state.response['color']}} >
-                                <div className="w-100">
+                                <div className="">
                                     <div className="box top-padding-2 ml-2">
                                         {localStorage.getItem("totalCount")}
                                     </div>
                                     <div className="top-padding-3 order-price mr-2">€{localStorage.getItem("totalPrice")}</div>
                                 </div>
-                                <h5 className=" order-me-button w-100" style={{color:"white"}}>View OrderMe</h5>
+                                <h5 className="order-me-button" style={{color:"white"}}>View OrderMe</h5>
                             </button>
                         </div>
                     </div>

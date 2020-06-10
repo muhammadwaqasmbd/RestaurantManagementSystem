@@ -137,7 +137,7 @@ class Fee extends Component {
                                             <FormGroup className="mb-4" row>
                                                 <Col lg="12">
                                                     <label>Fee</label>
-                                                    <Input id="fee" name="fee" type="text" onChange={this.handleFormChange} value={this.state.fee} className="form-control" placeholder="Enter Username" />
+                                                    <Input id="fee" name="fee" type="text" onChange={this.handleFormChange} value={this.state.fee} className="form-control" placeholder="Percentage eg. 2" />
                                                 </Col>
                                             </FormGroup>
                                         </Form>

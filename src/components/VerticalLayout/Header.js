@@ -208,6 +208,7 @@ class Header extends Component {
                 <DropdownToggle className="btn header-item noti-icon waves-effect" tag="button">
                   <i className="bx bx-caret-down"></i>
                 </DropdownToggle>
+
                 <DropdownMenu className="dropdown-menu-sm" right style={{textAlign:"right"}}>
                   <div className="px-lg-2">
                     {restaurantItems}
@@ -220,13 +221,14 @@ class Header extends Component {
                 </DropdownToggle>
                 <DropdownMenu className="dropdown-menu-sm" right>
                   <div className="px-lg-2">
+                    {localStorage.getItem('isStuff') == "false" || localStorage.getItem('isStuff') == "null" ? "" :
                     <Row className="no-gutters">
                       <Col>
                       <Link to="/resturants" className="dropdown-icon-item">
                           <span>Restaurants</span>
                         </Link>
                       </Col>
-                    </Row>
+                    </Row>}
                     {localStorage.getItem('restaurantId') && localStorage.getItem('restaurantId') != "null" ?
 
                           <Row className="no-gutters">
