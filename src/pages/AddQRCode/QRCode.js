@@ -5,6 +5,7 @@ import {baseUrl} from "../../helpers/baseUrl";
 import QRCodeReact from 'qrcode.react';
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Redirect} from "react-router-dom";
+var Loader = require('react-loader');
 
 class QRCode extends Component {
     constructor(props) {
@@ -14,7 +15,8 @@ class QRCode extends Component {
             qrCode : '',
             success_dlg: false,
             error_dlg: false,
-            redirectToReferrer :false
+            redirectToReferrer :false,
+            loaded: true
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -82,6 +84,9 @@ class QRCode extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
@@ -117,6 +122,7 @@ class QRCode extends Component {
                     console.log("response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Created",
                             dynamic_description: "Record has been created."
@@ -124,6 +130,7 @@ class QRCode extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in creation."
@@ -135,6 +142,7 @@ class QRCode extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in deletion."
@@ -248,6 +256,7 @@ class QRCode extends Component {
                                 id="addMenuForm"
                             ></Form>
                         <div className="table-responsive">
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -260,6 +269,7 @@ class QRCode extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                         </div>
                     </CardBody>
                 </Card>

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Redirect} from "react-router-dom";
-import Loader from 'react-loader-spinner'
+var Loader = require('react-loader');
 
 class Category extends Component {
     constructor(props) {
@@ -16,7 +16,8 @@ class Category extends Component {
             success_dlg: false,
             error_dlg: false,
             redirectToReferrer: false,
-            proceeded : false
+            proceeded : false,
+            loaded: true
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -91,6 +92,9 @@ class Category extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
@@ -126,6 +130,7 @@ class Category extends Component {
                     console.log("category response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Created",
                             dynamic_description: "Record has been created."
@@ -133,6 +138,7 @@ class Category extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in creation."
@@ -144,6 +150,7 @@ class Category extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in creation."
@@ -241,15 +248,6 @@ class Category extends Component {
 
         return (
             <React.Fragment>
-               {/* {this.state.proceeded ?
-                    <Loader
-                        type="Puff"
-                        color="#00BFFF"
-                        height={100}
-                        width={100}
-
-                    />
-                 : ""}*/}
                 {this.state.success_dlg ? (
                     <SweetAlert
                         success
@@ -287,6 +285,7 @@ class Category extends Component {
                                 id="addMenuForm"
                             ></Form>
                         <div className="table-responsive">
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -301,6 +300,7 @@ class Category extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                         </div>
                     </CardBody>
                 </Card>

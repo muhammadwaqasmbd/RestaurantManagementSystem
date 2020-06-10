@@ -4,6 +4,7 @@ import styled from "styled-components";
 import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Redirect} from "react-router-dom";
+var Loader = require('react-loader');
 
 class Table extends Component {
     constructor(props) {
@@ -12,7 +13,8 @@ class Table extends Component {
             table_no : '',
             success_dlg: false,
             error_dlg: false,
-            redirectToReferrer: false
+            redirectToReferrer: false,
+            loaded: true
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -75,6 +77,9 @@ class Table extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
@@ -108,6 +113,7 @@ class Table extends Component {
                     console.log("register response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Created",
                             dynamic_description: "Record has been created."
@@ -115,6 +121,7 @@ class Table extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in creation."
@@ -126,6 +133,7 @@ class Table extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in deletion."
@@ -231,6 +239,7 @@ class Table extends Component {
                                 id="addMenuForm"
                             ></Form>
                         <div className="table-responsive">
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -243,6 +252,7 @@ class Table extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                         </div>
                     </CardBody>
                 </Card>

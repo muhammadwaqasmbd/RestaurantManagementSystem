@@ -138,6 +138,7 @@ import ProductMenuPage from "../Customer/ProductMenu";
 import ProductPageBase from "../Customer/ProductPage";
 import CheckoutPage from "../Customer/Checkout";
 import CustomerPage from "../Customer/Index";
+import ResetPasswordPage from "../pages/Authentication/ResetPassword"
 
 const authProtectedRoutes = [
 	{ path: "/admindashboard", component: AdminDashboard },
@@ -283,6 +284,7 @@ const publicRoutes = [
 	{ path: "/qr-code/:id", component: CustomerPage },
 	{ path: "/customerproduct", component: ProductPageBase },
 	{ path: "/customercheckout", component: CheckoutPage },
+	{ path: "/reset-password", component: ResetPasswordPage },
 ];
 
 export { authProtectedRoutes, publicRoutes };

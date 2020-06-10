@@ -6,6 +6,7 @@ import styled from "styled-components";
 import {baseUrl} from "../../helpers/baseUrl";
 import {Redirect} from "react-router-dom";
 import SweetAlert from "react-bootstrap-sweetalert";
+var Loader = require('react-loader');
 
 const Item = styled.div`
     padding: 8px;
@@ -49,7 +50,8 @@ class Menu extends Component {
             closeTime : '12:00',
             success_dlg: false,
             error_dlg: false,
-            redirectToReferrer : false
+            redirectToReferrer : false,
+            loaded: true
 
         };
         this.handleProductAdd = this.handleProductAdd.bind(this);
@@ -262,6 +264,9 @@ class Menu extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         let resId = localStorage.getItem('restaurantId')
         let isStuff = localStorage.getItem('isStuff')
@@ -302,6 +307,7 @@ class Menu extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Created",
                             dynamic_description: "Record has been created."
@@ -309,6 +315,7 @@ class Menu extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in creation."
@@ -321,6 +328,7 @@ class Menu extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in creation."
@@ -495,6 +503,7 @@ class Menu extends Component {
                                 id="addMenuForm"
                             ></Form>
                         <div className="table-responsive">
+                            <Loader loaded={this.state.loaded}>
                             <table className="table table-centered table-borderless table-nowrap mb-0">
                                 <thead className="thead-light">
                                     <tr>
@@ -510,6 +519,7 @@ class Menu extends Component {
                                 </tbody>
                                 
                             </table>
+                            </Loader>
                         </div>
                     </CardBody>
                 </Card>

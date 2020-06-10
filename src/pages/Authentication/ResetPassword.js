@@ -16,7 +16,7 @@ import { userForgetPassword } from "../../store/actions";
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/logo.svg";
 
-class ForgetPasswordPage extends Component {
+class ResetPasswordPage extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -46,7 +46,7 @@ class ForgetPasswordPage extends Component {
                       <Col className="col-7">
                         <div className="text-primary p-4">
                           <h5 className="text-primary">Welcome Back !</h5>
-                          <p>Sign in to continue to ORDER ME.</p>
+                          <p>Please Reset Password</p>
                         </div>
                       </Col>
                       <Col className="col-5 align-self-end">
@@ -84,11 +84,11 @@ class ForgetPasswordPage extends Component {
 
                         <div className="form-group">
                           <AvField
-                            name="email"
-                            label="Email"
+                            name="password"
+                            label="New password"
                             className="form-control"
-                            placeholder="Enter email"
-                            type="email"
+                            placeholder="Enter password"
+                            type="password"
                             required
                           />
                         </div>
@@ -133,5 +133,5 @@ const mapStatetoProps = state => {
 };
 
 export default withRouter(
-  connect(mapStatetoProps, { userForgetPassword })(ForgetPasswordPage)
+  connect(mapStatetoProps, { userForgetPassword })(ResetPasswordPage)
 );

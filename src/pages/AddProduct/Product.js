@@ -5,11 +5,19 @@ import { Container, Row, Col, Card, CardBody, InputGroup, CardTitle, Form, FormG
 import $ from 'jquery';
 import {baseUrl} from "../../helpers/baseUrl";
 import SweetAlert from "react-bootstrap-sweetalert";
+import Select from 'react-select';
+var Loader = require('react-loader');
 
 const dropzoneStyle = {
     width  : "100%",
     height : "10px",
 };
+
+const options = [
+    { value: 'chocolate', label: 'Chocolate' },
+    { value: 'strawberry', label: 'Strawberry' },
+    { value: 'vanilla', label: 'Vanilla' },
+];
 
 class Product extends Component {
     constructor() {
@@ -33,7 +41,9 @@ class Product extends Component {
             imageurl : '',
             thumburl : '',
             categories : [],
-            printers: []
+            printers: [],
+            loaded: true,
+            selectedOption: null,
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
         this.handleAcceptedThumnails = this.handleAcceptedThumnails.bind(this);
@@ -41,19 +51,30 @@ class Product extends Component {
         this.handleFormChange = this.handleFormChange.bind(this);
         this.addAttributeForm = this.addAttributeForm.bind(this);
         this.handleAttrChange = this.handleAttrChange.bind(this);
-        this.removeAttr = this.removeAttr.bind(this)
+        this.removeAttr = this.removeAttr.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount(){
+        const { selectedOption } = this.state;
         this.fetchRestaurants();
         if(this.props.id > 0){
             this.fetchProduct();
         }else{
             let attrs = []
-            attrs.push({"printer_id":"1temp","printer_number": "","printer_mac_address":""})
+            attrs.push({"id":"1temp","name": "","price":""})
             var array = this.state.attributes;
             array.push(
                 <div id={"attrrow" + this.state.count} key={"attrrow" + this.state.count}>
+                    {/*<FormGroup className="mb-4" row>
+                        <Col lg="12">
+                            <Select
+                                value={selectedOption}
+                                onChange = {this.handleChange(this.state.count+"temp")}
+                                options={options}
+                            />
+                        </Col>
+                    </FormGroup>*/}
                     <FormGroup className="mb-4" row>
                         <Col lg="12">
                             <Input id="name"
@@ -80,9 +101,24 @@ class Product extends Component {
                     </FormGroup>
                 </div>
             )
+            this.setState({
+                attrs: attrs,
+                attributes: array
+            })
         }
+
         this.fetchCategories();
     }
+
+    handleChange = id => (selectedOption) => {
+        alert(id)
+        alert(JSON.stringify(selectedOption))
+        this.setState({
+            attributes: [...this.state.attributes, {"name":selectedOption.value}]
+        })
+
+        this.setState({ selectedOption });
+    };
 
     fetchRestaurants(){
         let resId = localStorage.getItem('restaurantId')
@@ -301,9 +337,11 @@ class Product extends Component {
                     });
                     var count = parseInt(attrs[attrs.length - 1].id) + 1
                     this.setState({
-                        count: count
+                        count: count,
+                        attributes:array
                     });
                 }else{
+                    attrs.push({"id":"1temp","name": "","price":""})
                     array.push(
                         <div id={"attrrow" + this.state.count} key={"attrrow" + this.state.count}>
                             <FormGroup className="mb-4" row>
@@ -332,6 +370,10 @@ class Product extends Component {
                             </FormGroup>
                         </div>
                     )
+                    this.setState({
+                        attrs:attrs,
+                        attributes:array
+                    })
                 }
             })
             .catch(error => console.log(error))
@@ -381,6 +423,9 @@ class Product extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         console.log(this.state.name);
         console.log(this.state.description);
@@ -461,6 +506,7 @@ class Product extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Created",
                             dynamic_description: "Record has been created."
@@ -468,6 +514,7 @@ class Product extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in creation."
@@ -480,6 +527,7 @@ class Product extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in creation."
@@ -788,6 +836,7 @@ class Product extends Component {
                                                 </Col>
                                             </FormGroup>
                                         </Form>
+                                        <Loader loaded={this.state.loaded}>
                                         <Row className="justify-content-end">
                                             <Col lg="8">
                                                 <Button type="submit" color="primary" form="productForm" style={{width:"100%"}}>Save</Button>
@@ -796,6 +845,7 @@ class Product extends Component {
                                                 <Button type="cancel" color="white">Cancel</Button>
                                             </Col>
                                         </Row>
+                                        </Loader>
 
                                     </CardBody>
                                 </Card>

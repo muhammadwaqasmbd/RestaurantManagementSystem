@@ -149,8 +149,8 @@ class ProductPageBase extends React.Component {
                         <textarea placeholder="Add your comment." rows="4" className="w-100 border-dark pl-2 mt-2" name="comment"
                                   value={this.state.product.comment}
                                   onChange={this.handleChange}/>
-                        <input type="checkbox" name={"attributes"} onClick={this.handleAttrs}/>
-                        {this.state.showAttrs ? this.state.product.attributes : ""}
+                       {/* <input type="checkbox" name={"attributes"} onClick={this.handleAttrs}/>
+                        {this.state.showAttrs ? this.state.product.attributes : ""}*/}
                         <div className="row counter mt-2">
                             <span className="" onClick={() => this.onClick(-1)}><MinusLogo alt="minus" height="25px" width="25px" fill={this.context.primaryColor}/></span>
                             <h4 className="font-weight-bold counter" style={{color:this.state.color}}>{this.state.count}</h4>

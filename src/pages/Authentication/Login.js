@@ -17,11 +17,14 @@ import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/logo.svg";
 import SweetAlert from "react-bootstrap-sweetalert";
 
+var Loader = require('react-loader');
+
 class Login extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            loaded:true
         }
 
         // handleValidSubmit
@@ -30,6 +33,9 @@ class Login extends Component {
 
     // handleValidSubmit
     handleValidSubmit(event, values) {
+        this.setState({
+            loaded:false
+        })
         this.props.loginUser(values, this.props.history);
     }
 
@@ -86,7 +92,7 @@ class Login extends Component {
                                             </Link>
                                         </div>
                                         <div className="p-2">
-
+                                            <Loader loaded={this.state.loaded}>
                                             <AvForm className="form-horizontal" onValidSubmit={this.handleValidSubmit}>
 
                                                 {this.props.error && this.props.error ? <Alert color="danger">{this.props.error}</Alert> : null}
@@ -112,6 +118,7 @@ class Login extends Component {
                                                     <Link to="/forget-password" className="text-muted"><i className="mdi mdi-lock mr-1"></i> Forgot your password?</Link>
                                                 </div>
                                             </AvForm>
+                                            </Loader>
                                         </div>
                                     </CardBody>
                                 </Card>

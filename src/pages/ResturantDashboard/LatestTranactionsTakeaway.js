@@ -386,7 +386,7 @@ class LatestTranactionsRestaurant extends Component {
                                 <div className="col-lg-6 text-right">
                                     <ReactHTMLTableToExcel
                                         id="test-table-xls-button"
-                                        className="btn-success btn-rounded"
+                                        className="btn btn-success btn-rounded waves-effect waves-light btn btn-success"
                                         table="transaction-takeaway"
                                         filename="Takeaway Transactions"
                                         sheet="Takeaway Transactions"

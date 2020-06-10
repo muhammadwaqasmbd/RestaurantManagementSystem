@@ -22,6 +22,7 @@ class Restaurant extends Component {
             logoUrl : '',
             success_dlg: false,
             error_dlg: false,
+            loaded: true
         }
         this.handleAcceptedImages = this.handleAcceptedImages.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -44,6 +45,9 @@ class Restaurant extends Component {
     }
 
     handleSubmit(event) {
+        this.setState({
+            loaded: false
+        })
         event.preventDefault();
         console.log(this.state.color);
         console.log(this.state.name);
@@ -88,6 +92,7 @@ class Restaurant extends Component {
                     console.log(" response: ",response)
                     if (response.ok) {
                         this.setState({
+                            loaded: true,
                             success_dlg: true,
                             dynamic_title: "Saved",
                             dynamic_description: "Record has been saved."
@@ -95,6 +100,7 @@ class Restaurant extends Component {
                         return response;
                     } else {
                         this.setState({
+                            loaded: true,
                             error_dlg: true,
                             dynamic_title: "Error",
                             dynamic_description: "Error in saving the record."
@@ -107,6 +113,7 @@ class Restaurant extends Component {
                 },
                 error => {
                     this.setState({
+                        loaded: true,
                         error_dlg: true,
                         dynamic_title: "Error",
                         dynamic_description: "Error in saving the record."
@@ -276,12 +283,13 @@ class Restaurant extends Component {
                                             </FormGroup>
                                             
                                         </Form>
+                                        <Loader loaded={this.state.loaded}>
                                         <Row className="justify-content-end">
                                             <Col lg="12">
                                                 <Button type="submit" color="primary" form="restaurantForm" style={{width:"100%"}}>Save</Button>
                                             </Col>
                                         </Row>
-
+                                        </Loader>
                                     </CardBody>
                                 </Card>
             </React.Fragment>
