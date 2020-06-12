@@ -262,7 +262,7 @@ class CheckoutBase extends React.Component {
             <div className="checkout-wrapper">
                 <div style={{height:"20px",backgroundColor:this.state.color}}></div>
                 <div className="checkout-products">
-                    <div className="checkout-your-order">
+                    <divtake_away className="checkout-your-order">
                         <h5 className="font-weight-bold my-basket" style={{color:this.state.color}}>My Basket</h5>
                         <span id="close-x" onClick={() => this.props.history.push({
                             pathname: '/qr-code/'+localStorage.getItem('qrcode')+'',
@@ -270,7 +270,7 @@ class CheckoutBase extends React.Component {
                         })}>
                             <CloseLogo alt="close" height="15px" width="15px" fill={this.context.primaryColor}/>
                         </span>
-                    </div>
+                    </divtake_away>
                     {this.state.noProduct ?
                         <div className="checkout-items">
                             <h5>There are no Products in your basket</h5>
